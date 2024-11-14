@@ -1,6 +1,6 @@
 name: '${name}'
 version: '${version}'
-main: fr.groupez.smartchest.ZSmartChest
+main: fr.tarqueur.smartchest.ZSmartChest
 api-version: '1.21'
 depend:
   - zMenu
