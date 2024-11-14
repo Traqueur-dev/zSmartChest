@@ -1,0 +1,138 @@
+plugins {
+    id 'java'
+    id 'io.github.goooler.shadow' version '8.1.8'
+}
+
+def propertiesFile = file("personal.properties")
+
+if (propertiesFile.exists()) {
+    def properties = new Properties()
+    propertiesFile.withInputStream { stream ->
+        properties.load(stream)
+    }
+
+    properties.each { key, value ->
+        project.ext[key] = value
+    }
+}
+
+project.ext {
+    javaVersion = property('java.version')
+    spigotVersion = property('spigot.version')
+    targetFolder = file('target/')
+    apiFolder = file('target-api/')
+}
+
+allprojects {
+
+    group = 'fr.groupez'
+    version = property('plugin.version')
+
+    apply {
+        plugin 'java'
+        plugin 'io.github.goooler.shadow'
+    }
+
+    repositories {
+        mavenCentral()
+        maven {
+            name = "jitpack"
+            url = 'https://jitpack.io'
+        }
+        maven {
+            name = "spigotmc-repo"
+            url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/groups/public/"
+        }
+        maven {
+            name = "minecraft-repo"
+            url = "https://libraries.minecraft.net/"
+        }
+        maven {
+            url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/'
+        }
+    }
+
+    dependencies {
+        compileOnly "org.spigotmc:spigot-api:${rootProject.spigotVersion}-R0.1-SNAPSHOT"
+        compileOnly "dev.dejvokep:boosted-yaml:1.3.6"
+        compileOnly "net.kyori:adventure-text-minimessage:4.17.0"
+        compileOnly "net.kyori:adventure-api:4.17.0"
+        compileOnly "net.kyori:adventure-platform-bukkit:4.3.4"
+        compileOnly 'me.clip:placeholderapi:2.11.6'
+        compileOnly 'com.mojang:authlib:3.11.50'
+
+        implementation "com.github.technicallycoded:FoliaLib:main-SNAPSHOT"
+        implementation 'com.github.Maxlego08:Sarah:1.12'
+        implementation 'com.github.Traqueur-dev:CommandsAPI:2.0.0'
+
+        compileOnly 'com.github.Maxlego08:zMenu-API:303d4e9178'
+    }
+
+}
+
+dependencies {
+    implementation project(':API')
+}
+
+shadowJar {
+    dependsOn(jar)
+
+    relocate 'fr.maxlego08.sarah', "fr.groupez.api.orm"
+    relocate 'fr.traqueur.commands', 'fr.groupez.api.commands'
+    relocate 'com.tcoded.folialib', 'fr.groupez.api.scheduler'
+
+    archiveFileName = rootProject.name + "-" + rootProject.version + ".jar"
+    destinationDirectory = rootProject.targetFolder
+}
+
+def targetJavaVersion = javaVersion as int
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release.set(targetJavaVersion)
+    }
+}
+
+processResources {
+    def props = [version: version, name: rootProject.name]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('**/*.yml') {
+        expand props
+    }
+}
+
+tasks.register('publish') {
+    dependsOn ':API:publish'
+}
+
+tasks.register('copyFiles', Copy) {
+    from "${rootProject.targetFolder}"
+    into rootProject.testFolder
+}
+
+if(propertiesFile.exists()) {
+    shadowJar.finalizedBy('copyFiles')
+} else {
+    println "No personal.properties file found, skipping copyFiles task"
+}
+
+build.finalizedBy(shadowJar)
+build.shouldRunAfter subprojects.build
+
+shadowJar.dependsOn subprojects.build
+compileJava.dependsOn childProjects.values().shadowJar
