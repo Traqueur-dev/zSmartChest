@@ -1,6 +1,6 @@
 name: '${name}'
 version: '${version}'
-main: fr.tarqueur.smartchest.ZSmartChest
+main: fr.traqueur.storageplus.ZStoragePlus
 api-version: '1.21'
 depend:
   - zMenu
