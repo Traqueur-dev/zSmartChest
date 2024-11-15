@@ -13,6 +13,8 @@ public interface StoragePlusManager extends Manager {
 
     Map<String, SmartChest> getSmartChests();
 
+    Optional<SmartChest> getChestFromBlock(Location location);
+
     void placeChest(Location location, SmartChest chest);
 
     void breakChest(Location location);

@@ -46,6 +46,14 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
+    public Optional<SmartChest> getChestFromBlock(Location location) {
+        Chunk chunk = location.getChunk();
+        PersistentDataContainer container = chunk.getPersistentDataContainer();
+        List<ChestLocation> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
+        return chests.stream().filter(e -> this.locationEquals(e.location(), location)).findFirst().map(e -> this.getSmartChest(e.chestName()));
+    }
+
+    @Override
     public void placeChest(Location location, SmartChest chest) {
         Chunk chunk = location.getChunk();
         PersistentDataContainer container = chunk.getPersistentDataContainer();
