@@ -2,7 +2,7 @@ package fr.traqueur.storageplus.commands.converters;
 
 import fr.traqueur.commands.api.arguments.ArgumentConverter;
 import fr.traqueur.commands.api.arguments.TabCompleter;
-import fr.traqueur.storageplugs.api.SmartChest;
+import fr.traqueur.storageplugs.api.domains.SmartChest;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import org.bukkit.command.CommandSender;
 

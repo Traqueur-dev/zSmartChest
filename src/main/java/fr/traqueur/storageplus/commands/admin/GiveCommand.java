@@ -3,7 +3,7 @@ package fr.traqueur.storageplus.commands.admin;
 import fr.groupez.api.commands.ZCommand;
 import fr.groupez.api.messaging.Messages;
 import fr.traqueur.commands.api.Arguments;
-import fr.traqueur.storageplugs.api.SmartChest;
+import fr.traqueur.storageplugs.api.domains.SmartChest;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import org.bukkit.command.CommandSender;

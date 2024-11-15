@@ -6,7 +6,7 @@ import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
 import fr.maxlego08.menu.button.loader.NoneLoader;
 import fr.maxlego08.menu.exceptions.InventoryException;
-import fr.traqueur.storageplugs.api.SmartChest;
+import fr.traqueur.storageplugs.api.domains.SmartChest;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.buttons.ZChestContentButton;
