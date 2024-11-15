@@ -1,6 +1,7 @@
 
 package fr.groupez.api.messaging.types;
 
+import fr.groupez.api.messaging.Formatter;
 import fr.groupez.api.messaging.Messages;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -20,7 +21,7 @@ public interface ZMessage {
      */
     MessageType messageType();
 
-    void send(CommandSender sender);
+    void send(CommandSender sender, Formatter... formatters);
 
     default String getMessage(String message) {
         message = message.replace("§", "&");

@@ -12,7 +12,8 @@ public class ReloadCommand extends ZCommand<StoragePlusPlugin> {
 
     public ReloadCommand(StoragePlusPlugin plugin) {
         super(plugin, "reload");
-        
+
+        this.setUsage("<color:#92bed8>/storageplus reload");
         this.setDescription(Messages.DESCRIPTION_RELOAD.toString());
     }
 

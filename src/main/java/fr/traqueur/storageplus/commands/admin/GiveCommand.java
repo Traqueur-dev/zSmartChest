@@ -1,6 +1,7 @@
 package fr.traqueur.storageplus.commands.admin;
 
 import fr.groupez.api.commands.ZCommand;
+import fr.groupez.api.messaging.Messages;
 import fr.traqueur.commands.api.Arguments;
 import fr.traqueur.storageplugs.api.SmartChest;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
@@ -16,6 +17,9 @@ public class GiveCommand extends ZCommand<StoragePlusPlugin> {
         super(plugin, "give");
 
         this.storagePlusManager = plugin.getManager(StoragePlusManager.class);
+
+        this.setUsage("<color:#92bed8>/storageplus give &f<chest>");
+        this.setDescription(Messages.DESCRIPTION_GIVE_COMMAND.toString());
 
         this.addArgs("chest", SmartChest.class);
 

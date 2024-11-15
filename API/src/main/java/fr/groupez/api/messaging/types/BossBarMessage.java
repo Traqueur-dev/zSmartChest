@@ -2,6 +2,7 @@ package fr.groupez.api.messaging.types;
 
 import fr.groupez.api.ZLogger;
 import fr.groupez.api.ZPlugin;
+import fr.groupez.api.messaging.Formatter;
 import fr.groupez.api.placeholder.Placeholders;
 import fr.groupez.api.zcore.BossBarAnimation;
 import net.kyori.adventure.bossbar.BossBar;
@@ -24,9 +25,13 @@ public record BossBarMessage(String text, String color, String overlay, List<Str
     }
 
     @Override
-    public void send(CommandSender sender) {
+    public void send(CommandSender sender, Formatter... formatters) {
         if (sender instanceof Player player) {
-            BossBar bossBar = BossBar.bossBar(Component.text(Placeholders.parse(player, getMessage(text))), 1, getColor(), getOverlay(), getFlags());
+            String message = getMessage(text);
+            for (Formatter formatter : formatters) {
+                message = formatter.handle(JavaPlugin.getPlugin(ZPlugin.class), message);
+            }
+            BossBar bossBar = BossBar.bossBar(Component.text(Placeholders.parse(player, message)), 1, getColor(), getOverlay(), getFlags());
             new BossBarAnimation(JavaPlugin.getPlugin(ZPlugin.class), player, bossBar, this.duration());
         }
     }

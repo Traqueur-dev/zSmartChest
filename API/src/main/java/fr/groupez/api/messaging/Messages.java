@@ -26,12 +26,13 @@ public enum Messages {
     COMMAND_NO_PERMISSION("&cYou do not have permission to run this command."),
     COMMAND_NO_CONSOLE("&cOnly one player can execute this command."),
     COMMAND_NO_ARG("&cImpossible to find the command with its arguments."),
-    COMMAND_SYNTAX_HELP("&f%syntax% &7» &7%description%"),
+    COMMAND_SYNTAX_HELP(MessageType.WITHOUT_PREFIX, "%syntax% &f» &7%description%"),
     NO_REQUIREMENT("&cYou do not have the necessary requirements to execute this command."),
 
     RELOAD("&aYou have just reloaded the configuration files."),
     DESCRIPTION_RELOAD("Reload configuration files"),
 
+    DESCRIPTION_GIVE_COMMAND("Give a chest to a player."),
     ;
 
     private final ZMessage message;
@@ -62,8 +63,8 @@ public enum Messages {
         this.message = new BossBarMessage(text, color, overlay, flags, duration, isStatic);
     }
 
-    public void send(CommandSender sender) {
-        this.message.send(sender);
+    public void send(CommandSender sender, Formatter... formatters) {
+        this.message.send(sender, formatters);
     }
 
     public String toString() {
