@@ -1,16 +1,13 @@
 package fr.groupez.api.messaging;
 
-import fr.groupez.api.messaging.types.BossBarMessage;
-import fr.groupez.api.messaging.types.ClassicMessage;
-import fr.groupez.api.messaging.types.TitleMessage;
-import fr.groupez.api.messaging.types.ZMessage;
+import fr.groupez.api.messaging.types.*;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
 public enum Messages {
 
-    PREFIX("&8(<red>zStoragePlus&8) "),
+    PREFIX("<gray>[<color:#92bed8>ᴢsᴛᴏʀᴀɢᴇᴘʟᴜs<gray>] "),
 
     TIME_DAY("%02d %day% %02d %hour% %02d %minute% %02d %second%"),
     TIME_HOUR("%02d %hour% %02d minute(s) %02d %second%"),
@@ -41,6 +38,18 @@ public enum Messages {
 
     Messages(String... messages) {
         this.message = ClassicMessage.tchat(messages);
+    }
+
+    Messages(MessageType type, String message) {
+        if(type == MessageType.ACTION) {
+            this.message = ClassicMessage.action(message);
+        } else if (type == MessageType.WITHOUT_PREFIX) {
+            this.message = ClassicMessage.withoutPrefix(message);
+        } else if (type == MessageType.CENTER) {
+            this.message = ClassicMessage.center(message);
+        } else {
+            throw new UnsupportedOperationException("Unsupported message type for message " + this.name());
+        }
     }
 
     Messages(String title, String subtitle, long start, long time,

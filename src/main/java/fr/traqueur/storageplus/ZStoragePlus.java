@@ -4,10 +4,14 @@ import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.configurations.Configuration;
 import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
+import fr.maxlego08.menu.button.loader.NoneLoader;
 import fr.maxlego08.menu.exceptions.InventoryException;
+import fr.traqueur.storageplugs.api.SmartChest;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.buttons.ZChestContentButton;
 import fr.traqueur.storageplus.commands.StoragePlusCommand;
+import fr.traqueur.storageplus.commands.converters.SmartChestConverter;
 
 public final class ZStoragePlus extends StoragePlusPlugin {
 
@@ -17,7 +21,9 @@ public final class ZStoragePlus extends StoragePlusPlugin {
     public void enable() {
 
         MainConfiguration configuration = Configuration.register(MainConfiguration.class, new ZMainConfiguration());
-        configuration.loadConfig();
+        configuration.load();
+
+        this.commandManager.setDebug(configuration.isDebug());
 
         ButtonManager buttonManager = this.getProvider(ButtonManager.class);
         this.inventoryManager = this.getProvider(InventoryManager.class);
@@ -29,6 +35,7 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         }
 
         buttonManager.unregisters(this);
+        buttonManager.register(new NoneLoader(this, ZChestContentButton.class, "ZSTORAGEPLUS_CONTENT"));
 
         this.loadInventories();
 
@@ -38,7 +45,9 @@ public final class ZStoragePlus extends StoragePlusPlugin {
             }
         });
 
-        this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
+        var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
+
+        this.commandManager.registerConverter(SmartChest.class, new SmartChestConverter(manager));
 
         this.loadCommands();
     }
@@ -52,6 +61,11 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         var command = new StoragePlusCommand(this);
         this.commandManager.unregisterCommand(command);
         this.commandManager.registerCommand(command);
+    }
+
+    @Override
+    public boolean isDebug() {
+        return Configuration.get(MainConfiguration.class).isDebug();
     }
 
     public void loadInventories() {

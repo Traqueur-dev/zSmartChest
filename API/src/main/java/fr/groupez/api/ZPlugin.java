@@ -119,8 +119,9 @@ public abstract class ZPlugin extends JavaPlugin {
         return getProvider(clazz);
     }
 
-    public <I extends Manager<? extends ZPlugin>, T extends I> void registerManager(Class<I> clazz, T manager) {
+    public <I extends Manager<? extends ZPlugin>, T extends I> I registerManager(Class<I> clazz, T manager) {
         getServer().getServicesManager().register(clazz, manager, this, org.bukkit.plugin.ServicePriority.Normal);
+        return manager;
     }
 
     protected <T> T getProvider(Class<T> clazz) {
