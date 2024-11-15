@@ -1,14 +1,14 @@
 package fr.groupez.api.zcore;
 
-import fr.groupez.api.ZConfiguration;
+import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.configurations.Configuration;
-import fr.maxlego08.menu.zcore.utils.ZUtils;
 
-/**
- * Utility class for measuring elapsed time between start and end points.
- * Extends {@link ZUtils}.
- */
-public class ElapsedTime extends ZUtils {
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.Locale;
+
+public class ElapsedTime {
 
 	private long start;
 	private long end;
@@ -70,8 +70,16 @@ public class ElapsedTime extends ZUtils {
 	 */
 	public void endDisplay() {
 		this.end();
-		if (Configuration.get(ZConfiguration.class).isDebug()) {
-			System.out.println("[ElapsedTime] " + name + " -> " + super.format(this.getElapsedTime(), ' '));
+		if (Configuration.get(MainConfiguration.class).isDebug()) {
+			System.out.println("[ElapsedTime] " + name + " -> " + this.format(this.getElapsedTime()));
 		}
+	}
+
+	public String format(long l) {
+		DecimalFormat formatter = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+		DecimalFormatSymbols symbols = formatter.getDecimalFormatSymbols();
+		symbols.setGroupingSeparator(' ');
+		formatter.setDecimalFormatSymbols(symbols);
+		return formatter.format(l);
 	}
 }

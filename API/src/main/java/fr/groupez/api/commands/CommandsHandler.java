@@ -1,31 +1,31 @@
 package fr.groupez.api.commands;
 
-import fr.groupez.api.messaging.Message;
+import fr.groupez.api.messaging.Messages;
 import fr.traqueur.commands.api.logging.MessageHandler;
 
 public class CommandsHandler implements MessageHandler {
     @Override
     public String getNoPermissionMessage() {
-        return Message.COMMAND_NO_PERMISSION.getMessage();
+        return Messages.COMMAND_NO_PERMISSION.toString();
     }
 
     @Override
     public String getOnlyInGameMessage() {
-        return Message.COMMAND_NO_CONSOLE.getMessage();
+        return Messages.COMMAND_NO_CONSOLE.toString();
     }
 
     @Override
     public String getMissingArgsMessage() {
-        return Message.COMMAND_SYNTAX_ERROR.getMessage();
+        return Messages.COMMAND_SYNTAX_ERROR.toString();
     }
 
     @Override
     public String getArgNotRecognized() {
-        return Message.ARG_NOT_RECOGNIZED.getMessage();
+        return Messages.COMMAND_NO_ARG.toString();
     }
 
     @Override
     public String getRequirementMessage() {
-        return Message.NO_REQUIREMENT.getMessage();
+        return Messages.NO_REQUIREMENT.toString();
     }
 }

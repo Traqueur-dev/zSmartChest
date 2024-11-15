@@ -1,0 +1,18 @@
+name: "%vault_name%"
+size: 54
+items:
+  content:
+    type: ZSTORAGEPLUS_CONTENT
+    slots:
+      - 10-43
+decorations:
+  isPermanent: true
+  item:
+    material: BLACK_STAINED_GLASS_PANE
+    name: "&e"
+  slots:
+    - 0-9
+    - 17-18
+    - 26-27
+    - 35-36
+    - 44-53

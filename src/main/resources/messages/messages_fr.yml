@@ -1,0 +1,24 @@
+prefix: '&8(&6zStoragePlus&8) '
+inventory-clone-null: '&cLe clone d’inventaire est nul !'
+inventory-open-error: '&cUne erreur est survenue lors de l’ouverture de l’inventaire &6%id%&c.'
+time-day: '%02d %jour% %02d %heure% %02d %minute% %02d %seconde%'
+time-hour: '%02d %heure% %02d minute(s) %02d %seconde%'
+time-minute: '%02d %minute% %02d %seconde%'
+time-second: '%02d %seconde%'
+format-second: "seconde"
+format-seconds: "secondes"
+format-minute: "minute"
+format-minutes: "minutes"
+format-hour: "heure"
+format-hours: "heures"
+format-day: "j"
+format-days: "jours"
+command-syntax-error: '&cVous devez exécuter la commande comme ceci&7: &a%syntax%'
+command-no-permission: '&cVous n’avez pas la permission d’exécuter cette commande.'
+command-no-console: '&cSeul un joueur peut exécuter cette commande.'
+command-no-arg: '&cImpossible de trouver la commande avec ses arguments.'
+command-syntaxe-help: '&f%syntax% &7» &7%description%'
+reload: '&aVous venez de recharger les fichiers de configuration.'
+description-reload: "Recharger les fichiers de configuration"
+arg-not-recognized: '&cArgument &e%arg% &cnon reconnu.'
+no-requirement: '&cLa condition %requirement% n’a pas été remplie.'

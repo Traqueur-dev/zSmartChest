@@ -1,7 +1,7 @@
 package fr.groupez.api.zcore.builders;
 
 
-import fr.groupez.api.messaging.Message;
+import fr.groupez.api.messaging.Messages;
 
 public class TimerBuilder {
 
@@ -13,11 +13,11 @@ public class TimerBuilder {
         long minutes = totalSecs % 3600L / 60L;
         long seconds = totalSecs % 60L;
 
-        String message = Message.TIME_DAY.msg();
-        message = message.replace("%second%", (seconds <= 1 ? Message.FORMAT_SECOND : Message.FORMAT_SECONDS).msg());
-        message = message.replace("%minute%", (minutes <= 1 ? Message.FORMAT_MINUTE : Message.FORMAT_MINUTES).msg());
-        message = message.replace("%hour%", (hours <= 1 ? Message.FORMAT_HOUR : Message.FORMAT_HOURS).msg());
-        message = message.replace("%day%", (days <= 1 ? Message.FORMAT_DAY : Message.FORMAT_DAYS).msg());
+        String message = Messages.TIME_DAY.toString();
+        message = message.replace("%second%", (seconds <= 1 ? Messages.FORMAT_SECOND : Messages.FORMAT_SECONDS).toString());
+        message = message.replace("%minute%", (minutes <= 1 ? Messages.FORMAT_MINUTE : Messages.FORMAT_MINUTES).toString());
+        message = message.replace("%hour%", (hours <= 1 ? Messages.FORMAT_HOUR : Messages.FORMAT_HOURS).toString());
+        message = message.replace("%day%", (days <= 1 ? Messages.FORMAT_DAY : Messages.FORMAT_DAYS).toString());
         return format(String.format(message, days, hours, minutes, seconds));
     }
 
@@ -28,10 +28,10 @@ public class TimerBuilder {
         long minutes = totalSecs % 3600L / 60L;
         long seconds = totalSecs % 60L;
 
-        String message = Message.TIME_HOUR.msg();
-        message = message.replace("%second%", (seconds <= 1 ? Message.FORMAT_SECOND : Message.FORMAT_SECONDS).msg());
-        message = message.replace("%minute%", (minutes <= 1 ? Message.FORMAT_MINUTE : Message.FORMAT_MINUTES).msg());
-        message = message.replace("%hour%", (hours <= 1 ? Message.FORMAT_HOUR : Message.FORMAT_HOURS).msg());
+        String message = Messages.TIME_HOUR.toString();
+        message = message.replace("%second%", (seconds <= 1 ? Messages.FORMAT_SECOND : Messages.FORMAT_SECONDS).toString());
+        message = message.replace("%minute%", (minutes <= 1 ? Messages.FORMAT_MINUTE : Messages.FORMAT_MINUTES).toString());
+        message = message.replace("%hour%", (hours <= 1 ? Messages.FORMAT_HOUR : Messages.FORMAT_HOURS).toString());
         return format(String.format(message, hours, minutes, seconds));
     }
 
@@ -42,9 +42,9 @@ public class TimerBuilder {
         long minutes = totalSecs % 3600L / 60L;
         long seconds = totalSecs % 60L;
 
-        String message = Message.TIME_MINUTE.msg();
-        message = message.replace("%second%", (seconds <= 1 ? Message.FORMAT_SECOND : Message.FORMAT_SECONDS).msg());
-        message = message.replace("%minute%", (minutes <= 1 ? Message.FORMAT_MINUTE : Message.FORMAT_MINUTES).msg());
+        String message = Messages.TIME_MINUTE.toString();
+        message = message.replace("%second%", (seconds <= 1 ? Messages.FORMAT_SECOND : Messages.FORMAT_SECONDS).toString());
+        message = message.replace("%minute%", (minutes <= 1 ? Messages.FORMAT_MINUTE : Messages.FORMAT_MINUTES).toString());
         return format(String.format(message, minutes, seconds));
     }
 
@@ -52,8 +52,8 @@ public class TimerBuilder {
         long totalSecs = temps / 1000L;
 
         long seconds = totalSecs % 60L;
-        String message = Message.TIME_SECOND.msg();
-        message = message.replace("%second%", (seconds <= 1 ? Message.FORMAT_SECOND : Message.FORMAT_SECONDS).msg());
+        String message = Messages.TIME_SECOND.toString();
+        message = message.replace("%second%", (seconds <= 1 ? Messages.FORMAT_SECOND : Messages.FORMAT_SECONDS).toString());
         return format(String.format(message, seconds));
     }
 
@@ -70,10 +70,10 @@ public class TimerBuilder {
     }
 
     public static String format(String message) {
-        message = message.replace(" 00 " + Message.FORMAT_SECOND.msg(), "");
-        message = message.replace(" 00 " + Message.FORMAT_HOUR.msg(), "");
-        message = message.replace(" 00 " + Message.FORMAT_DAY.msg(), "");
-        message = message.replace(" 00 " + Message.FORMAT_MINUTE.msg(), "");
+        message = message.replace(" 00 " + Messages.FORMAT_SECOND.toString(), "");
+        message = message.replace(" 00 " + Messages.FORMAT_HOUR.toString(), "");
+        message = message.replace(" 00 " + Messages.FORMAT_DAY.toString(), "");
+        message = message.replace(" 00 " + Messages.FORMAT_MINUTE.toString(), "");
         return message;
     }
 }

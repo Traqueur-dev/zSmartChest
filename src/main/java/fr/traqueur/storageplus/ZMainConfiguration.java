@@ -1,16 +1,16 @@
-package fr.groupez.api;
+package fr.traqueur.storageplus;
 
-import fr.groupez.api.configurations.Configuration;
+import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.configurations.NonLoadable;
 
-public class ZConfiguration implements Configuration {
+public class ZMainConfiguration implements MainConfiguration {
 
     @NonLoadable
     private boolean load;
 
     private boolean debug;
 
-    public ZConfiguration() {
+    public ZMainConfiguration() {
         this.load = false;
     }
 
@@ -29,6 +29,7 @@ public class ZConfiguration implements Configuration {
         return load;
     }
 
+    @Override
     public boolean isDebug() {
         return debug;
     }
