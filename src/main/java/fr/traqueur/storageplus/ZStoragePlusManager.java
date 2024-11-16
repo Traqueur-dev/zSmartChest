@@ -8,6 +8,7 @@ import fr.maxlego08.menu.exceptions.InventoryException;
 import fr.maxlego08.menu.loader.MenuItemStackLoader;
 import fr.maxlego08.menu.zcore.utils.loader.Loader;
 import fr.traqueur.storageplugs.api.domains.PlacedChest;
+import fr.traqueur.storageplugs.api.gui.ChestMenu;
 import fr.traqueur.storageplus.domains.ZPlacedChest;
 import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
@@ -16,6 +17,7 @@ import fr.traqueur.storageplus.domains.ZChestTemplate;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -32,9 +34,14 @@ import java.util.stream.Stream;
 public class ZStoragePlusManager implements StoragePlusManager {
 
     private final Map<String, ChestTemplate> smartChests;
+    private final Map<UUID, PlacedChest> openedChests;
+    private final Map<Location, Inventory> mapInventoryOpened;
+
 
     public ZStoragePlusManager() {
         this.smartChests = new HashMap<>();
+        this.openedChests = new HashMap<>();
+        this.mapInventoryOpened = new HashMap<>();
 
         this.registerChests();
 
@@ -48,11 +55,11 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
-    public Optional<ChestTemplate> getChestFromBlock(Location location) {
+    public Optional<PlacedChest> getChestFromBlock(Location location) {
         Chunk chunk = location.getChunk();
         PersistentDataContainer container = chunk.getPersistentDataContainer();
         List<PlacedChest> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
-        return chests.stream().filter(e -> this.locationEquals(e.getLocation(), location)).findFirst().map(PlacedChest::getChestTemplate);
+        return chests.stream().filter(e -> this.locationEquals(e.getLocation(), location)).findFirst();
     }
 
     @Override
@@ -163,6 +170,42 @@ public class ZStoragePlusManager implements StoragePlusManager {
         return new ZPlacedChest(UUID.fromString(parts[6]),new Location(world, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])), this.getSmartChest(parts[4]), Long.parseLong(parts[5]));
     }
 
+    @Override
+    public void openChest(Player player, PlacedChest chest) {
+        if(this.mapInventoryOpened.containsKey(chest.getLocation())) {
+            player.openInventory(this.mapInventoryOpened.get(chest.getLocation()));
+            return;
+        }
+        this.openedChests.put(player.getUniqueId(), chest);
+        chest.getChestTemplate().open(this.getPlugin(), player);
+    }
+
+    @Override
+    public void closeChest(Player player) {
+        PlacedChest chest = this.openedChests.remove(player.getUniqueId());
+        if(chest == null) {
+            return;
+        }
+        this.mapInventoryOpened.remove(chest.getLocation());
+        this.saveChest(chest);
+    }
+
+    @Override
+    public void postOpenChest(Player player, Inventory spigotInventory) {
+        this.mapInventoryOpened.put(this.openedChests.get(player.getUniqueId()).getLocation(), spigotInventory);
+    }
+
+    private void saveChest(PlacedChest chest) {
+        if (this.getPlugin().isDebug()) {
+            ZLogger.info("Saving chest " + chest.getChestTemplate().getName() + " at " + chest.getLocation());
+        }
+        Chunk chunk = chest.getLocation().getChunk();
+        List<PlacedChest> chests = this.getChestsInChunk(chunk);
+        chests.removeIf(e -> this.locationEquals(e.getLocation(), chest.getLocation()));
+        chests.add(chest);
+        this.saveChestsInChunk(chunk, chests);
+    }
+
     private void saveChestsInChunk(Chunk loadedChunk, List<PlacedChest> chests) {
         PersistentDataContainer container = loadedChunk.getPersistentDataContainer();
         container.set(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), chests);
@@ -179,7 +222,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
         try {
             String fileName = file.getPath();
             fileName = fileName.replace(this.getPlugin().getDataFolder().getPath(), "");
-            this.getPlugin().getInventoryManager().loadInventory(getPlugin(), fileName);
+            this.getPlugin().getInventoryManager().loadInventory(getPlugin(), fileName, ChestMenu.class);
             YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
             name = file.getName().replace(".yml", "");
             MenuItemStack menuItemStack;

@@ -5,6 +5,7 @@ import fr.traqueur.storageplugs.api.domains.PlacedChest;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -14,7 +15,7 @@ public interface StoragePlusManager extends Manager {
 
     Map<String, ChestTemplate> getSmartChests();
 
-    Optional<ChestTemplate> getChestFromBlock(Location location);
+    Optional<PlacedChest> getChestFromBlock(Location location);
 
     void placeChest(Player player, Location location, ChestTemplate chest);
 
@@ -33,4 +34,10 @@ public interface StoragePlusManager extends Manager {
     void handleAutoSell();
 
     PlacedChest deserializeChest(String s);
+    
+    void openChest(Player player, PlacedChest chest);
+    
+    void closeChest(Player player);
+
+    void postOpenChest(Player player, Inventory spigotInventory);
 }
