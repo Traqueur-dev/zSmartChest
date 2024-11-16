@@ -1,7 +1,7 @@
-package fr.traqueur.storageplus;
+package fr.traqueur.storageplus.domains;
 
 import fr.maxlego08.menu.MenuItemStack;
-import fr.traqueur.storageplugs.api.domains.SmartChest;
+import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import org.bukkit.entity.Player;
@@ -10,18 +10,30 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-public class ZSmartChest implements SmartChest {
+public class ZChestTemplate implements ChestTemplate {
 
     private final StoragePlusPlugin plugin;
     private final String name;
     private final MenuItemStack item;
     private final boolean autoSell;
+    private final long sellDelay;
 
-    public ZSmartChest(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell) {
+    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
+        this.sellDelay = sellDelay;
         this.plugin = plugin;
+    }
+
+    @Override
+    public long getSellDelay() {
+        return this.sellDelay;
+    }
+
+    @Override
+    public boolean isAutoSell() {
+        return this.autoSell;
     }
 
     @Override

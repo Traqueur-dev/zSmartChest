@@ -1,13 +1,11 @@
 package fr.traqueur.storageplus;
 
 import fr.groupez.api.MainConfiguration;
-import fr.groupez.api.ZLogger;
 import fr.groupez.api.configurations.Configuration;
 import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
 import fr.maxlego08.menu.button.loader.NoneLoader;
-import fr.maxlego08.menu.exceptions.InventoryException;
-import fr.traqueur.storageplugs.api.domains.SmartChest;
+import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.buttons.ZChestContentButton;
@@ -54,7 +52,7 @@ public final class ZStoragePlus extends StoragePlusPlugin {
 
         var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
 
-        this.commandManager.registerConverter(SmartChest.class, new SmartChestConverter(manager));
+        this.commandManager.registerConverter(ChestTemplate.class, new SmartChestConverter(manager));
 
         this.loadCommands();
     }

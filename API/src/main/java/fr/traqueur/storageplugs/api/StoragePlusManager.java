@@ -1,6 +1,7 @@
 package fr.traqueur.storageplugs.api;
 
-import fr.traqueur.storageplugs.api.domains.SmartChest;
+import fr.traqueur.storageplugs.api.domains.ChestTemplate;
+import fr.traqueur.storageplugs.api.domains.PlacedChest;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -11,21 +12,25 @@ import java.util.Optional;
 
 public interface StoragePlusManager extends Manager {
 
-    Map<String, SmartChest> getSmartChests();
+    Map<String, ChestTemplate> getSmartChests();
 
-    Optional<SmartChest> getChestFromBlock(Location location);
+    Optional<ChestTemplate> getChestFromBlock(Location location);
 
-    void placeChest(Location location, SmartChest chest);
+    void placeChest(Player player, Location location, ChestTemplate chest);
 
     void breakChest(Location location);
 
-    Optional<SmartChest> getChestFromItem(ItemStack item);
+    Optional<ChestTemplate> getChestFromItem(ItemStack item);
 
-    SmartChest getSmartChest(String s);
+    ChestTemplate getSmartChest(String s);
 
     NamespacedKey getNamespaceKey();
 
-    void give(Player player, SmartChest chest);
+    void give(Player player, ChestTemplate chest);
 
     void registerChests();
+
+    void handleAutoSell();
+
+    PlacedChest deserializeChest(String s);
 }

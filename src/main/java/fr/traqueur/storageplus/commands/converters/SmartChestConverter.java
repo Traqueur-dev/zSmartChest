@@ -2,13 +2,13 @@ package fr.traqueur.storageplus.commands.converters;
 
 import fr.traqueur.commands.api.arguments.ArgumentConverter;
 import fr.traqueur.commands.api.arguments.TabCompleter;
-import fr.traqueur.storageplugs.api.domains.SmartChest;
+import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
 
-public class SmartChestConverter implements ArgumentConverter<SmartChest>, TabCompleter {
+public class SmartChestConverter implements ArgumentConverter<ChestTemplate>, TabCompleter {
 
     private final StoragePlusManager manager;
 
@@ -17,7 +17,7 @@ public class SmartChestConverter implements ArgumentConverter<SmartChest>, TabCo
     }
 
     @Override
-    public SmartChest apply(String s) {
+    public ChestTemplate apply(String s) {
         return this.manager.getSmartChest(s);
     }
 

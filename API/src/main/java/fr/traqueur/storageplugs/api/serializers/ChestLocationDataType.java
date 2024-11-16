@@ -1,13 +1,18 @@
 package fr.traqueur.storageplugs.api.serializers;
 
-import fr.traqueur.storageplugs.api.domains.ChestLocation;
+import fr.traqueur.storageplugs.api.StoragePlusManager;
+import fr.traqueur.storageplugs.api.StoragePlusPlugin;
+import fr.traqueur.storageplugs.api.domains.PlacedChest;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public class ChestLocationDataType implements PersistentDataType<String, ChestLocation> {
+public class ChestLocationDataType implements PersistentDataType<String, PlacedChest> {
 
     public static final ChestLocationDataType INSTANCE = new ChestLocationDataType();
+
+    private StoragePlusManager manager = JavaPlugin.getPlugin(StoragePlusPlugin.class).getManager(StoragePlusManager.class);
 
     @NotNull
     @Override
@@ -17,19 +22,19 @@ public class ChestLocationDataType implements PersistentDataType<String, ChestLo
 
     @NotNull
     @Override
-    public Class<ChestLocation> getComplexType() {
-        return ChestLocation.class;
+    public Class<PlacedChest> getComplexType() {
+        return PlacedChest.class;
     }
 
     @NotNull
     @Override
-    public String toPrimitive(@NotNull ChestLocation chestLocation, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
+    public String toPrimitive(@NotNull PlacedChest chestLocation, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
         return chestLocation.serialize();
     }
 
     @NotNull
     @Override
-    public ChestLocation fromPrimitive(@NotNull String s, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
-        return ChestLocation.deserialize(s);
+    public PlacedChest fromPrimitive(@NotNull String s, @NotNull PersistentDataAdapterContext persistentDataAdapterContext) {
+        return manager.deserializeChest(s);
     }
 }

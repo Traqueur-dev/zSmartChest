@@ -1,17 +1,19 @@
 package fr.traqueur.storageplus;
 
+import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.ZLogger;
+import fr.groupez.api.configurations.Configuration;
 import fr.maxlego08.menu.MenuItemStack;
 import fr.maxlego08.menu.exceptions.InventoryException;
 import fr.maxlego08.menu.loader.MenuItemStackLoader;
 import fr.maxlego08.menu.zcore.utils.loader.Loader;
-import fr.traqueur.storageplugs.api.domains.ChestLocation;
-import fr.traqueur.storageplugs.api.domains.SmartChest;
+import fr.traqueur.storageplugs.api.domains.PlacedChest;
+import fr.traqueur.storageplus.domains.ZPlacedChest;
+import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.serializers.ChestLocationDataType;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
+import fr.traqueur.storageplus.domains.ZChestTemplate;
+import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -29,7 +31,7 @@ import java.util.stream.Stream;
 
 public class ZStoragePlusManager implements StoragePlusManager {
 
-    private final Map<String, SmartChest> smartChests;
+    private final Map<String, ChestTemplate> smartChests;
 
     public ZStoragePlusManager() {
         this.smartChests = new HashMap<>();
@@ -37,27 +39,28 @@ public class ZStoragePlusManager implements StoragePlusManager {
         this.registerChests();
 
         this.getPlugin().getServer().getPluginManager().registerEvents(new ZStoragePlusListener(this), this.getPlugin());
+        this.getPlugin().getScheduler().runTimerAsync(new ZStoragePlusAutoSellTask(this), 0, 20);
     }
 
     @Override
-    public Map<String, SmartChest> getSmartChests() {
+    public Map<String, ChestTemplate> getSmartChests() {
         return this.smartChests;
     }
 
     @Override
-    public Optional<SmartChest> getChestFromBlock(Location location) {
+    public Optional<ChestTemplate> getChestFromBlock(Location location) {
         Chunk chunk = location.getChunk();
         PersistentDataContainer container = chunk.getPersistentDataContainer();
-        List<ChestLocation> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
-        return chests.stream().filter(e -> this.locationEquals(e.location(), location)).findFirst().map(e -> this.getSmartChest(e.chestName()));
+        List<PlacedChest> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
+        return chests.stream().filter(e -> this.locationEquals(e.getLocation(), location)).findFirst().map(PlacedChest::getChestTemplate);
     }
 
     @Override
-    public void placeChest(Location location, SmartChest chest) {
+    public void placeChest(Player player, Location location, ChestTemplate chest) {
         Chunk chunk = location.getChunk();
         PersistentDataContainer container = chunk.getPersistentDataContainer();
-        ChestLocation chestLocation = new ChestLocation(location, chest.getName());
-        List<ChestLocation> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
+        PlacedChest chestLocation = new ZPlacedChest(player.getUniqueId(), location, chest);
+        List<PlacedChest> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
         chests = new ArrayList<>(chests);
         chests.add(chestLocation);
         container.set(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), chests);
@@ -70,9 +73,9 @@ public class ZStoragePlusManager implements StoragePlusManager {
     public void breakChest(Location location) {
         Chunk chunk = location.getChunk();
         PersistentDataContainer container = chunk.getPersistentDataContainer();
-        List<ChestLocation> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
+        List<PlacedChest> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
         chests = new ArrayList<>(chests);
-        chests.removeIf(e -> this.locationEquals(e.location(), location));
+        chests.removeIf(e -> this.locationEquals(e.getLocation(), location));
         container.set(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), chests);
         if(this.getPlugin().isDebug()) {
             ZLogger.info("Broke chest at " + location);
@@ -80,7 +83,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
-    public Optional<SmartChest> getChestFromItem(ItemStack item) {
+    public Optional<ChestTemplate> getChestFromItem(ItemStack item) {
         if(item == null || !item.hasItemMeta()) {
             return Optional.empty();
         }
@@ -97,7 +100,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
-    public SmartChest getSmartChest(String s) {
+    public ChestTemplate getSmartChest(String s) {
         return this.smartChests.getOrDefault(s, null);
     }
 
@@ -107,7 +110,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
-    public void give(Player player, SmartChest chest) {
+    public void give(Player player, ChestTemplate chest) {
         player.getInventory().addItem(chest.build(player));
     }
 
@@ -134,6 +137,41 @@ public class ZStoragePlusManager implements StoragePlusManager {
         }
     }
 
+    @Override
+    public void handleAutoSell() {
+        for (World world : Bukkit.getWorlds()) {
+            for (Chunk loadedChunk : world.getLoadedChunks()) {
+                List<PlacedChest> chests = this.getChestsInChunk(loadedChunk);
+                chests.stream().filter(placedChest -> placedChest.getChestTemplate().isAutoSell()).forEach(chest -> {
+                    chest.tick();
+                    if (chest.getTime() % chest.getChestTemplate().getSellDelay() == 0) {
+                        System.out.println("Auto sell " + chest.getChestTemplate().getName());
+                    }
+                });
+                this.saveChestsInChunk(loadedChunk, chests);
+            }
+        }
+    }
+
+    @Override
+    public PlacedChest deserializeChest(String string) {
+        String[] parts = string.split(";");
+        String worldName = parts[0];
+        World world = worldName.equals("null") ? null : Bukkit.getWorld(UUID.fromString(worldName));
+        return new ZPlacedChest(UUID.fromString(parts[6]),new Location(world, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])), this.getSmartChest(parts[4]), Long.parseLong(parts[5]));
+    }
+
+    private void saveChestsInChunk(Chunk loadedChunk, List<PlacedChest> chests) {
+        PersistentDataContainer container = loadedChunk.getPersistentDataContainer();
+        container.set(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), chests);
+    }
+
+    private List<PlacedChest> getChestsInChunk(Chunk chunk) {
+        PersistentDataContainer container = chunk.getPersistentDataContainer();
+        var chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
+        return new ArrayList<>(chests);
+    }
+
     private void registerChestFromFile(File file) {
         String name = "undefined";
         try {
@@ -144,9 +182,10 @@ public class ZStoragePlusManager implements StoragePlusManager {
             name = file.getName().replace(".yml", "");
             MenuItemStack menuItemStack;
             Loader<MenuItemStack> loader = new MenuItemStackLoader(this.getPlugin().getInventoryManager());
-            menuItemStack = loader.load(config, "item.", file);
-            boolean autoSell = config.getBoolean("auto-sell", false);
-            this.smartChests.put(name, new ZSmartChest(getPlugin(), name, menuItemStack, autoSell));
+            menuItemStack = loader.load(config, "settings.item.", file);
+            boolean autoSell = config.getBoolean("settings.auto-sell", false);
+            long interval = config.getLong("settings.auto-sell-interval", Configuration.get(MainConfiguration.class).getDefaultAutoSellDelay());
+            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval));
             if(this.getPlugin().isDebug()) {
                 ZLogger.info("Registered chest " + name);
             }

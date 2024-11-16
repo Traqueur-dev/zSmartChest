@@ -10,6 +10,8 @@ public class ZMainConfiguration implements MainConfiguration {
 
     private boolean debug;
 
+    private long defaultAutoSellInterval;
+
     public ZMainConfiguration() {
         this.load = false;
     }
@@ -27,6 +29,11 @@ public class ZMainConfiguration implements MainConfiguration {
     @Override
     public boolean isLoad() {
         return load;
+    }
+
+    @Override
+    public long getDefaultAutoSellDelay() {
+        return defaultAutoSellInterval;
     }
 
     @Override

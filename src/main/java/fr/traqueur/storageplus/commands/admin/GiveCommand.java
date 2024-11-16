@@ -3,7 +3,7 @@ package fr.traqueur.storageplus.commands.admin;
 import fr.groupez.api.commands.ZCommand;
 import fr.groupez.api.messaging.Messages;
 import fr.traqueur.commands.api.Arguments;
-import fr.traqueur.storageplugs.api.domains.SmartChest;
+import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import org.bukkit.command.CommandSender;
@@ -21,7 +21,7 @@ public class GiveCommand extends ZCommand<StoragePlusPlugin> {
         this.setUsage("<color:#92bed8>/storageplus give &f<chest>");
         this.setDescription(Messages.DESCRIPTION_GIVE_COMMAND.toString());
 
-        this.addArgs("chest", SmartChest.class);
+        this.addArgs("chest", ChestTemplate.class);
 
         this.setGameOnly(true);
     }
@@ -29,7 +29,7 @@ public class GiveCommand extends ZCommand<StoragePlusPlugin> {
     @Override
     public void execute(CommandSender commandSender, Arguments arguments) {
         Player player = (Player) commandSender;
-        SmartChest chest = arguments.get("chest");
+        ChestTemplate chest = arguments.get("chest");
         storagePlusManager.give(player, chest);
     }
 }

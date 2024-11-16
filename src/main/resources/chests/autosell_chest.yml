@@ -1,11 +1,13 @@
 # zStoragePlus chest configuration
-auto-sell: true
-item:
-  material: CHEST
-  name: "#92bed8ᴀᴜᴛᴏsᴇʟʟ ᴄʜᴇsᴛ"
-  lore:
-    - "#92bed8This chest &7will automatically sell"
-    - "&7all items in his inventory."
+settings:
+  auto-sell: true
+  auto-sell-interval: 10
+  item:
+    material: CHEST
+    name: "#92bed8ᴀᴜᴛᴏsᴇʟʟ ᴄʜᴇsᴛ"
+    lore:
+      - "#92bed8This chest &7will automatically sell"
+      - "&7all items in his inventory."
 
 # zMenu gui config
 # Complete this section to configure the gui when a player open the chest represent by this config file

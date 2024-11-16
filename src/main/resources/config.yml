@@ -1,3 +1,5 @@
-config-version: '1'
+config-version: '2'
 
 debug: true
+
+default-auto-sell-interval: 5

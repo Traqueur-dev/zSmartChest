@@ -4,7 +4,11 @@ import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public interface SmartChest {
+public interface ChestTemplate {
+
+    long getSellDelay();
+
+    boolean isAutoSell();
 
     String getName();
 
