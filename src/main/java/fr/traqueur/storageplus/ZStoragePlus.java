@@ -15,11 +15,6 @@ import fr.traqueur.storageplus.commands.StoragePlusCommand;
 import fr.traqueur.storageplus.commands.converters.SmartChestConverter;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
 
 public final class ZStoragePlus extends StoragePlusPlugin {
 
@@ -54,11 +49,7 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         File folder = new File(this.getDataFolder(), "chests/");
         if(!folder.exists()) {
             folder.mkdirs();
-            try {
-                this.inventoryManager.loadInventoryOrSaveResource(this, "chests/smartchest.yml");
-            } catch (InventoryException e) {
-                ZLogger.severe("Error when loading exemples inventories",e);
-            }
+            this.saveResource("chests/autosell_chest.yml", false);
         }
 
         var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());

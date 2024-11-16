@@ -1,0 +1,29 @@
+# zStoragePlus chest configuration
+auto-sell: true
+item:
+  material: CHEST
+  name: "#92bed8ᴀᴜᴛᴏsᴇʟʟ ᴄʜᴇsᴛ"
+  lore:
+    - "#92bed8This chest &7will automatically sell"
+    - "&7all items in his inventory."
+
+# zMenu gui config
+# Complete this section to configure the gui when a player open the chest represent by this config file
+name: "ᴀᴜᴛᴏsᴇʟʟ ᴄʜᴇsᴛ"
+size: 54
+items:
+  content:
+    type: ZSTORAGEPLUS_CONTENT
+    slots:
+      - 10-43
+  decorations:
+    isPermanent: true
+    item:
+      material: BLACK_STAINED_GLASS_PANE
+      name: "&e"
+    slots:
+      - 0-9
+      - 17-18
+      - 26-27
+      - 35-36
+      - 44-53
