@@ -1,11 +1,8 @@
 package fr.traqueur.storageplus.domains;
 
-import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.domains.PlacedChest;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 
 import java.util.UUID;
 
@@ -19,16 +16,16 @@ public class ZPlacedChest implements PlacedChest {
     private long sellDelay;
 
     public ZPlacedChest(UUID owner, Location location, ChestTemplate chestTemplate) {
-        this(owner, location, chestTemplate, 0);
+        this(owner, location, chestTemplate, 0, chestTemplate.isAutoSell(), chestTemplate.getSellDelay());
     }
 
-    public ZPlacedChest(UUID owner, Location location, ChestTemplate chestTemplate, long time) {
+    public ZPlacedChest(UUID owner, Location location, ChestTemplate chestTemplate, long time, boolean autoSell, long sellDelay) {
         this.owner = owner;
         this.location = location;
         this.chestTemplate = chestTemplate;
         this.time = time;
-        this.autoSell = chestTemplate.isAutoSell();
-        this.sellDelay = chestTemplate.getSellDelay();
+        this.autoSell = autoSell;
+        this.sellDelay = sellDelay;
     }
 
     @Override
@@ -39,7 +36,9 @@ public class ZPlacedChest implements PlacedChest {
                 + this.location.getBlockZ() + ";"
                 + this.chestTemplate.getName() + ";"
                 + this.time + ";"
-                + this.owner.toString();
+                + this.owner.toString() + ";"
+                + this.autoSell + ";"
+                + this.sellDelay;
     }
 
     @Override

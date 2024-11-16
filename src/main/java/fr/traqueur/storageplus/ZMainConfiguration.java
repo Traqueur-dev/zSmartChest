@@ -2,6 +2,7 @@ package fr.traqueur.storageplus;
 
 import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.configurations.NonLoadable;
+import fr.traqueur.storageplugs.api.config.PlaceholdersConfig;
 
 public class ZMainConfiguration implements MainConfiguration {
 
@@ -11,6 +12,8 @@ public class ZMainConfiguration implements MainConfiguration {
     private boolean debug;
 
     private long defaultAutoSellInterval;
+
+    private PlaceholdersConfig placeholders;
 
     public ZMainConfiguration() {
         this.load = false;
@@ -39,5 +42,10 @@ public class ZMainConfiguration implements MainConfiguration {
     @Override
     public boolean isDebug() {
         return debug;
+    }
+
+    @Override
+    public PlaceholdersConfig getPlaceholders() {
+        return placeholders;
     }
 }

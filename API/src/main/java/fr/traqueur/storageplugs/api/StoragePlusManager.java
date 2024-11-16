@@ -40,4 +40,8 @@ public interface StoragePlusManager extends Manager {
     void closeChest(Player player);
 
     void postOpenChest(Player player, Inventory spigotInventory);
+
+    PlacedChest getOpenedChest(Player player);
+
+    void saveChest(PlacedChest chest);
 }

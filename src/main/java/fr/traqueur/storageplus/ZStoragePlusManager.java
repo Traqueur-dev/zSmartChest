@@ -7,13 +7,13 @@ import fr.maxlego08.menu.MenuItemStack;
 import fr.maxlego08.menu.exceptions.InventoryException;
 import fr.maxlego08.menu.loader.MenuItemStackLoader;
 import fr.maxlego08.menu.zcore.utils.loader.Loader;
+import fr.traqueur.storageplugs.api.StoragePlusManager;
+import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.domains.PlacedChest;
 import fr.traqueur.storageplugs.api.gui.ChestMenu;
-import fr.traqueur.storageplus.domains.ZPlacedChest;
-import fr.traqueur.storageplugs.api.domains.ChestTemplate;
-import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.serializers.ChestLocationDataType;
 import fr.traqueur.storageplus.domains.ZChestTemplate;
+import fr.traqueur.storageplus.domains.ZPlacedChest;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -46,7 +46,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
         this.registerChests();
 
         this.getPlugin().getServer().getPluginManager().registerEvents(new ZStoragePlusListener(this), this.getPlugin());
-        this.getPlugin().getScheduler().runTimerAsync(new ZStoragePlusAutoSellTask(this), 0, 20);
+        this.getPlugin().getScheduler().runTimer(new ZStoragePlusAutoSellTask(this), 0, 20);
     }
 
     @Override
@@ -121,17 +121,6 @@ public class ZStoragePlusManager implements StoragePlusManager {
         player.getInventory().addItem(chest.build(player));
     }
 
-    private boolean locationEquals(Location l1, Location l2) {
-        if(l1.getWorld() == null && l2.getWorld() == null) {
-            return l1.getBlockX() == l2.getBlockX() && l1.getBlockY() == l2.getBlockY() && l1.getBlockZ() == l2.getBlockZ();
-        }
-        if((l1.getWorld() == null && l2.getWorld() != null) || (l1.getWorld() != null && l2.getWorld() == null)) {
-            return false;
-        }
-
-        return l1.getWorld().getUID().equals(l2.getWorld().getUID()) && l1.getBlockX() == l2.getBlockX() && l1.getBlockY() == l2.getBlockY() && l1.getBlockZ() == l2.getBlockZ();
-    }
-
     @Override
     public void registerChests() {
         this.smartChests.clear();
@@ -167,23 +156,23 @@ public class ZStoragePlusManager implements StoragePlusManager {
         String[] parts = string.split(";");
         String worldName = parts[0];
         World world = worldName.equals("null") ? null : Bukkit.getWorld(UUID.fromString(worldName));
-        return new ZPlacedChest(UUID.fromString(parts[6]),new Location(world, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])), this.getSmartChest(parts[4]), Long.parseLong(parts[5]));
+        return new ZPlacedChest(UUID.fromString(parts[6]),new Location(world, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])), this.getSmartChest(parts[4]), Long.parseLong(parts[5]), Boolean.parseBoolean(parts[7]), Long.parseLong(parts[8]));
     }
 
     @Override
     public void openChest(Player player, PlacedChest chest) {
+        this.openedChests.put(player.getUniqueId(), chest);
         if(this.mapInventoryOpened.containsKey(chest.getLocation())) {
             player.openInventory(this.mapInventoryOpened.get(chest.getLocation()));
             return;
         }
-        this.openedChests.put(player.getUniqueId(), chest);
         chest.getChestTemplate().open(this.getPlugin(), player);
     }
 
     @Override
     public void closeChest(Player player) {
         PlacedChest chest = this.openedChests.remove(player.getUniqueId());
-        if(chest == null) {
+        if(this.openedChests.values().stream().anyMatch(e -> this.locationEquals(e.getLocation(), chest.getLocation()))) {
             return;
         }
         this.mapInventoryOpened.remove(chest.getLocation());
@@ -192,10 +181,16 @@ public class ZStoragePlusManager implements StoragePlusManager {
 
     @Override
     public void postOpenChest(Player player, Inventory spigotInventory) {
-        this.mapInventoryOpened.put(this.openedChests.get(player.getUniqueId()).getLocation(), spigotInventory);
+        this.mapInventoryOpened.putIfAbsent(this.openedChests.get(player.getUniqueId()).getLocation(), spigotInventory);
     }
 
-    private void saveChest(PlacedChest chest) {
+    @Override
+    public PlacedChest getOpenedChest(Player player) {
+        return this.openedChests.get(player.getUniqueId());
+    }
+
+    @Override
+    public void saveChest(PlacedChest chest) {
         if (this.getPlugin().isDebug()) {
             ZLogger.info("Saving chest " + chest.getChestTemplate().getName() + " at " + chest.getLocation());
         }
@@ -237,6 +232,17 @@ public class ZStoragePlusManager implements StoragePlusManager {
         } catch (InventoryException e) {
             ZLogger.severe("Error while loading chest " + name, e);
         }
+    }
+
+    private boolean locationEquals(Location l1, Location l2) {
+        if(l1.getWorld() == null && l2.getWorld() == null) {
+            return l1.getBlockX() == l2.getBlockX() && l1.getBlockY() == l2.getBlockY() && l1.getBlockZ() == l2.getBlockZ();
+        }
+        if((l1.getWorld() == null && l2.getWorld() != null) || (l1.getWorld() != null && l2.getWorld() == null)) {
+            return false;
+        }
+
+        return l1.getWorld().getUID().equals(l2.getWorld().getUID()) && l1.getBlockX() == l2.getBlockX() && l1.getBlockY() == l2.getBlockY() && l1.getBlockZ() == l2.getBlockZ();
     }
 
 }

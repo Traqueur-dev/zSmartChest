@@ -2,11 +2,8 @@ package fr.groupez.api.messaging.types;
 
 import fr.groupez.api.ZPlugin;
 import fr.groupez.api.messaging.Formatter;
-import fr.groupez.api.messaging.Messages;
 import fr.groupez.api.placeholder.Placeholders;
 import fr.groupez.api.zcore.DefaultFontInfo;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;

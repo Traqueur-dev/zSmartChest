@@ -2,8 +2,8 @@ package fr.traqueur.storageplus.commands.converters;
 
 import fr.traqueur.commands.api.arguments.ArgumentConverter;
 import fr.traqueur.commands.api.arguments.TabCompleter;
-import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
+import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;

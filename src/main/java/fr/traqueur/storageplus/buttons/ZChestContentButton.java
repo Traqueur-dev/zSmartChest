@@ -1,17 +1,11 @@
 package fr.traqueur.storageplus.buttons;
 
 import fr.maxlego08.menu.api.button.PaginateButton;
-import fr.maxlego08.menu.api.utils.Placeholders;
 import fr.maxlego08.menu.button.ZButton;
 import fr.maxlego08.menu.inventory.inventories.InventoryDefault;
-import fr.maxlego08.menu.zcore.utils.inventory.Pagination;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
-
-import java.util.List;
 
 public class ZChestContentButton extends ZButton implements PaginateButton {
 

@@ -5,10 +5,11 @@ import fr.groupez.api.configurations.Configuration;
 import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
 import fr.maxlego08.menu.button.loader.NoneLoader;
-import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
+import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.buttons.ZChestContentButton;
+import fr.traqueur.storageplus.buttons.ZToggleAutoSellButton;
 import fr.traqueur.storageplus.commands.StoragePlusCommand;
 import fr.traqueur.storageplus.commands.converters.SmartChestConverter;
 
@@ -24,7 +25,17 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         MainConfiguration configuration = Configuration.register(MainConfiguration.class, new ZMainConfiguration());
         configuration.load();
 
-        this.commandManager.setDebug(configuration.isDebug());
+        File folder = new File(this.getDataFolder(), "chests/");
+        if(!folder.exists()) {
+            folder.mkdirs();
+            this.saveResource("chests/autosell_chest.yml", false);
+        }
+
+        Configuration.REGISTRY.values().forEach(config -> {
+            if(!config.isLoad()) {
+                config.load();
+            }
+        });
 
         ButtonManager buttonManager = this.getProvider(ButtonManager.class);
         this.inventoryManager = this.getProvider(InventoryManager.class);
@@ -37,23 +48,12 @@ public final class ZStoragePlus extends StoragePlusPlugin {
 
         buttonManager.unregisters(this);
         buttonManager.register(new NoneLoader(this, ZChestContentButton.class, "ZSTORAGEPLUS_CONTENT"));
-
-        Configuration.REGISTRY.values().forEach(config -> {
-            if(!config.isLoad()) {
-                config.load();
-            }
-        });
-
-        File folder = new File(this.getDataFolder(), "chests/");
-        if(!folder.exists()) {
-            folder.mkdirs();
-            this.saveResource("chests/autosell_chest.yml", false);
-        }
+        buttonManager.register(new NoneLoader(this, ZToggleAutoSellButton.class, "ZSTORAGEPLUS_TOGGLE_AUTOSELL"));
 
         var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
 
+        this.commandManager.setDebug(configuration.isDebug());
         this.commandManager.registerConverter(ChestTemplate.class, new SmartChestConverter(manager));
-
         this.loadCommands();
     }
 

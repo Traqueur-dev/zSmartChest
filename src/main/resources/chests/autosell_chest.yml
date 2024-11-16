@@ -29,3 +29,13 @@ items:
       - 26-27
       - 35-36
       - 44-53
+  autoselltoggle:
+    type: ZSTORAGEPLUS_TOGGLE_AUTOSELL
+    slot: 46
+    refreshOnClick: true
+    item:
+      material: EMERALD
+      name: "#92bed8ᴛᴏɢɢʟᴇ ᴀᴜᴛᴏsᴇʟʟ"
+      lore:
+        - "#92bed8ᴄᴜʀʀᴇɴᴛʟʏ &7%autosell_state%"
+        - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴛᴏɢɢʟᴇ ᴀᴜᴛᴏsᴇʟʟ"

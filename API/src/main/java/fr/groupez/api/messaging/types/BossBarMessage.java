@@ -7,7 +7,6 @@ import fr.groupez.api.placeholder.Placeholders;
 import fr.groupez.api.zcore.BossBarAnimation;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
