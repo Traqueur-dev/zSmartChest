@@ -27,4 +27,5 @@ public interface StoragePlusManager extends Manager {
 
     void give(Player player, SmartChest chest);
 
+    void registerChests();
 }

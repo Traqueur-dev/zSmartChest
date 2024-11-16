@@ -1,8 +1,0 @@
-menu: smartchest
-auto-sell: true
-item:
-  material: CHEST
-  name: "&6Coffre de vente"
-  lore:
-  - "&7Cliquez pour vendre tous vos items"
-  - "&7dans votre inventaire."

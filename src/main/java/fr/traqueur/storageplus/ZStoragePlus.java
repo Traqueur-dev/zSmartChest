@@ -1,6 +1,7 @@
 package fr.traqueur.storageplus;
 
 import fr.groupez.api.MainConfiguration;
+import fr.groupez.api.ZLogger;
 import fr.groupez.api.configurations.Configuration;
 import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
@@ -12,6 +13,13 @@ import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.buttons.ZChestContentButton;
 import fr.traqueur.storageplus.commands.StoragePlusCommand;
 import fr.traqueur.storageplus.commands.converters.SmartChestConverter;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 public final class ZStoragePlus extends StoragePlusPlugin {
 
@@ -37,13 +45,21 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         buttonManager.unregisters(this);
         buttonManager.register(new NoneLoader(this, ZChestContentButton.class, "ZSTORAGEPLUS_CONTENT"));
 
-        this.loadInventories();
-
         Configuration.REGISTRY.values().forEach(config -> {
             if(!config.isLoad()) {
                 config.load();
             }
         });
+
+        File folder = new File(this.getDataFolder(), "chests/");
+        if(!folder.exists()) {
+            folder.mkdirs();
+            try {
+                this.inventoryManager.loadInventoryOrSaveResource(this, "chests/smartchest.yml");
+            } catch (InventoryException e) {
+                ZLogger.severe("Error when loading exemples inventories",e);
+            }
+        }
 
         var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
 
@@ -66,15 +82,6 @@ public final class ZStoragePlus extends StoragePlusPlugin {
     @Override
     public boolean isDebug() {
         return Configuration.get(MainConfiguration.class).isDebug();
-    }
-
-    public void loadInventories() {
-        this.inventoryManager.deleteInventories(this);
-        try {
-            this.inventoryManager.loadInventoryOrSaveResource(this, "inventories/smartchest.yml");
-        } catch (InventoryException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override

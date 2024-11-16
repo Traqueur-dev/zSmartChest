@@ -7,8 +7,6 @@ public abstract class StoragePlusPlugin extends ZPlugin {
 
     public abstract InventoryManager getInventoryManager();
 
-    public abstract void loadInventories();
-
     public abstract void loadCommands();
 
     public abstract boolean isDebug();

@@ -14,12 +14,10 @@ public class ZSmartChest implements SmartChest {
 
     private final StoragePlusPlugin plugin;
     private final String name;
-    private final String menu;
     private final MenuItemStack item;
     private final boolean autoSell;
 
-    public ZSmartChest(StoragePlusPlugin plugin, String name, String menu, MenuItemStack item, boolean autoSell) {
-        this.menu = menu;
+    public ZSmartChest(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
@@ -32,7 +30,7 @@ public class ZSmartChest implements SmartChest {
     }
 
     public void open(StoragePlusPlugin plugin, Player player) {
-        plugin.getInventoryManager().openInventory(player, this.menu);
+        plugin.getInventoryManager().openInventory(player, this.name);
     }
 
     @Override

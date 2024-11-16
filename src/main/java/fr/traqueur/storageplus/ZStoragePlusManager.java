@@ -1,6 +1,5 @@
 package fr.traqueur.storageplus;
 
-import com.google.gson.Gson;
 import fr.groupez.api.ZLogger;
 import fr.maxlego08.menu.MenuItemStack;
 import fr.maxlego08.menu.exceptions.InventoryException;
@@ -123,12 +122,10 @@ public class ZStoragePlusManager implements StoragePlusManager {
         return l1.getWorld().getUID().equals(l2.getWorld().getUID()) && l1.getBlockX() == l2.getBlockX() && l1.getBlockY() == l2.getBlockY() && l1.getBlockZ() == l2.getBlockZ();
     }
 
-    private void registerChests() {
+    @Override
+    public void registerChests() {
+        this.smartChests.clear();
         File folder = new File(this.getPlugin().getDataFolder(), "chests/");
-        if (!folder.exists()) {
-            folder.mkdirs();
-            this.getPlugin().saveResource("chests/autosell_chest.yml", false);
-        }
         try (Stream<Path> s = Files.walk(Paths.get(folder.getPath()))) {
             s.skip(1).map(Path::toFile).filter(File::isFile).filter(e -> e.getName().endsWith(".yml"))
                     .forEach(this::registerChestFromFile);
@@ -138,21 +135,23 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     private void registerChestFromFile(File file) {
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        String name = file.getName().replace(".yml", "");
-        String menu = config.getString("menu");
-        MenuItemStack menuItemStack;
+        String name = "undefined";
         try {
+            String fileName = file.getPath();
+            fileName = fileName.replace(this.getPlugin().getDataFolder().getPath(), "");
+            this.getPlugin().getInventoryManager().loadInventory(getPlugin(), fileName);
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+            name = file.getName().replace(".yml", "");
+            MenuItemStack menuItemStack;
             Loader<MenuItemStack> loader = new MenuItemStackLoader(this.getPlugin().getInventoryManager());
             menuItemStack = loader.load(config, "item.", file);
+            boolean autoSell = config.getBoolean("auto-sell", false);
+            this.smartChests.put(name, new ZSmartChest(getPlugin(), name, menuItemStack, autoSell));
+            if(this.getPlugin().isDebug()) {
+                ZLogger.info("Registered chest " + name);
+            }
         } catch (InventoryException e) {
             ZLogger.severe("Error while loading chest " + name, e);
-            return;
-        }
-        boolean autoSell = config.getBoolean("auto-sell", false);
-        this.smartChests.put(name, new ZSmartChest(getPlugin(), name, menu, menuItemStack, autoSell));
-        if(this.getPlugin().isDebug()) {
-            ZLogger.info("Registered chest " + name);
         }
     }
 
