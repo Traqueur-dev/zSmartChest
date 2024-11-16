@@ -15,6 +15,8 @@ public class ZPlacedChest implements PlacedChest {
     private final Location location;
     private final ChestTemplate chestTemplate;
     private long time;
+    private boolean autoSell;
+    private long sellDelay;
 
     public ZPlacedChest(UUID owner, Location location, ChestTemplate chestTemplate) {
         this(owner, location, chestTemplate, 0);
@@ -25,6 +27,8 @@ public class ZPlacedChest implements PlacedChest {
         this.location = location;
         this.chestTemplate = chestTemplate;
         this.time = time;
+        this.autoSell = chestTemplate.isAutoSell();
+        this.sellDelay = chestTemplate.getSellDelay();
     }
 
     @Override
@@ -48,6 +52,26 @@ public class ZPlacedChest implements PlacedChest {
     @Override
     public long getTime() {
         return this.time;
+    }
+
+    @Override
+    public boolean isAutoSell() {
+        return this.autoSell;
+    }
+
+    @Override
+    public void setAutoSell(boolean autoSell) {
+        this.autoSell = autoSell;
+    }
+
+    @Override
+    public long getSellDelay() {
+        return this.sellDelay;
+    }
+
+    @Override
+    public void setSellDelay(long sellDelay) {
+        this.sellDelay = sellDelay;
     }
 
     @Override

@@ -142,10 +142,12 @@ public class ZStoragePlusManager implements StoragePlusManager {
         for (World world : Bukkit.getWorlds()) {
             for (Chunk loadedChunk : world.getLoadedChunks()) {
                 List<PlacedChest> chests = this.getChestsInChunk(loadedChunk);
-                chests.stream().filter(placedChest -> placedChest.getChestTemplate().isAutoSell()).forEach(chest -> {
+                chests.stream().filter(PlacedChest::isAutoSell).forEach(chest -> {
                     chest.tick();
-                    if (chest.getTime() % chest.getChestTemplate().getSellDelay() == 0) {
-                        System.out.println("Auto sell " + chest.getChestTemplate().getName());
+                    if (chest.getTime() % chest.getSellDelay() == 0) {
+                        if(this.getPlugin().isDebug()) {
+                            ZLogger.info("Auto selling chest " + chest.getChestTemplate().getName() + " at " + chest.getLocation());
+                        }
                     }
                 });
                 this.saveChestsInChunk(loadedChunk, chests);
