@@ -205,58 +205,63 @@ public class ZStoragePlusManager implements StoragePlusManager {
 
     @Override
     public List<ItemStack> compress(List<ItemStack> items, List<Material> availableMaterials) {
-        Map<ItemStack, Integer> map = new HashMap<>();
-        List<ItemStack> compressed = new ArrayList<>();
+        Map<ItemStack, Integer> groupedItems = this.groupItems(items);
+        Map<ItemStack, Integer> compressedItems = new HashMap<>();
 
-        for (ItemStack item : items) {
-            Material material = item.getType();
-            if (availableMaterials.contains(material)) {
-                Optional<ItemStack> similarItem = map.keySet().stream()
-                        .filter(existing -> existing.isSimilar(item))
-                        .findFirst();
-                if (similarItem.isPresent()) {
-                    map.put(similarItem.get(), map.get(similarItem.get()) + item.getAmount());
-                } else {
-                    map.put(item.clone(), item.getAmount());
-                }
-            } else {
-                compressed.add(item);
-            }
-        }
-
-        for (Map.Entry<ItemStack, Integer> itemStackIntegerEntry : map.entrySet()) {
+        for (Map.Entry<ItemStack, Integer> itemStackIntegerEntry : groupedItems.entrySet()) {
             ItemStack item = itemStackIntegerEntry.getKey();
             int amount = itemStackIntegerEntry.getValue();
             Material compressedType = this.getCompressedType(item.getType());
-            int maxStackSize = compressedType.getMaxStackSize();
-            if(compressedType == item.getType()) {
-                while (amount > 0) {
-                    int stackAmount = Math.min(amount, maxStackSize);
-                    ItemStack stack = item.clone();
-                    stack.setAmount(stackAmount);
-                    compressed.add(stack);
-                    amount -= stackAmount;
-                }
-            } else {
+            if(availableMaterials.contains(item.getType()) && compressedType != item.getType()) {
                 int compressedAmount = amount / 9;
                 int rest = amount % 9;
-                while (compressedAmount > 0) {
-                    int stackAmount = Math.min(compressedAmount, maxStackSize);
-                    ItemStack stack = new ItemStack(compressedType, stackAmount);
-                    compressed.add(stack);
-                    compressedAmount -= stackAmount;
-                }
-                while (rest > 0) {
-                    int stackAmount = Math.min(rest, maxStackSize);
-                    ItemStack stack = item.clone();
-                    stack.setAmount(stackAmount);
-                    compressed.add(stack);
-                    rest -= stackAmount;
-                }
+                this.addInMap(compressedItems, new ItemStack(compressedType), compressedAmount);
+                this.addInMap(compressedItems, item, rest);
+            } else {
+                this.addInMap(compressedItems, item, amount);
             }
         }
 
-        return compressed;
+        return this.degroupItems(compressedItems);
+    }
+
+    private void addInMap(Map<ItemStack, Integer> compressedItems, ItemStack item, int amount) {
+        if(compressedItems.entrySet().stream().anyMatch(e -> e.getKey().isSimilar(item))) {
+            ItemStack similarItem = compressedItems.keySet().stream().filter(e -> e.isSimilar(item)).findFirst().get();
+            compressedItems.put(similarItem, compressedItems.get(similarItem) + amount);
+        } else {
+            compressedItems.put(item, amount);
+        }
+    }
+
+    private List<ItemStack> degroupItems(Map<ItemStack, Integer> items) {
+        return items.entrySet().stream().flatMap(e -> {
+            List<ItemStack> stacks = new ArrayList<>();
+            int amount = e.getValue();
+            while (amount > 0) {
+                int toAdd = Math.min(amount, e.getKey().getMaxStackSize());
+                ItemStack clone = e.getKey().clone();
+                clone.setAmount(toAdd);
+                stacks.add(clone);
+                amount -= toAdd;
+            }
+            return stacks.stream();
+        }).collect(Collectors.toList());
+    }
+
+    private Map<ItemStack, Integer> groupItems(List<ItemStack> items) {
+        Map<ItemStack, Integer> map = new HashMap<>();
+        for (ItemStack item : items) {
+            Optional<ItemStack> similarItem = map.keySet().stream()
+                    .filter(existing -> existing.isSimilar(item))
+                    .findFirst();
+            if (similarItem.isPresent()) {
+                map.put(similarItem.get(), map.get(similarItem.get()) + item.getAmount());
+            } else {
+                map.put(item.clone(), item.getAmount());
+            }
+        }
+        return map;
     }
 
     private Material getCompressedType(Material material) {
