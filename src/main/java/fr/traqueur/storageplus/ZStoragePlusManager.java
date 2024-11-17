@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -204,72 +205,58 @@ public class ZStoragePlusManager implements StoragePlusManager {
 
     @Override
     public List<ItemStack> compress(List<ItemStack> items, List<Material> availableMaterials) {
-        Map<Material, Integer> map = new HashMap<>();
+        Map<ItemStack, Integer> map = new HashMap<>();
         List<ItemStack> compressed = new ArrayList<>();
+
         for (ItemStack item : items) {
             Material material = item.getType();
             if (availableMaterials.contains(material)) {
-                map.put(material, map.getOrDefault(material, 0) + item.getAmount());
+                Optional<ItemStack> similarItem = map.keySet().stream()
+                        .filter(existing -> existing.isSimilar(item))
+                        .findFirst();
+                if (similarItem.isPresent()) {
+                    map.put(similarItem.get(), map.get(similarItem.get()) + item.getAmount());
+                } else {
+                    map.put(item.clone(), item.getAmount());
+                }
             } else {
                 compressed.add(item);
             }
         }
-        for (Map.Entry<Material, Integer> entry : map.entrySet()) {
-            Material material = entry.getKey();
-            int amount = entry.getValue();
-            Material compressedType = this.getCompressedType(material);
-            if(compressedType == material) {
+
+        for (Map.Entry<ItemStack, Integer> itemStackIntegerEntry : map.entrySet()) {
+            ItemStack item = itemStackIntegerEntry.getKey();
+            int amount = itemStackIntegerEntry.getValue();
+            Material compressedType = this.getCompressedType(item.getType());
+            int maxStackSize = compressedType.getMaxStackSize();
+            if(compressedType == item.getType()) {
                 while (amount > 0) {
-                    int toAdd = Math.min(amount, compressedType.getMaxStackSize());
-                    ItemStack item = new ItemStack(material, toAdd);
-                    compressed.add(item);
-                    amount -= toAdd;
+                    int stackAmount = Math.min(amount, maxStackSize);
+                    ItemStack stack = item.clone();
+                    stack.setAmount(stackAmount);
+                    compressed.add(stack);
+                    amount -= stackAmount;
+                }
+            } else {
+                int compressedAmount = amount / 9;
+                int rest = amount % 9;
+                while (compressedAmount > 0) {
+                    int stackAmount = Math.min(compressedAmount, maxStackSize);
+                    ItemStack stack = new ItemStack(compressedType, stackAmount);
+                    compressed.add(stack);
+                    compressedAmount -= stackAmount;
+                }
+                while (rest > 0) {
+                    int stackAmount = Math.min(rest, maxStackSize);
+                    ItemStack stack = item.clone();
+                    stack.setAmount(stackAmount);
+                    compressed.add(stack);
+                    rest -= stackAmount;
                 }
             }
-            int maxAmount = compressedType.getMaxStackSize();
-            int compressedAmount = amount / 9;
-            int rest = amount % 9;
-            while (compressedAmount > 0) {
-                int toAdd = Math.min(compressedAmount, maxAmount);
-                ItemStack item = new ItemStack(compressedType, toAdd);
-                compressed.add(item);
-                compressedAmount -= toAdd;
-            }
-            if (rest > 0) {
-                ItemStack item = new ItemStack(material, rest);
-                compressed.add(item);
-            }
-        }
-        Map<ItemStack, Integer> groupedItems = new HashMap<>();
-        for (ItemStack item : compressed) {
-            if (item == null) continue;
-
-            Optional<ItemStack> similarItem = groupedItems.keySet().stream()
-                    .filter(existing -> existing.isSimilar(item))
-                    .findFirst();
-
-            if (similarItem.isPresent()) {
-                groupedItems.put(similarItem.get(), groupedItems.get(similarItem.get()) + item.getAmount());
-            } else {
-                groupedItems.put(item.clone(), item.getAmount());
-            }
         }
 
-        List<ItemStack> mergedItems = new ArrayList<>();
-        for (Map.Entry<ItemStack, Integer> entry : groupedItems.entrySet()) {
-            ItemStack baseItem = entry.getKey();
-            int totalAmount = entry.getValue();
-            int maxStackSize = baseItem.getMaxStackSize();
-            while (totalAmount > 0) {
-                int stackAmount = Math.min(totalAmount, maxStackSize);
-                ItemStack stack = baseItem.clone();
-                stack.setAmount(stackAmount);
-                mergedItems.add(stack);
-                totalAmount -= stackAmount;
-            }
-        }
-
-        return mergedItems;
+        return compressed;
     }
 
     private Material getCompressedType(Material material) {
