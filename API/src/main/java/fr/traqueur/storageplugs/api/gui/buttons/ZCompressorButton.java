@@ -27,17 +27,29 @@ public class ZCompressorButton extends ZButton {
     @Override
     public void onClick(Player player, InventoryClickEvent event, InventoryDefault inventory, int slot, Placeholders placeholders) {
         List<ZChestContentButton> contentButtons = inventory.getButtons().stream().filter(button -> button instanceof ZChestContentButton).map(button -> (ZChestContentButton) button).toList();
-        Map<Integer, ItemStack> items = contentButtons
+        if(contentButtons.size() != 1) {
+            throw new IllegalStateException("There should be only one ZChestContentButton in the inventory");
+        }
+        ZChestContentButton contentButton = contentButtons.getFirst();
+        List<ItemStack> items = contentButton.getSlots()
                 .stream()
-                .flatMap(contentButton -> contentButton.getSlots()
-                        .stream()
-                        .map(slotInner -> new AbstractMap.SimpleEntry<>(slotInner, inventory.getInventory().getItem(slotInner))))
-                .filter(entry -> Objects.nonNull(entry.getValue()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .map(slotInner -> {
+                    ItemStack item = inventory.getInventory().getItem(slotInner);
+                    if (item == null) {
+                        return null;
+                    }
+                    item = item.clone();
+                    inventory.getInventory().setItem(slotInner, null);
+                    return item;
+                })
+                .filter(Objects::nonNull)
+                .toList();
         if (items.isEmpty()) {
             return;
         }
-        Map<Integer,ItemStack> compressedItems = this.plugin.getManager(StoragePlusManager.class).compress(items, availableMaterials);
-        compressedItems.forEach((slotInner, itemStack) -> inventory.getInventory().setItem(slotInner, itemStack));
+        List<ItemStack> compressedItems = this.plugin.getManager(StoragePlusManager.class).compress(items, availableMaterials);
+        for (int i = 0; i < compressedItems.size(); i++) {
+            inventory.getInventory().setItem(new ArrayList<>(contentButton.getSlots()).get(i), compressedItems.get(i));
+        }
     }
 }

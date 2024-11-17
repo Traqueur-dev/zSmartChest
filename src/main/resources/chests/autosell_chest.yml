@@ -21,7 +21,10 @@ items:
   content:
     type: ZSTORAGEPLUS_CONTENT
     slots:
-      - 10-43
+      - 10-16
+      - 19-25
+      - 28-34
+      - 37-43
   decorations:
     isPermanent: true
     item:

@@ -47,5 +47,5 @@ public interface StoragePlusManager extends Manager {
 
     void saveChest(PlacedChest chest);
 
-    Map<Integer, ItemStack> compress(Map<Integer, ItemStack> items, List<Material> availableMaterials);
+    List<ItemStack> compress(List<ItemStack> items, List<Material> availableMaterials);
 }
