@@ -8,8 +8,9 @@ import fr.maxlego08.menu.button.loader.NoneLoader;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import fr.traqueur.storageplugs.api.domains.ChestTemplate;
-import fr.traqueur.storageplus.buttons.ZChestContentButton;
-import fr.traqueur.storageplus.buttons.ZToggleAutoSellButton;
+import fr.traqueur.storageplugs.api.gui.buttons.ZChestContentButton;
+import fr.traqueur.storageplugs.api.gui.buttons.ZToggleAutoSellButton;
+import fr.traqueur.storageplugs.api.gui.loaders.CompressorButtonLoader;
 import fr.traqueur.storageplus.commands.StoragePlusCommand;
 import fr.traqueur.storageplus.commands.converters.SmartChestConverter;
 
@@ -49,6 +50,7 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         buttonManager.unregisters(this);
         buttonManager.register(new NoneLoader(this, ZChestContentButton.class, "ZSTORAGEPLUS_CONTENT"));
         buttonManager.register(new NoneLoader(this, ZToggleAutoSellButton.class, "ZSTORAGEPLUS_TOGGLE_AUTOSELL"));
+        buttonManager.register(new CompressorButtonLoader(this, "ZSTORAGEPLUS_COMPRESSOR"));
 
         var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
 

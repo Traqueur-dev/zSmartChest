@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ZStoragePlusManager implements StoragePlusManager {
@@ -201,6 +202,87 @@ public class ZStoragePlusManager implements StoragePlusManager {
         this.saveChestsInChunk(chunk, chests);
     }
 
+    @Override
+    public Map<Integer, ItemStack> compress(Map<Integer, ItemStack> items, List<Material> availableMaterials) {
+        Map<Integer,ItemStack> newMap = new HashMap<>();
+        List<ItemStack> remainingItems = new ArrayList<>();
+        for (Map.Entry<Integer, ItemStack> entry : items.entrySet()) {
+            ItemStack item = entry.getValue();
+            if (item == null) {
+                continue;
+            }
+            Material material = item.getType();
+            if (availableMaterials.contains(material)) {
+                int amount = item.getAmount();
+                int compressedAmount = amount / 9;
+                int remainingAmount = amount % 9;
+                Material compressedType = this.getCompressedType(material);
+                if(compressedType == material) {
+                    newMap.put(entry.getKey(), item);
+                    continue;
+                }
+                if(remainingAmount > 0) {
+                    ItemStack remainingItem = item.clone();
+                    remainingItem.setAmount(remainingAmount);
+                    remainingItems.add(remainingItem);
+                }
+                ItemStack compressedItem = item.clone();
+                compressedItem.setAmount(compressedAmount);
+                compressedItem.setType(this.getCompressedType(material));
+                newMap.put(entry.getKey(), compressedItem);
+            } else {
+                newMap.put(newMap.size(), item);
+            }
+        }
+
+        for (int i = 0; i < newMap.size(); i++) {
+            ItemStack item = newMap.get(i);
+            if (item == null) {
+                continue;
+            }
+            for (int j = i + 1; j < newMap.size(); j++) {
+                ItemStack item2 = newMap.get(j);
+                if (item2 == null) {
+                    continue;
+                }
+                if (item.isSimilar(item2)) {
+                    int amount = item.getAmount() + item2.getAmount();
+                    int remaining = amount - item.getMaxStackSize();
+                    if (remaining > 0) {
+                        item.setAmount(item.getMaxStackSize());
+                        item2.setAmount(remaining);
+                    } else {
+                        item.setAmount(amount);
+                        newMap.put(j, null);
+                    }
+                }
+            }
+        }
+
+        newMap = newMap.entrySet().stream().filter(e -> Objects.nonNull(e.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        for (ItemStack remainingItem : remainingItems) {
+            newMap.put(newMap.size(), remainingItem);
+        }
+        return newMap;
+    }
+
+    private Material getCompressedType(Material material) {
+        return switch (material) {
+            case IRON_INGOT -> Material.IRON_BLOCK;
+            case GOLD_INGOT -> Material.GOLD_BLOCK;
+            case DIAMOND -> Material.DIAMOND_BLOCK;
+            case EMERALD -> Material.EMERALD_BLOCK;
+            case LAPIS_LAZULI -> Material.LAPIS_BLOCK;
+            case REDSTONE -> Material.REDSTONE_BLOCK;
+            case COAL -> Material.COAL_BLOCK;
+            case NETHERITE_INGOT -> Material.NETHERITE_BLOCK;
+            case RAW_COPPER -> Material.RAW_COPPER_BLOCK;
+            case RAW_IRON -> Material.RAW_IRON_BLOCK;
+            case RAW_GOLD -> Material.RAW_GOLD_BLOCK;
+            default -> material;
+        };
+    }
+
     private void saveChestsInChunk(Chunk loadedChunk, List<PlacedChest> chests) {
         PersistentDataContainer container = loadedChunk.getPersistentDataContainer();
         container.set(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), chests);
@@ -223,9 +305,15 @@ public class ZStoragePlusManager implements StoragePlusManager {
             MenuItemStack menuItemStack;
             Loader<MenuItemStack> loader = new MenuItemStackLoader(this.getPlugin().getInventoryManager());
             menuItemStack = loader.load(config, "settings.item.", file);
-            boolean autoSell = config.getBoolean("settings.auto-sell", false);
-            long interval = config.getLong("settings.auto-sell-interval", Configuration.get(MainConfiguration.class).getDefaultAutoSellDelay());
-            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval));
+            boolean autoSell = config.getBoolean("settings.auto-sell.enabled", false);
+            long interval = config.getLong("settings.auto-sell.interval", Configuration.get(MainConfiguration.class).getDefaultAutoSellDelay());
+            List<String> shops;
+            if(config.contains("settings.auto-sell.shops")) {
+                shops = config.getStringList("settings.auto-sell.shops");
+            } else {
+                shops = new ArrayList<>();
+            }
+            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops));
             if(this.getPlugin().isDebug()) {
                 ZLogger.info("Registered chest " + name);
             }

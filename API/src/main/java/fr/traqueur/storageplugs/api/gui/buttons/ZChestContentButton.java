@@ -1,13 +1,19 @@
-package fr.traqueur.storageplus.buttons;
+package fr.traqueur.storageplugs.api.gui.buttons;
 
 import fr.maxlego08.menu.api.button.PaginateButton;
+import fr.maxlego08.menu.api.utils.Placeholders;
 import fr.maxlego08.menu.button.ZButton;
 import fr.maxlego08.menu.inventory.inventories.InventoryDefault;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class ZChestContentButton extends ZButton implements PaginateButton {
+public class ZChestContentButton extends ZButton {
+
+    @Override
+    public void onInventoryOpen(Player player, InventoryDefault inventory, Placeholders placeholders) {
+        inventory.setDisablePlayerInventoryClick(false);
+    }
 
     @Override
     public boolean hasSpecialRender() {
@@ -26,10 +32,5 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
 
             });
         }
-    }
-
-    @Override
-    public int getPaginationSize(Player player) {
-        return 0;
     }
 }

@@ -1,7 +1,11 @@
 # zStoragePlus chest configuration
 settings:
-  auto-sell: true
-  auto-sell-interval: 10
+  auto-sell:
+    enabled: true
+    interval: 10
+    shops:
+      - "zShop"
+      - "ShopGuiPlus"
   item:
     material: CHEST
     name: "#92bed8ᴀᴜᴛᴏsᴇʟʟ ᴄʜᴇsᴛ"
@@ -39,3 +43,20 @@ items:
       lore:
         - "#92bed8ᴄᴜʀʀᴇɴᴛʟʏ &7%autosell_state%"
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴛᴏɢɢʟᴇ ᴀᴜᴛᴏsᴇʟʟ"
+  compressor:
+    type: ZSTORAGEPLUS_COMPRESSOR
+    authorized-materials:
+      - DIAMOND
+      - EMERALD
+      - IRON_INGOT
+      - GOLD_INGOT
+      - LAPIS_LAZULI
+      - REDSTONE
+      - COAL
+      - NETHERITE_INGOT
+    slot: 47
+    item:
+      material: CRAFTING_TABLE
+      name: "#92bed8ᴄᴏᴍᴘʀᴇss"
+      lore:
+        - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴄᴏᴍᴘʀᴇss ᴀʟʟ ɪᴛᴇᴍs"

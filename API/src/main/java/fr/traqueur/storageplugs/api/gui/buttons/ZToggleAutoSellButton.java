@@ -1,4 +1,4 @@
-package fr.traqueur.storageplus.buttons;
+package fr.traqueur.storageplugs.api.gui.buttons;
 
 import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.configurations.Configuration;

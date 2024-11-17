@@ -10,20 +10,26 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.List;
+
 public class ZChestTemplate implements ChestTemplate {
 
     private final StoragePlusPlugin plugin;
     private final String name;
     private final MenuItemStack item;
+
+    /* Fields to manage auto sell */
     private final boolean autoSell;
     private final long sellDelay;
+    private final List<String> shops;
 
-    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay) {
+    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<String> shops) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
         this.sellDelay = sellDelay;
         this.plugin = plugin;
+        this.shops = shops;
     }
 
     @Override
@@ -34,6 +40,11 @@ public class ZChestTemplate implements ChestTemplate {
     @Override
     public boolean isAutoSell() {
         return this.autoSell;
+    }
+
+    @Override
+    public List<String> getShops() {
+        return this.shops;
     }
 
     @Override

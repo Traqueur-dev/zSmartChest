@@ -3,11 +3,13 @@ package fr.traqueur.storageplugs.api;
 import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.domains.PlacedChest;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,4 +46,6 @@ public interface StoragePlusManager extends Manager {
     PlacedChest getOpenedChest(Player player);
 
     void saveChest(PlacedChest chest);
+
+    Map<Integer, ItemStack> compress(Map<Integer, ItemStack> items, List<Material> availableMaterials);
 }
