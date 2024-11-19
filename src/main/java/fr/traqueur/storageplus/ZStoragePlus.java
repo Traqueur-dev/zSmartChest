@@ -5,20 +5,15 @@ import fr.groupez.api.configurations.Configuration;
 import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
 import fr.maxlego08.menu.button.loader.NoneLoader;
-import fr.traqueur.currencies.Currencies;
-import fr.traqueur.currencies.CurrencyProvider;
-import fr.traqueur.storageplugs.api.StoragePlusManager;
-import fr.traqueur.storageplugs.api.StoragePlusPlugin;
-import fr.traqueur.storageplugs.api.domains.ChestTemplate;
-import fr.traqueur.storageplugs.api.gui.buttons.*;
-import fr.traqueur.storageplugs.api.gui.loaders.MaterialAuthorizedButtonLoader;
+import fr.traqueur.storageplus.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.domains.ChestTemplate;
+import fr.traqueur.storageplus.api.gui.buttons.*;
+import fr.traqueur.storageplus.api.gui.loaders.MaterialAuthorizedButtonLoader;
 import fr.traqueur.storageplus.commands.StoragePlusCommand;
 import fr.traqueur.storageplus.commands.converters.SmartChestConverter;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
-import java.lang.reflect.Field;
 
 public final class ZStoragePlus extends StoragePlusPlugin {
 

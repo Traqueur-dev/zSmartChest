@@ -1,7 +1,7 @@
 package fr.groupez.api;
 
 import fr.groupez.api.configurations.Configuration;
-import fr.traqueur.storageplugs.api.config.PlaceholdersConfig;
+import fr.traqueur.storageplus.api.config.PlaceholdersConfig;
 
 public interface MainConfiguration extends Configuration {
 

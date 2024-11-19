@@ -1,8 +1,8 @@
-package fr.traqueur.storageplugs.api.serializers;
+package fr.traqueur.storageplus.api.serializers;
 
-import fr.traqueur.storageplugs.api.StoragePlusManager;
-import fr.traqueur.storageplugs.api.StoragePlusPlugin;
-import fr.traqueur.storageplugs.api.domains.PlacedChest;
+import fr.traqueur.storageplus.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.domains.PlacedChest;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;

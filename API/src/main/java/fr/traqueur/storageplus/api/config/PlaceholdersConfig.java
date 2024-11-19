@@ -1,4 +1,4 @@
-package fr.traqueur.storageplugs.api.config;
+package fr.traqueur.storageplus.api.config;
 
 import fr.groupez.api.configurations.Loadable;
 

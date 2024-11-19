@@ -1,12 +1,11 @@
-package fr.traqueur.storageplugs.api.gui.buttons;
+package fr.traqueur.storageplus.api.gui.buttons;
 
 import fr.groupez.api.messaging.Messages;
 import fr.maxlego08.menu.button.ZButton;
 import fr.maxlego08.menu.inventory.inventories.InventoryDefault;
 import fr.traqueur.currencies.Currencies;
-import fr.traqueur.storageplugs.api.StoragePlusManager;
-import fr.traqueur.storageplugs.api.StoragePlusPlugin;
-import fr.traqueur.storageplugs.api.functions.ItemTransformationFunction;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.functions.ItemTransformationFunction;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

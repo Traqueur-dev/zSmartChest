@@ -1,6 +1,6 @@
-package fr.traqueur.storageplugs.api.domains;
+package fr.traqueur.storageplus.api.domains;
 
-import fr.traqueur.storageplugs.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

@@ -1,7 +1,7 @@
 package fr.traqueur.storageplus.domains;
 
-import fr.traqueur.storageplugs.api.domains.ChestTemplate;
-import fr.traqueur.storageplugs.api.domains.PlacedChest;
+import fr.traqueur.storageplus.api.domains.ChestTemplate;
+import fr.traqueur.storageplus.api.domains.PlacedChest;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 

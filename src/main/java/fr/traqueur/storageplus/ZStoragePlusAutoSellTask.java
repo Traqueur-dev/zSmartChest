@@ -1,6 +1,6 @@
 package fr.traqueur.storageplus;
 
-import fr.traqueur.storageplugs.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.StoragePlusManager;
 
 public class ZStoragePlusAutoSellTask implements Runnable {
 

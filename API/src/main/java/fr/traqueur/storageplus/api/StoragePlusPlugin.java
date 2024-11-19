@@ -1,4 +1,4 @@
-package fr.traqueur.storageplugs.api;
+package fr.traqueur.storageplus.api;
 
 import fr.groupez.api.ZPlugin;
 import fr.maxlego08.menu.api.InventoryManager;

@@ -1,9 +1,9 @@
 package fr.traqueur.storageplus.domains;
 
 import fr.maxlego08.menu.MenuItemStack;
-import fr.traqueur.storageplugs.api.StoragePlusManager;
-import fr.traqueur.storageplugs.api.StoragePlusPlugin;
-import fr.traqueur.storageplugs.api.domains.ChestTemplate;
+import fr.traqueur.storageplus.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

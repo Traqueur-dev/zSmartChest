@@ -2,7 +2,7 @@ package fr.traqueur.storageplus;
 
 import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.configurations.NonLoadable;
-import fr.traqueur.storageplugs.api.config.PlaceholdersConfig;
+import fr.traqueur.storageplus.api.config.PlaceholdersConfig;
 
 public class ZMainConfiguration implements MainConfiguration {
 

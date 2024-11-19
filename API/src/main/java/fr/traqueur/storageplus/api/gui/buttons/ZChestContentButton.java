@@ -1,4 +1,4 @@
-package fr.traqueur.storageplugs.api.gui.buttons;
+package fr.traqueur.storageplus.api.gui.buttons;
 
 import fr.maxlego08.menu.api.button.PaginateButton;
 import fr.maxlego08.menu.api.utils.Placeholders;

@@ -4,8 +4,8 @@ import fr.groupez.api.commands.ZCommand;
 import fr.groupez.api.configurations.Configuration;
 import fr.groupez.api.messaging.Messages;
 import fr.traqueur.commands.api.Arguments;
-import fr.traqueur.storageplugs.api.StoragePlusManager;
-import fr.traqueur.storageplugs.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import org.bukkit.command.CommandSender;
 
 public class ReloadCommand extends ZCommand<StoragePlusPlugin> {

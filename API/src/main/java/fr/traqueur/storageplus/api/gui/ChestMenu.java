@@ -1,10 +1,10 @@
-package fr.traqueur.storageplugs.api.gui;
+package fr.traqueur.storageplus.api.gui;
 
 import fr.maxlego08.menu.ZInventory;
 import fr.maxlego08.menu.api.button.Button;
 import fr.maxlego08.menu.inventory.inventories.InventoryDefault;
-import fr.traqueur.storageplugs.api.StoragePlusManager;
-import fr.traqueur.storageplugs.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 

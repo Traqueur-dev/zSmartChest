@@ -5,7 +5,7 @@ import fr.groupez.api.messaging.Formatter;
 import fr.groupez.api.messaging.Messages;
 import fr.traqueur.commands.api.Arguments;
 import fr.traqueur.commands.api.Command;
-import fr.traqueur.storageplugs.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.commands.admin.GiveCommand;
 import fr.traqueur.storageplus.commands.admin.ReloadCommand;
 import org.bukkit.command.CommandSender;

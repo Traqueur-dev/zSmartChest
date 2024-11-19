@@ -1,6 +1,6 @@
 package fr.traqueur.storageplus;
 
-import fr.traqueur.storageplugs.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.StoragePlusManager;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

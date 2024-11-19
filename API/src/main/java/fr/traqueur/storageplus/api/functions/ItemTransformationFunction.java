@@ -1,4 +1,4 @@
-package fr.traqueur.storageplugs.api.functions;
+package fr.traqueur.storageplus.api.functions;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

@@ -1,12 +1,11 @@
-package fr.traqueur.storageplugs.api.gui.loaders;
+package fr.traqueur.storageplus.api.gui.loaders;
 
 import fr.maxlego08.menu.api.button.Button;
 import fr.maxlego08.menu.api.button.DefaultButtonValue;
 import fr.maxlego08.menu.api.loader.ButtonLoader;
 import fr.traqueur.currencies.Currencies;
-import fr.traqueur.storageplugs.api.StoragePlusPlugin;
-import fr.traqueur.storageplugs.api.gui.buttons.MaterialAuthorizedButton;
-import fr.traqueur.storageplugs.api.gui.buttons.ZCompressorButton;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.gui.buttons.MaterialAuthorizedButton;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
