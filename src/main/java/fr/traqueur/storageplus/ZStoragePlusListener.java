@@ -54,10 +54,11 @@ public class ZStoragePlusListener implements Listener {
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
-        List<ItemStack> items = this.manager.addItemsToChest(event.getItemDrop().getLocation().getChunk(),event.getItemDrop().getItemStack());
-        event.getItemDrop().remove();
-        for (ItemStack item : items) {
-            event.getItemDrop().getWorld().dropItem(event.getItemDrop().getLocation(),item);
+        List<ItemStack> items = this.manager.addItemsToChest(event.getItemDrop().getLocation().getChunk(), event.getItemDrop().getItemStack());
+        if (items.isEmpty()) {
+            event.getItemDrop().remove();
+        } else {
+            event.getItemDrop().setItemStack(items.getFirst());
         }
     }
 
@@ -65,9 +66,10 @@ public class ZStoragePlusListener implements Listener {
     @EventHandler
     public void onDrop(EntityDropItemEvent event) {
         List<ItemStack> items = this.manager.addItemsToChest(event.getItemDrop().getLocation().getChunk(),event.getItemDrop().getItemStack());
-        event.getItemDrop().remove();
-        for (ItemStack item : items) {
-            event.getItemDrop().getWorld().dropItem(event.getItemDrop().getLocation(),item);
+        if (items.isEmpty()) {
+            event.getItemDrop().remove();
+        } else {
+            event.getItemDrop().setItemStack(items.getFirst());
         }
     }
 
@@ -75,9 +77,10 @@ public class ZStoragePlusListener implements Listener {
     public void onDrop(BlockDropItemEvent event) {
         for (Item itemDrop : event.getItems()) {
             List<ItemStack> items = this.manager.addItemsToChest(itemDrop.getLocation().getChunk(),itemDrop.getItemStack());
-            itemDrop.remove();
-            for (ItemStack item : items) {
-                itemDrop.getWorld().dropItem(itemDrop.getLocation(),item);
+            if (items.isEmpty()) {
+                itemDrop.remove();
+            } else {
+                itemDrop.setItemStack(items.getFirst());
             }
         }
     }
