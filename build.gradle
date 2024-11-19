@@ -69,7 +69,7 @@ allprojects {
         implementation 'com.github.Maxlego08:Sarah:1.12'
         implementation 'com.github.Traqueur-dev:CommandsAPI:2.0.0'
 
-        compileOnly 'com.github.Maxlego08:zMenu-API:303d4e9178'
+        compileOnly 'com.github.Maxlego08:zMenu-API:master-SNAPSHOT'
     }
 
 }
