@@ -79,6 +79,9 @@ items:
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴛᴏɢɢʟᴇ ᴠᴀᴄᴜᴜᴍ"
   smelter:
     type: ZSTORAGEPLUS_SMELTER
+    price:
+      type: VAULT
+      amount: 100
     authorized-materials:
       - COBBLESTONE
       - STONE

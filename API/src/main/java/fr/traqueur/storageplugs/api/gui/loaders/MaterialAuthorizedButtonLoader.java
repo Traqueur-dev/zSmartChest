@@ -3,6 +3,7 @@ package fr.traqueur.storageplugs.api.gui.loaders;
 import fr.maxlego08.menu.api.button.Button;
 import fr.maxlego08.menu.api.button.DefaultButtonValue;
 import fr.maxlego08.menu.api.loader.ButtonLoader;
+import fr.traqueur.currencies.Currencies;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import fr.traqueur.storageplugs.api.gui.buttons.MaterialAuthorizedButton;
 import fr.traqueur.storageplugs.api.gui.buttons.ZCompressorButton;
@@ -47,8 +48,13 @@ public class MaterialAuthorizedButtonLoader implements ButtonLoader {
                 .map(Material::valueOf)
                 .toList();
 
+        String amountStr = yamlConfiguration.getString(s + "price.amount", "0");
+        double amount = Double.parseDouble(amountStr);
+        Currencies currency = Currencies.valueOf(yamlConfiguration.getString(s + "price.type", "VAULT"));
+        String name = yamlConfiguration.getString(s + "name", "default");
+
         try {
-            return this.clazz.getConstructor(StoragePlusPlugin.class, List.class).newInstance(this.plugin, availableMaterials);
+            return this.clazz.getConstructor(StoragePlusPlugin.class, List.class, double.class, Currencies.class, String.class).newInstance(this.plugin, availableMaterials, amount, currency, name);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException(e);
         }

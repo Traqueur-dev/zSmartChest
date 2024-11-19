@@ -33,7 +33,8 @@ public enum Messages {
     DESCRIPTION_RELOAD("Reload configuration files"),
 
     DESCRIPTION_GIVE_COMMAND("Give a chest to a player."),
-    ;
+
+    NOT_ENOUGH_MONEY("You do not have enough money to do this."),;
 
     private final ZMessage message;
 
