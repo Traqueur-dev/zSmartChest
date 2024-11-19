@@ -50,6 +50,8 @@ public interface StoragePlusManager extends Manager {
 
     List<ItemStack> compress(List<ItemStack> items, List<Material> availableMaterials);
 
+    List<ItemStack> smelt(List<ItemStack> items, List<Material> availableMaterials);
+
     List<PlacedChest> getChestsInChunk(Chunk chunk);
 
     List<ItemStack> addItemsToChest(Chunk chunk, ItemStack itemStack);

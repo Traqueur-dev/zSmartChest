@@ -17,8 +17,10 @@ import fr.traqueur.storageplus.domains.ZPlacedChest;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -248,6 +250,39 @@ public class ZStoragePlusManager implements StoragePlusManager {
         }
 
         return this.degroupItems(compressedItems);
+    }
+
+    @Override
+    public List<ItemStack> smelt(List<ItemStack> items, List<Material> availableMaterials) {
+        Map<ItemStack, Integer> groupedItems = this.groupItems(items);
+        Map<ItemStack, Integer> compressedItems = new HashMap<>();
+
+        for (Map.Entry<ItemStack, Integer> itemStackIntegerEntry : groupedItems.entrySet()) {
+            ItemStack item = itemStackIntegerEntry.getKey();
+            int amount = itemStackIntegerEntry.getValue();
+            ItemStack result = this.getSmeltedItems(item);
+            if(availableMaterials.contains(item.getType()) && !result.isSimilar(item)) {
+                int smeltAmount = amount*result.getAmount();
+                this.addInMap(compressedItems, result, smeltAmount);
+            } else {
+                this.addInMap(compressedItems, item, amount);
+            }
+        }
+
+        return this.degroupItems(compressedItems);
+    }
+
+    private ItemStack getSmeltedItems(ItemStack itemStack) {
+        Iterator<Recipe> recipes = Bukkit.recipeIterator();
+        while (recipes.hasNext()) {
+            Recipe recipe = recipes.next();
+            if(recipe instanceof FurnaceRecipe furnaceRecipe) {
+                if(furnaceRecipe.getInput().isSimilar(itemStack)) {
+                    return furnaceRecipe.getResult();
+                }
+            }
+        }
+        return itemStack;
     }
 
     private void addInMap(Map<ItemStack, Integer> compressedItems, ItemStack item, int amount) {

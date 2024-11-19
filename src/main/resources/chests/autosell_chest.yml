@@ -77,3 +77,14 @@ items:
       lore:
         - "#92bed8ᴄᴜʀʀᴇɴᴛʟʏ &7%vacuum_state%"
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴛᴏɢɢʟᴇ ᴠᴀᴄᴜᴜᴍ"
+  smelter:
+    type: ZSTORAGEPLUS_SMELTER
+    authorized-materials:
+      - COBBLESTONE
+      - STONE
+    slot: 49
+    item:
+      material: FURNACE
+      name: "#92bed8sᴍᴇʟᴛ"
+      lore:
+        - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ sᴍᴇʟᴛ ᴀʟʟ ɪᴛᴇᴍs"
