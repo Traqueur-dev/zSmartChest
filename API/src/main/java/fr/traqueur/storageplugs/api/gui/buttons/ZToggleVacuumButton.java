@@ -13,11 +13,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-public class ZToggleAutoSellButton extends ZButton {
+public class ZToggleVacuumButton extends ZButton {
 
     private final StoragePlusPlugin plugin;
 
-    public ZToggleAutoSellButton(Plugin plugin) {
+    public ZToggleVacuumButton(Plugin plugin) {
         this.plugin = ((StoragePlusPlugin) plugin);
     }
 
@@ -26,12 +26,12 @@ public class ZToggleAutoSellButton extends ZButton {
 
         Placeholders placeholders = new Placeholders();
         PlaceholdersConfig config = Configuration.get(MainConfiguration.class).getPlaceholders();
-        String autoSellState = this.plugin
+        String vacuumState = this.plugin
                 .getManager(StoragePlusManager.class)
                 .getOpenedChest(player)
-                .isAutoSell() ? config.stateOn() : config.stateOff();
+                .isVacuum() ? config.stateOn() : config.stateOff();
 
-        placeholders.register("autosell_state", autoSellState);
+        placeholders.register("vacuum_state", vacuumState);
 
         return this.getItemStack().build(player, true, placeholders);
     }
@@ -40,6 +40,6 @@ public class ZToggleAutoSellButton extends ZButton {
     public void onClick(Player player, InventoryClickEvent event, InventoryDefault inventory, int slot, Placeholders placeholders) {
         var manager = this.plugin.getManager(StoragePlusManager.class);
         var chest = manager.getOpenedChest(player);
-        chest.setAutoSell(!chest.isAutoSell());
+        chest.setVacuum(!chest.isVacuum());
     }
 }

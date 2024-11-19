@@ -1,5 +1,9 @@
 # zStoragePlus chest configuration
 settings:
+  vacuum:
+    enabled: true
+    black-list:
+      - DIRT
   auto-sell:
     enabled: true
     interval: 10
@@ -63,3 +67,13 @@ items:
       name: "#92bed8ᴄᴏᴍᴘʀᴇss"
       lore:
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴄᴏᴍᴘʀᴇss ᴀʟʟ ɪᴛᴇᴍs"
+  vacuum:
+    type: ZSTORAGEPLUS_TOGGLE_VACUUM
+    slot: 48
+    refreshOnClick: true
+    item:
+      material: HOPPER
+      name: "#92bed8ᴛᴏɢɢʟᴇ ᴠᴀᴄᴜᴜᴍ"
+      lore:
+        - "#92bed8ᴄᴜʀʀᴇɴᴛʟʏ &7%vacuum_state%"
+        - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴛᴏɢɢʟᴇ ᴠᴀᴄᴜᴜᴍ"

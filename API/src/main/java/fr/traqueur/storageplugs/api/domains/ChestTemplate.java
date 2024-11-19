@@ -1,6 +1,7 @@
 package fr.traqueur.storageplugs.api.domains;
 
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,6 +14,10 @@ public interface ChestTemplate {
     boolean isAutoSell();
 
     List<String> getShops();
+
+    boolean isVacuum();
+
+    List<Material> getVacuumBlacklist();
 
     String getName();
 

@@ -4,6 +4,7 @@ import fr.maxlego08.menu.MenuItemStack;
 import fr.traqueur.storageplugs.api.StoragePlusManager;
 import fr.traqueur.storageplugs.api.StoragePlusPlugin;
 import fr.traqueur.storageplugs.api.domains.ChestTemplate;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,13 +24,19 @@ public class ZChestTemplate implements ChestTemplate {
     private final long sellDelay;
     private final List<String> shops;
 
-    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<String> shops) {
+    /* Fields to manage vaccum system */
+    private final boolean vacuum;
+    private final List<Material> blacklistVacuum;
+
+    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<String> shops, boolean vacuum, List<Material> blacklistVacuum) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
         this.sellDelay = sellDelay;
         this.plugin = plugin;
         this.shops = shops;
+        this.vacuum = vacuum;
+        this.blacklistVacuum = blacklistVacuum;
     }
 
     @Override
@@ -45,6 +52,16 @@ public class ZChestTemplate implements ChestTemplate {
     @Override
     public List<String> getShops() {
         return this.shops;
+    }
+
+    @Override
+    public boolean isVacuum() {
+        return this.vacuum;
+    }
+
+    @Override
+    public List<Material> getVacuumBlacklist() {
+        return this.blacklistVacuum;
     }
 
     @Override

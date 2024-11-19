@@ -1,9 +1,9 @@
-config-version: '3'
+config-version: '4'
 
 debug: true
 
 default-auto-sell-interval: 5
 
 placeholders:
-  auto-sell-state-on: "&aᴏɴ"
-  auto-sell-state-off: "&cᴏғғ"
+  state-on: "&aᴏɴ"
+  state-off: "&cᴏғғ"

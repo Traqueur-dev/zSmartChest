@@ -1,6 +1,9 @@
 package fr.traqueur.storageplugs.api.domains;
 
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 public interface PlacedChest {
 
@@ -18,7 +21,13 @@ public interface PlacedChest {
 
     void setSellDelay(long sellDelay);
 
+    boolean isVacuum();
+
+    void setVacuum(boolean vacuum);
+
     ChestTemplate getChestTemplate();
 
     Location getLocation();
+
+    List<ItemStack> addItems(List<ItemStack> items);
 }

@@ -22,7 +22,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -158,7 +157,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
         String[] parts = string.split(";");
         String worldName = parts[0];
         World world = worldName.equals("null") ? null : Bukkit.getWorld(UUID.fromString(worldName));
-        return new ZPlacedChest(UUID.fromString(parts[6]),new Location(world, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])), this.getSmartChest(parts[4]), Long.parseLong(parts[5]), Boolean.parseBoolean(parts[7]), Long.parseLong(parts[8]));
+        return new ZPlacedChest(UUID.fromString(parts[6]),new Location(world, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])), this.getSmartChest(parts[4]), Long.parseLong(parts[5]), Boolean.parseBoolean(parts[7]), Long.parseLong(parts[8]), Boolean.parseBoolean(parts[9]));
     }
 
     @Override
@@ -201,6 +200,32 @@ public class ZStoragePlusManager implements StoragePlusManager {
         chests.removeIf(e -> this.locationEquals(e.getLocation(), chest.getLocation()));
         chests.add(chest);
         this.saveChestsInChunk(chunk, chests);
+    }
+
+    @Override
+    public List<PlacedChest> getChestsInChunk(Chunk chunk) {
+        PersistentDataContainer container = chunk.getPersistentDataContainer();
+        var chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
+        return new ArrayList<>(chests);
+    }
+
+    @Override
+    public List<ItemStack> addItemsToChest(Chunk chunk, ItemStack itemStack) {
+        List<PlacedChest> chests = this.getChestsInChunk(chunk).stream().filter(PlacedChest::isVacuum).toList();
+        List<ItemStack> items = new ArrayList<>();
+        items.add(itemStack);
+        for (PlacedChest chest : chests) {
+            if(chest.getChestTemplate().getVacuumBlacklist().contains(itemStack.getType())) {
+                continue;
+            }
+            System.out.println(itemStack.getType());
+            System.out.println(chest.getChestTemplate().getVacuumBlacklist());
+            if((items = chest.addItems(items)).isEmpty()) {
+                this.saveChestsInChunk(chunk, chests);
+                return items;
+            }
+        }
+        return items;
     }
 
     @Override
@@ -286,12 +311,6 @@ public class ZStoragePlusManager implements StoragePlusManager {
         container.set(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), chests);
     }
 
-    private List<PlacedChest> getChestsInChunk(Chunk chunk) {
-        PersistentDataContainer container = chunk.getPersistentDataContainer();
-        var chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
-        return new ArrayList<>(chests);
-    }
-
     private void registerChestFromFile(File file) {
         String name = "undefined";
         try {
@@ -305,13 +324,17 @@ public class ZStoragePlusManager implements StoragePlusManager {
             menuItemStack = loader.load(config, "settings.item.", file);
             boolean autoSell = config.getBoolean("settings.auto-sell.enabled", false);
             long interval = config.getLong("settings.auto-sell.interval", Configuration.get(MainConfiguration.class).getDefaultAutoSellDelay());
-            List<String> shops;
+            List<String> shops = new ArrayList<>();
             if(config.contains("settings.auto-sell.shops")) {
                 shops = config.getStringList("settings.auto-sell.shops");
-            } else {
-                shops = new ArrayList<>();
             }
-            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops));
+            boolean vacuum = config.getBoolean("settings.vacuum.enabled", false);
+            List<Material> blacklistVacuum = new ArrayList<>();
+            if(config.contains("settings.vacuum.black-list")) {
+                blacklistVacuum = config.getStringList("settings.vacuum.black-list").stream().map(Material::matchMaterial).collect(Collectors.toList());
+            }
+
+            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, vacuum, blacklistVacuum));
             if(this.getPlugin().isDebug()) {
                 ZLogger.info("Registered chest " + name);
             }

@@ -1,13 +1,19 @@
 package fr.traqueur.storageplus;
 
 import fr.traqueur.storageplugs.api.StoragePlusManager;
+import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDropItemEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 public class ZStoragePlusListener implements Listener {
 
@@ -44,5 +50,35 @@ public class ZStoragePlusListener implements Listener {
             event.setCancelled(true);
             this.manager.openChest(event.getPlayer(), chest);
         });
+    }
+
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent event) {
+        List<ItemStack> items = this.manager.addItemsToChest(event.getItemDrop().getLocation().getChunk(),event.getItemDrop().getItemStack());
+        event.getItemDrop().remove();
+        for (ItemStack item : items) {
+            event.getItemDrop().getWorld().dropItem(event.getItemDrop().getLocation(),item);
+        }
+    }
+
+
+    @EventHandler
+    public void onDrop(EntityDropItemEvent event) {
+        List<ItemStack> items = this.manager.addItemsToChest(event.getItemDrop().getLocation().getChunk(),event.getItemDrop().getItemStack());
+        event.getItemDrop().remove();
+        for (ItemStack item : items) {
+            event.getItemDrop().getWorld().dropItem(event.getItemDrop().getLocation(),item);
+        }
+    }
+
+    @EventHandler
+    public void onDrop(BlockDropItemEvent event) {
+        for (Item itemDrop : event.getItems()) {
+            List<ItemStack> items = this.manager.addItemsToChest(itemDrop.getLocation().getChunk(),itemDrop.getItemStack());
+            itemDrop.remove();
+            for (ItemStack item : items) {
+                itemDrop.getWorld().dropItem(itemDrop.getLocation(),item);
+            }
+        }
     }
 }

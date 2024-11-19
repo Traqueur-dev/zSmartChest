@@ -2,6 +2,7 @@ package fr.traqueur.storageplugs.api;
 
 import fr.traqueur.storageplugs.api.domains.ChestTemplate;
 import fr.traqueur.storageplugs.api.domains.PlacedChest;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -48,4 +49,8 @@ public interface StoragePlusManager extends Manager {
     void saveChest(PlacedChest chest);
 
     List<ItemStack> compress(List<ItemStack> items, List<Material> availableMaterials);
+
+    List<PlacedChest> getChestsInChunk(Chunk chunk);
+
+    List<ItemStack> addItemsToChest(Chunk chunk, ItemStack itemStack);
 }
