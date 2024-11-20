@@ -3,20 +3,28 @@ package fr.traqueur.storageplus;
 import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.ZLogger;
 import fr.groupez.api.configurations.Configuration;
+import fr.groupez.api.zcore.ElapsedTime;
 import fr.maxlego08.menu.MenuItemStack;
 import fr.maxlego08.menu.exceptions.InventoryException;
 import fr.maxlego08.menu.loader.MenuItemStackLoader;
 import fr.maxlego08.menu.zcore.utils.loader.Loader;
 import fr.traqueur.storageplus.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.config.DropMode;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
+import fr.traqueur.storageplus.api.domains.PlacedChestContent;
+import fr.traqueur.storageplus.api.domains.StorageItem;
 import fr.traqueur.storageplus.api.gui.ChestMenu;
 import fr.traqueur.storageplus.api.serializers.ChestLocationDataType;
+import fr.traqueur.storageplus.api.storage.Service;
+import fr.traqueur.storageplus.api.storage.dto.PlacedChestDTO;
 import fr.traqueur.storageplus.domains.ZChestTemplate;
 import fr.traqueur.storageplus.domains.ZPlacedChest;
+import fr.traqueur.storageplus.storage.PlacedChestRepository;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -39,17 +47,27 @@ public class ZStoragePlusManager implements StoragePlusManager {
     private final Map<String, ChestTemplate> smartChests;
     private final Map<UUID, PlacedChest> openedChests;
     private final Map<Location, Inventory> mapInventoryOpened;
+    private final Map<UUID, PlacedChestContent> contents;
 
+    private final Service<PlacedChestContent, PlacedChestDTO> service;
 
     public ZStoragePlusManager() {
         this.smartChests = new HashMap<>();
         this.openedChests = new HashMap<>();
         this.mapInventoryOpened = new HashMap<>();
+        this.contents = new HashMap<>();
+
+        this.service = new Service<>(this.getPlugin(), PlacedChestDTO.class, new PlacedChestRepository(), TABLE_NAME);
 
         this.registerChests();
 
+        this.service.findAll().forEach(e -> {
+            this.contents.put(e.uuid(), e);
+        });
+
         this.getPlugin().getServer().getPluginManager().registerEvents(new ZStoragePlusListener(this), this.getPlugin());
         this.getPlugin().getScheduler().runTimer(new ZStoragePlusAutoSellTask(this), 0, 20);
+        this.getPlugin().getScheduler().runTimer(this::saveAll, 0, 20*60*60);
     }
 
     @Override
@@ -66,27 +84,69 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
-    public void placeChest(Player player, Location location, ChestTemplate chest) {
+    public void placeChest(Player player, Location location, ChestTemplate chest, ItemStack itemStack) {
+        ItemMeta meta = itemStack.getItemMeta();
+        UUID uuid = null;
+        if(meta != null) {
+            PersistentDataContainer container = meta.getPersistentDataContainer();
+            String uuidStr = container.getOrDefault(this.getNamespaceKeyUUID(), PersistentDataType.STRING, "error");
+            if (!uuidStr.equals("error")) {
+                uuid = UUID.fromString(uuidStr);
+            }
+        }
+
         Chunk chunk = location.getChunk();
         PersistentDataContainer container = chunk.getPersistentDataContainer();
-        PlacedChest chestLocation = new ZPlacedChest(player.getUniqueId(), location, chest);
+        PlacedChest chestLocation = uuid == null ? new ZPlacedChest(player.getUniqueId(), location, chest) : new ZPlacedChest(uuid, player.getUniqueId(), location, chest);
         List<PlacedChest> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
         chests = new ArrayList<>(chests);
         chests.add(chestLocation);
         container.set(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), chests);
+
+        if(!this.contents.containsKey(chestLocation.getUniqueId())) {
+            this.contents.put(chestLocation.getUniqueId(), new PlacedChestContent(chestLocation.getUniqueId(), new ArrayList<>()));
+        }
+
         if(this.getPlugin().isDebug()) {
             ZLogger.info("Placed chest " + chest.getName() + " at " + location);
         }
     }
 
     @Override
-    public void breakChest(Location location) {
+    public void breakChest(BlockBreakEvent event, Location location) {
         Chunk chunk = location.getChunk();
-        PersistentDataContainer container = chunk.getPersistentDataContainer();
-        List<PlacedChest> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
-        chests = new ArrayList<>(chests);
-        chests.removeIf(e -> this.locationEquals(e.getLocation(), location));
-        container.set(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), chests);
+        List<PlacedChest> chests = this.getChestsInChunk(chunk);
+        PlacedChest chest = chests.stream().filter(e -> this.locationEquals(e.getLocation(), location)).findFirst().orElse(null);
+        boolean result = chests.removeIf(e -> this.locationEquals(e.getLocation(), location));
+        this.saveChestsInChunk(chunk, chests);
+        if(result && chest != null) {
+            event.setDropItems(false);
+            ItemStack itemStack = chest.getChestTemplate().build(event.getPlayer());
+            switch (chest.getChestTemplate().getDropMode()) {
+                case KEEP -> {
+                    ItemMeta meta = itemStack.getItemMeta();
+                    PersistentDataContainer container = meta.getPersistentDataContainer();
+                    container.set(this.getNamespaceKeyUUID(), PersistentDataType.STRING, chest.getUniqueId().toString());
+                    itemStack.setItemMeta(meta);
+                }
+                case DROP -> {
+                    this.contents.get(chest.getUniqueId()).content().forEach(e -> {
+                        int amount = e.amount();
+                        ItemStack item = e.item();
+                        while (amount > 0) {
+                            int toAdd = Math.min(amount, item.getMaxStackSize());
+                            ItemStack clone = item.clone();
+                            clone.setAmount(toAdd);
+                            event.getBlock().getWorld().dropItemNaturally(location, clone);
+                            amount -= toAdd;
+                        }
+                    });
+                    this.service.delete(this.contents.remove(chest.getUniqueId()));
+                }
+            }
+            event.getBlock().getWorld().dropItemNaturally(location, itemStack);
+        }
+
         if(this.getPlugin().isDebug()) {
             ZLogger.info("Broke chest at " + location);
         }
@@ -117,6 +177,11 @@ public class ZStoragePlusManager implements StoragePlusManager {
     @Override
     public NamespacedKey getNamespaceKey() {
         return new NamespacedKey(this.getPlugin(), "storageplus");
+    }
+
+    @Override
+    public NamespacedKey getNamespaceKeyUUID() {
+        return new NamespacedKey(this.getPlugin(), "storageplus_uuid");
     }
 
     @Override
@@ -159,7 +224,8 @@ public class ZStoragePlusManager implements StoragePlusManager {
         String[] parts = string.split(";");
         String worldName = parts[0];
         World world = worldName.equals("null") ? null : Bukkit.getWorld(UUID.fromString(worldName));
-        return new ZPlacedChest(UUID.fromString(parts[6]),new Location(world, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])), this.getSmartChest(parts[4]), Long.parseLong(parts[5]), Boolean.parseBoolean(parts[7]), Long.parseLong(parts[8]), Boolean.parseBoolean(parts[9]));
+        Location location = new Location(world, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+        return new ZPlacedChest(UUID.fromString(parts[10]), UUID.fromString(parts[6]),location, this.getSmartChest(parts[4]), Long.parseLong(parts[5]), Boolean.parseBoolean(parts[7]), Long.parseLong(parts[8]), Boolean.parseBoolean(parts[9]));
     }
 
     @Override
@@ -220,8 +286,6 @@ public class ZStoragePlusManager implements StoragePlusManager {
             if(chest.getChestTemplate().getVacuumBlacklist().contains(itemStack.getType())) {
                 continue;
             }
-            System.out.println(itemStack.getType());
-            System.out.println(chest.getChestTemplate().getVacuumBlacklist());
             if((items = chest.addItems(items)).isEmpty()) {
                 this.saveChestsInChunk(chunk, chests);
                 return items;
@@ -270,6 +334,27 @@ public class ZStoragePlusManager implements StoragePlusManager {
         }
 
         return this.degroupItems(compressedItems);
+    }
+
+    @Override
+    public void saveAll() {
+        ElapsedTime elapsedTime = new ElapsedTime("saveAll");
+        elapsedTime.start();
+        this.contents.values().forEach(this.service::save);
+        elapsedTime.endDisplay();
+    }
+
+    @Override
+    public PlacedChestContent getContent(PlacedChest chest) {
+        return this.contents.get(chest.getUniqueId());
+    }
+
+    @Override
+    public void setContent(PlacedChest chest, List<StorageItem> items) {
+        this.contents.computeIfPresent(chest.getUniqueId(), (k, v) -> {
+            v.setContent(items);
+            return v;
+        });
     }
 
     private ItemStack getSmeltedItems(ItemStack itemStack) {
@@ -368,8 +453,10 @@ public class ZStoragePlusManager implements StoragePlusManager {
             if(config.contains("settings.vacuum.black-list")) {
                 blacklistVacuum = config.getStringList("settings.vacuum.black-list").stream().map(Material::matchMaterial).collect(Collectors.toList());
             }
-
-            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, vacuum, blacklistVacuum));
+            DropMode dropMode = DropMode.valueOf(config.getString("settings.drop-mode", "KEEP"));
+            boolean infinite = config.getBoolean("settings.infinite", false);
+            int maxStackSize = config.getInt("settings.max-stack-size", -1);
+            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, vacuum, blacklistVacuum, dropMode, infinite, maxStackSize));
             if(this.getPlugin().isDebug()) {
                 ZLogger.info("Registered chest " + name);
             }

@@ -1,9 +1,34 @@
-config-version: '4'
+config-version: '6'
 
 debug: true
+
+# This option is use to configure the storage system
+# You can choose between SQLITE and MYSQL
+storage-config:
+  type: SQLITE
+  host: "127.0.0.1"
+  port: 3306
+  table-prefix: "zstorageplus_"
+  database: "zstorageplus"
+  username: "local"
+  password: "password"
 
 default-auto-sell-interval: 5
 
 placeholders:
   state-on: "&aᴏɴ"
   state-off: "&cᴏғғ"
+
+# These lines represent all pagination items used in the menus
+# They work like zMenu, you can read the zMenu documentation for more information
+# https://docs.zmenu.dev/
+# Doesn't change the key value of each item. You can change the material, name, lore, etc.
+storage-icons:
+  storage-item:
+    name: "#92bed8Sᴛᴏᴄᴋ ᴏғ &7%material_name%"
+    material: "%material%"
+    lore:
+      - "#92bed8Sᴛᴏᴄᴋ: &f%amount%"
+      - ""
+      - "#92bed8ʟᴇғᴛ ᴄʟɪᴄᴋ &7ᴛᴏ ᴘɪᴄᴋ 64"
+      - "#92bed8ʀɪɢʜᴛ ᴄʟɪᴄᴋ &7ᴛᴏ ᴘɪᴄᴋ 1"

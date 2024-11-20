@@ -27,13 +27,13 @@ public class ZStoragePlusListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         ItemStack item = event.getItemInHand();
         this.manager.getChestFromItem(item).ifPresent(chest -> {
-            this.manager.placeChest(event.getPlayer(), event.getBlockPlaced().getLocation(), chest);
+            this.manager.placeChest(event.getPlayer(), event.getBlockPlaced().getLocation(), chest, item);
         });
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        this.manager.breakChest(event.getBlock().getLocation());
+        this.manager.breakChest(event, event.getBlock().getLocation());
     }
 
     @EventHandler

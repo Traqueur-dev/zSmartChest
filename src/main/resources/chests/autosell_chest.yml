@@ -1,5 +1,8 @@
 # zStoragePlus chest configuration
 settings:
+  infinite: true
+  drop-mode: DROP
+  max-stack-size: -1
   vacuum:
     enabled: true
     black-list:

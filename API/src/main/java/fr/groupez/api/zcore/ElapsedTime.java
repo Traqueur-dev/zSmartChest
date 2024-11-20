@@ -1,6 +1,7 @@
 package fr.groupez.api.zcore;
 
 import fr.groupez.api.MainConfiguration;
+import fr.groupez.api.ZLogger;
 import fr.groupez.api.configurations.Configuration;
 
 import java.text.DecimalFormat;
@@ -71,7 +72,7 @@ public class ElapsedTime {
 	public void endDisplay() {
 		this.end();
 		if (Configuration.get(MainConfiguration.class).isDebug()) {
-			System.out.println("[ElapsedTime] " + name + " -> " + this.format(this.getElapsedTime()));
+			ZLogger.info("[ElapsedTime] " + name + " -> " + this.format(this.getElapsedTime()));
 		}
 	}
 

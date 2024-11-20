@@ -2,6 +2,7 @@ package fr.traqueur.storageplus.domains;
 
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
+import fr.traqueur.storageplus.api.domains.StorageItem;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 
 public class ZPlacedChest implements PlacedChest {
 
+    private final UUID uniqueId;
     private final UUID owner;
     private final Location location;
     private final ChestTemplate chestTemplate;
@@ -19,10 +21,15 @@ public class ZPlacedChest implements PlacedChest {
     private boolean vacuum;
 
     public ZPlacedChest(UUID owner, Location location, ChestTemplate chestTemplate) {
-        this(owner, location, chestTemplate, 0, chestTemplate.isAutoSell(), chestTemplate.getSellDelay(), chestTemplate.isVacuum());
+        this(UUID.randomUUID(), owner, location, chestTemplate);
     }
 
-    public ZPlacedChest(UUID owner, Location location, ChestTemplate chestTemplate, long time, boolean autoSell, long sellDelay, boolean vacuum) {
+    public ZPlacedChest(UUID uniqueId, UUID owner, Location location, ChestTemplate chestTemplate) {
+        this(uniqueId, owner, location, chestTemplate, 0, chestTemplate.isAutoSell(), chestTemplate.getSellDelay(), chestTemplate.isVacuum());
+    }
+
+    public ZPlacedChest(UUID uniqueId, UUID owner, Location location, ChestTemplate chestTemplate, long time, boolean autoSell, long sellDelay, boolean vacuum) {
+        this.uniqueId = uniqueId;
         this.owner = owner;
         this.location = location;
         this.chestTemplate = chestTemplate;
@@ -43,7 +50,8 @@ public class ZPlacedChest implements PlacedChest {
                 + this.owner.toString() + ";"
                 + this.autoSell + ";"
                 + this.sellDelay +";"
-                + this.vacuum;
+                + this.vacuum + ";"
+                + this.uniqueId.toString();
     }
 
     @Override
@@ -53,6 +61,12 @@ public class ZPlacedChest implements PlacedChest {
             this.time = 0;
         }
     }
+
+    @Override
+    public UUID getUniqueId() {
+        return this.uniqueId;
+    }
+
     @Override
     public long getTime() {
         return this.time;

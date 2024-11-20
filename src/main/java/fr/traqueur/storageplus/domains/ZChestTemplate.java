@@ -3,6 +3,7 @@ package fr.traqueur.storageplus.domains;
 import fr.maxlego08.menu.MenuItemStack;
 import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.config.DropMode;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,6 +19,9 @@ public class ZChestTemplate implements ChestTemplate {
     private final StoragePlusPlugin plugin;
     private final String name;
     private final MenuItemStack item;
+    private final DropMode dropMode;
+    private final boolean infinite;
+    private final int maxStackSize;
 
     /* Fields to manage auto sell */
     private final boolean autoSell;
@@ -28,7 +32,7 @@ public class ZChestTemplate implements ChestTemplate {
     private final boolean vacuum;
     private final List<Material> blacklistVacuum;
 
-    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<String> shops, boolean vacuum, List<Material> blacklistVacuum) {
+    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<String> shops, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
@@ -37,6 +41,9 @@ public class ZChestTemplate implements ChestTemplate {
         this.shops = shops;
         this.vacuum = vacuum;
         this.blacklistVacuum = blacklistVacuum;
+        this.dropMode = dropMode;
+        this.infinite = infinite;
+        this.maxStackSize = maxStackSize;
     }
 
     @Override
@@ -69,6 +76,16 @@ public class ZChestTemplate implements ChestTemplate {
         return this.name;
     }
 
+    @Override
+    public DropMode getDropMode() {
+        return this.dropMode;
+    }
+
+    @Override
+    public boolean isInfinite() {
+        return this.infinite;
+    }
+
     public void open(StoragePlusPlugin plugin, Player player) {
         plugin.getInventoryManager().openInventory(player, this.name);
     }
@@ -82,6 +99,11 @@ public class ZChestTemplate implements ChestTemplate {
                 PersistentDataType.STRING, this.name);
         itemStack.setItemMeta(meta);
         return itemStack;
+    }
+
+    @Override
+    public int getMaxStackSize() {
+        return this.maxStackSize;
     }
 
 }
