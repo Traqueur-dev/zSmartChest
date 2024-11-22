@@ -2,11 +2,8 @@ package fr.traqueur.storageplus.domains;
 
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
-import fr.traqueur.storageplus.api.domains.StorageItem;
 import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
 import java.util.UUID;
 
 public class ZPlacedChest implements PlacedChest {
@@ -110,5 +107,10 @@ public class ZPlacedChest implements PlacedChest {
     @Override
     public Location getLocation() {
         return location;
+    }
+
+    @Override
+    public UUID getOwner() {
+        return owner;
     }
 }

@@ -6,9 +6,7 @@ import fr.traqueur.storageplus.api.hooks.HooksManager;
 import fr.traqueur.storageplus.api.hooks.ShopProvider;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class ZStoragePlusHooksManager implements HooksManager {
 
@@ -38,6 +36,11 @@ public class ZStoragePlusHooksManager implements HooksManager {
     @Override
     public Optional<ShopProvider> getProvider(Hook hook) {
         return Optional.ofNullable(this.providers.get(hook));
+    }
+
+    @Override
+    public List<Hook> getHooks() {
+        return new ArrayList<>(this.providers.keySet());
     }
 
 }

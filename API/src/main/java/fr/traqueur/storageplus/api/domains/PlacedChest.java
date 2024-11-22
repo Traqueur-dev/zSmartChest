@@ -31,4 +31,6 @@ public interface PlacedChest {
     ChestTemplate getChestTemplate();
 
     Location getLocation();
+
+    UUID getOwner();
 }

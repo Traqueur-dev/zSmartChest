@@ -28,6 +28,7 @@ import fr.traqueur.storageplus.hooks.Hooks;
 import fr.traqueur.storageplus.storage.PlacedChestRepository;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -153,9 +154,6 @@ public class ZStoragePlusManager implements StoragePlusManager {
                 ZLogger.info("Broke chest at " + location);
             }
         });
-
-
-
     }
 
     @Override
@@ -216,6 +214,14 @@ public class ZStoragePlusManager implements StoragePlusManager {
                     chest.tick();
                     if (chest.getTime() % chest.getSellDelay() == 0) {
                         this.sell(chest);
+                        var inventory = this.mapInventoryOpened.remove(chest.getLocation());
+                        if(inventory != null) {
+                            for (HumanEntity viewer : new ArrayList<>(inventory.getViewers())) {
+                                this.openedChests.remove(viewer.getUniqueId());
+                                viewer.closeInventory();
+                                this.openChest((Player) viewer, chest);
+                            }
+                        }
                         if(this.getPlugin().isDebug()) {
                             ZLogger.info("Auto selling chest " + chest.getChestTemplate().getName() + " at " + chest.getLocation());
                         }
@@ -232,12 +238,13 @@ public class ZStoragePlusManager implements StoragePlusManager {
         Map<ItemStack, Integer> notSellable = new HashMap<>();
         groupedItems.forEach((item, amount) -> {
             boolean hasSell = false;
-            for (Hook hook : chest.getChestTemplate().getShops()) {
-                var opt = this.getPlugin().getManager(HooksManager.class).getProvider(hook);
+            var hookManager = this.getPlugin().getManager(HooksManager.class);
+            for (Hook hook : (chest.getChestTemplate().getShops().isEmpty() ? hookManager.getHooks() : chest.getChestTemplate().getShops())) {
+                var opt = hookManager.getProvider(hook);
                 if(opt.isEmpty()) {
                     continue;
                 }
-                if(opt.get().sellItems(null, item, amount)) {
+                if(opt.get().sellItems(Bukkit.getPlayer(chest.getOwner()), item, amount)) {
                     hasSell = true;
                     break;
                 }
@@ -248,12 +255,10 @@ public class ZStoragePlusManager implements StoragePlusManager {
         });
         List<Integer> slots = new ArrayList<>();
         this.getPlugin().getInventoryManager()
-                .getInventory(chest.getChestTemplate().getName())
-                .flatMap(inventory -> inventory.getButtons().stream().filter(button -> button instanceof ZChestContentButton).findFirst())
-                .ifPresent(button -> {
-            slots.addAll(button.getSlots());
-        });
-        this.setContent(chest, this.degroupItems(chest, notSellable, slots));
+                .getInventory(chest.getChestTemplate().getName()).flatMap(inventory -> inventory.getButtons().stream().filter(button -> button instanceof ZChestContentButton).findFirst()).ifPresent(button -> {
+                    slots.addAll(button.getSlots());
+                    this.setContent(chest, this.degroupItems(chest, notSellable, slots));
+                });
     }
 
     @Override
@@ -278,6 +283,9 @@ public class ZStoragePlusManager implements StoragePlusManager {
     @Override
     public void closeChest(Player player) {
         PlacedChest chest = this.openedChests.remove(player.getUniqueId());
+        if(chest == null) {
+            return;
+        }
         if(this.openedChests.values().stream().anyMatch(e -> this.locationEquals(e.getLocation(), chest.getLocation()))) {
             return;
         }
