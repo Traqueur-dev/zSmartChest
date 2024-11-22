@@ -16,11 +16,15 @@ import fr.traqueur.storageplus.api.domains.PlacedChest;
 import fr.traqueur.storageplus.api.domains.PlacedChestContent;
 import fr.traqueur.storageplus.api.domains.StorageItem;
 import fr.traqueur.storageplus.api.gui.ChestMenu;
+import fr.traqueur.storageplus.api.gui.buttons.ZChestContentButton;
+import fr.traqueur.storageplus.api.hooks.Hook;
+import fr.traqueur.storageplus.api.hooks.HooksManager;
 import fr.traqueur.storageplus.api.serializers.ChestLocationDataType;
 import fr.traqueur.storageplus.api.storage.Service;
 import fr.traqueur.storageplus.api.storage.dto.PlacedChestDTO;
 import fr.traqueur.storageplus.domains.ZChestTemplate;
 import fr.traqueur.storageplus.domains.ZPlacedChest;
+import fr.traqueur.storageplus.hooks.Hooks;
 import fr.traqueur.storageplus.storage.PlacedChestRepository;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -211,6 +215,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
                 chests.stream().filter(PlacedChest::isAutoSell).forEach(chest -> {
                     chest.tick();
                     if (chest.getTime() % chest.getSellDelay() == 0) {
+                        this.sell(chest);
                         if(this.getPlugin().isDebug()) {
                             ZLogger.info("Auto selling chest " + chest.getChestTemplate().getName() + " at " + chest.getLocation());
                         }
@@ -219,6 +224,36 @@ public class ZStoragePlusManager implements StoragePlusManager {
                 this.saveChestsInChunk(loadedChunk, chests);
             }
         }
+    }
+
+    private void sell(PlacedChest chest) {
+        PlacedChestContent content = this.getContent(chest);
+        Map<ItemStack, Integer> groupedItems = this.groupItems(content.content());
+        Map<ItemStack, Integer> notSellable = new HashMap<>();
+        groupedItems.forEach((item, amount) -> {
+            boolean hasSell = false;
+            for (Hook hook : chest.getChestTemplate().getShops()) {
+                var opt = this.getPlugin().getManager(HooksManager.class).getProvider(hook);
+                if(opt.isEmpty()) {
+                    continue;
+                }
+                if(opt.get().sellItems(null, item, amount)) {
+                    hasSell = true;
+                    break;
+                }
+            }
+            if(!hasSell) {
+                notSellable.put(item, amount);
+            }
+        });
+        List<Integer> slots = new ArrayList<>();
+        this.getPlugin().getInventoryManager()
+                .getInventory(chest.getChestTemplate().getName())
+                .flatMap(inventory -> inventory.getButtons().stream().filter(button -> button instanceof ZChestContentButton).findFirst())
+                .ifPresent(button -> {
+            slots.addAll(button.getSlots());
+        });
+        this.setContent(chest, this.degroupItems(chest, notSellable, slots));
     }
 
     @Override
@@ -524,9 +559,9 @@ public class ZStoragePlusManager implements StoragePlusManager {
             menuItemStack = loader.load(config, "settings.item.", file);
             boolean autoSell = config.getBoolean("settings.auto-sell.enabled", false);
             long interval = config.getLong("settings.auto-sell.interval", Configuration.get(MainConfiguration.class).getDefaultAutoSellDelay());
-            List<String> shops = new ArrayList<>();
+            List<Hook> shops = new ArrayList<>();
             if(config.contains("settings.auto-sell.shops")) {
-                shops = config.getStringList("settings.auto-sell.shops");
+                shops = config.getStringList("settings.auto-sell.shops").stream().map(str -> Hooks.valueOf(str.toUpperCase())).collect(Collectors.toList());
             }
             boolean vacuum = config.getBoolean("settings.vacuum.enabled", false);
             List<Material> blacklistVacuum = new ArrayList<>();

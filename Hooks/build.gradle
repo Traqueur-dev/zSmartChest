@@ -2,4 +2,11 @@ group 'Hooks'
 
 dependencies {
     implementation project(':API')
+    compileOnly 'com.github.brcdev-minecraft:shopgui-api:3.0.0'
+    compileOnly ('com.github.Maxlego08:zShop-API:3.0.5')
+}
+configurations.configureEach {
+    resolutionStrategy {
+        force 'com.github.Maxlego08:zMenu-API:master-SNAPSHOT'
+    }
 }

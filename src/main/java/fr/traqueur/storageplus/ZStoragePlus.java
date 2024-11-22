@@ -67,7 +67,8 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         this.storage.onEnable();
 
         var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
-        this.registerManager(HooksManager.class, new ZStoragePlusHooksManager());
+        var hookManager = this.registerManager(HooksManager.class, new ZStoragePlusHooksManager());
+        this.getScheduler().runAsync((t) -> hookManager.registerHooks());
 
         this.commandManager.setDebug(configuration.isDebug());
         this.commandManager.registerConverter(ChestTemplate.class, new SmartChestConverter(manager));

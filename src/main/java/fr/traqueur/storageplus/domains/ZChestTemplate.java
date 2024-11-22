@@ -5,6 +5,7 @@ import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.config.DropMode;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
+import fr.traqueur.storageplus.api.hooks.Hook;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,13 +27,13 @@ public class ZChestTemplate implements ChestTemplate {
     /* Fields to manage auto sell */
     private final boolean autoSell;
     private final long sellDelay;
-    private final List<String> shops;
+    private final List<Hook> shops;
 
     /* Fields to manage vaccum system */
     private final boolean vacuum;
     private final List<Material> blacklistVacuum;
 
-    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<String> shops, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize) {
+    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<Hook> shops, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
@@ -57,7 +58,7 @@ public class ZChestTemplate implements ChestTemplate {
     }
 
     @Override
-    public List<String> getShops() {
+    public List<Hook> getShops() {
         return this.shops;
     }
 
