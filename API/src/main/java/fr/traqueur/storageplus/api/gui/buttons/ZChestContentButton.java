@@ -1,8 +1,10 @@
 package fr.traqueur.storageplus.api.gui.buttons;
 
+import fr.maxlego08.menu.api.button.PaginateButton;
 import fr.maxlego08.menu.api.utils.Placeholders;
 import fr.maxlego08.menu.button.ZButton;
 import fr.maxlego08.menu.inventory.inventories.InventoryDefault;
+import fr.maxlego08.menu.zcore.utils.inventory.Pagination;
 import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
@@ -19,7 +21,7 @@ import org.bukkit.plugin.Plugin;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ZChestContentButton extends ZButton {
+public class ZChestContentButton extends ZButton implements PaginateButton {
 
     private final StoragePlusPlugin plugin;
     private final ClickHolder holder;
@@ -47,13 +49,15 @@ public class ZChestContentButton extends ZButton {
     private void displayItems(Player player, InventoryDefault inventory) {
         StoragePlusManager manager = plugin.getManager(StoragePlusManager.class);
         PlacedChest chest = manager.getOpenedChest(player);
-        List<StorageItem> items = manager.getContent(chest).content();
+        Pagination<StorageItem> pagination = new Pagination<>();
+        List<StorageItem> items = pagination.paginate(manager.getContent(chest).content(), this.slots.size(), inventory.getPage());
         for (int slot : this.slots) {
+            int calculatedSlot = slot * (inventory.getPage()+1);
             AtomicReference<ItemStack> item = new AtomicReference<>();
-            items.stream().filter(storageItem -> storageItem.slot() == slot).findFirst().ifPresentOrElse(storageItem -> {
+            items.stream().filter(storageItem -> storageItem.slot() == calculatedSlot).findFirst().ifPresentOrElse(storageItem -> {
                 item.set(storageItem.toItem(player, chest.getChestTemplate().isInfinite()));
             }, () -> {
-                StorageItem newItem = new StorageItem(new ItemStack(Material.AIR), 1, slot);
+                StorageItem newItem = new StorageItem(new ItemStack(Material.AIR), 1, calculatedSlot);
                 item.set(newItem.toItem(player, chest.getChestTemplate().isInfinite()));
                 items.add(newItem);
             });
@@ -85,5 +89,16 @@ public class ZChestContentButton extends ZButton {
             case DROP, CONTROL_DROP -> this.holder.handleDrop(event, player, cursor, current, slot, inventorySize, vault, chest,clickType == ClickType.CONTROL_DROP);
             case NUMBER_KEY -> this.holder.handleNumberKey(event, player, cursor, current, slot, inventorySize, vault,chest);
         }
+    }
+
+    @Override
+    public int getPaginationSize(Player player) {
+        PlacedChest chest = this.plugin.getManager(StoragePlusManager.class).getOpenedChest(player);
+        PlacedChestContent content = this.plugin.getManager(StoragePlusManager.class).getContent(chest);
+        if(chest.getChestTemplate().getMaxPages() != -1) {
+            return chest.getChestTemplate().getMaxPages() * this.slots.size();
+        }
+
+        return content.content().size() + this.slots.size();
     }
 }

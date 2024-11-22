@@ -45,11 +45,9 @@ public interface StoragePlusManager extends Manager {
 
     PlacedChest deserializeChest(String s);
     
-    void openChest(Player player, PlacedChest chest);
+    void openChest(Player player, PlacedChest chest, int page);
     
     void closeChest(Player player);
-
-    void postOpenChest(Player player, Inventory spigotInventory);
 
     PlacedChest getOpenedChest(Player player);
 

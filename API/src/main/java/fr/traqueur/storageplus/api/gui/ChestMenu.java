@@ -17,16 +17,22 @@ public class ChestMenu extends ZInventory {
     }
 
     @Override
-    public void postOpenInventory(Player player, InventoryDefault inventoryDefault) {
-        ((StoragePlusPlugin) getPlugin())
-                .getManager(StoragePlusManager.class)
-                .postOpenChest(player, inventoryDefault.getSpigotInventory());
-    }
-
-    @Override
     public void closeInventory(Player player, InventoryDefault inventoryDefault) {
         ((StoragePlusPlugin) getPlugin())
                 .getManager(StoragePlusManager.class)
                 .closeChest(player);
+    }
+
+    @Override
+    public int getMaxPage(Player player, Object... objects) {
+        int maxPages = ((StoragePlusPlugin) getPlugin())
+                .getManager(StoragePlusManager.class)
+                .getOpenedChest(player).getChestTemplate().getMaxPages();
+
+        if(maxPages == -1) {
+            return super.getMaxPage(player, objects);
+        } else {
+            return maxPages;
+        }
     }
 }

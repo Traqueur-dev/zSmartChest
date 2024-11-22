@@ -44,10 +44,13 @@ public abstract class MaterialAuthorizedButton extends ZButton {
             }
             currency.withdraw(player, new BigDecimal(this.amount), this.currencyName);
         }
-        ZChestContentButton button = inventory.getButtons().stream().filter(buttonInner -> buttonInner instanceof ZChestContentButton).map(buttonInner -> (ZChestContentButton) buttonInner).findFirst().orElseThrow();
+        var button = inventory.getButtons().stream().filter(buttonInner -> buttonInner instanceof ZChestContentButton).map(buttonInner -> (ZChestContentButton) buttonInner).findFirst();
+        if(button.isEmpty()) {
+            return;
+        }
         PlacedChest chest = plugin.getManager(StoragePlusManager.class).getOpenedChest(player);
-        function.transfrom(chest, availableMaterials, new ArrayList<>(button.getSlots()));
-        button.onRender(player, inventory);
+        function.transfrom(chest, availableMaterials, new ArrayList<>(button.get().getSlots()));
+        button.get().onRender(player, inventory);
     }
 
 }

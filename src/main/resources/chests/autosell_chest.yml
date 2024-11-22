@@ -2,6 +2,7 @@
 settings:
   infinite: true
   drop-mode: DROP
+  max-pages: 10
   max-stack-size: -1
   vacuum:
     enabled: true
@@ -22,7 +23,7 @@ settings:
 
 # zMenu gui config
 # Complete this section to configure the gui when a player open the chest represent by this config file
-name: "ᴀᴜᴛᴏsᴇʟʟ ᴄʜᴇsᴛ"
+name: "ᴀᴜᴛᴏsᴇʟʟ ᴄʜᴇsᴛ %page%/%maxPage%"
 size: 54
 items:
   content:
@@ -45,6 +46,7 @@ items:
       - 44-53
   autoselltoggle:
     type: ZSTORAGEPLUS_TOGGLE_AUTOSELL
+    isPermanent: true
     slot: 46
     refreshOnClick: true
     item:
@@ -55,6 +57,7 @@ items:
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴛᴏɢɢʟᴇ ᴀᴜᴛᴏsᴇʟʟ"
   compressor:
     type: ZSTORAGEPLUS_COMPRESSOR
+    isPermanent: true
     authorized-materials:
       - DIAMOND
       - EMERALD
@@ -72,6 +75,7 @@ items:
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴄᴏᴍᴘʀᴇss ᴀʟʟ ɪᴛᴇᴍs"
   vacuum:
     type: ZSTORAGEPLUS_TOGGLE_VACUUM
+    isPermanent: true
     slot: 48
     refreshOnClick: true
     item:
@@ -82,6 +86,7 @@ items:
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴛᴏɢɢʟᴇ ᴠᴀᴄᴜᴜᴍ"
   smelter:
     type: ZSTORAGEPLUS_SMELTER
+    isPermanent: true
     price:
       type: VAULT
       amount: 100
@@ -94,3 +99,31 @@ items:
       name: "#92bed8sᴍᴇʟᴛ"
       lore:
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ sᴍᴇʟᴛ ᴀʟʟ ɪᴛᴇᴍs"
+  next:
+    type: ZSTORAGEPLUS_NEXT
+    isPermanent: true
+    slot: 8
+    item:
+      material: ARROW
+      name: "&fNext"
+    else:
+      slot: 8
+      type: NONE
+      isPermanent: true
+      item:
+        material: GRAY_STAINED_GLASS_PANE
+        name: "&e"
+  previous:
+    type: ZSTORAGEPLUS_PREVIOUS
+    isPermanent: true
+    slot: 0
+    item:
+      material: ARROW
+      name: "&fPrevious"
+    else:
+      slot: 0
+      type: NONE
+      isPermanent: true
+      item:
+        material: GRAY_STAINED_GLASS_PANE
+        name: "&e"

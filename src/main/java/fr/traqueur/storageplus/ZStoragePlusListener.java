@@ -48,7 +48,7 @@ public class ZStoragePlusListener implements Listener {
 
         this.manager.getChestFromBlock(event.getClickedBlock().getLocation()).ifPresent(chest -> {
             event.setCancelled(true);
-            this.manager.openChest(event.getPlayer(), chest);
+            this.manager.openChest(event.getPlayer(), chest, 1);
         });
     }
 

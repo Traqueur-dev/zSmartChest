@@ -219,7 +219,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
                             for (HumanEntity viewer : new ArrayList<>(inventory.getViewers())) {
                                 this.openedChests.remove(viewer.getUniqueId());
                                 viewer.closeInventory();
-                                this.openChest((Player) viewer, chest);
+                                this.openChest((Player) viewer, chest, 0);
                             }
                         }
                         if(this.getPlugin().isDebug()) {
@@ -271,13 +271,14 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
-    public void openChest(Player player, PlacedChest chest) {
-        this.openedChests.put(player.getUniqueId(), chest);
-        if(this.mapInventoryOpened.containsKey(chest.getLocation())) {
-            player.openInventory(this.mapInventoryOpened.get(chest.getLocation()));
-            return;
+    public void openChest(Player player, PlacedChest chest, int page) {
+        if(page == 1) {
+            this.openedChests.put(player.getUniqueId(), chest);
         }
-        chest.getChestTemplate().open(this.getPlugin(), player);
+        chest.getChestTemplate().open(this.getPlugin(), player, page);
+        if(page != 1) {
+            this.openedChests.put(player.getUniqueId(), chest);
+        }
     }
 
     @Override
@@ -289,13 +290,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
         if(this.openedChests.values().stream().anyMatch(e -> this.locationEquals(e.getLocation(), chest.getLocation()))) {
             return;
         }
-        this.mapInventoryOpened.remove(chest.getLocation());
         this.saveChest(chest);
-    }
-
-    @Override
-    public void postOpenChest(Player player, Inventory spigotInventory) {
-        this.mapInventoryOpened.putIfAbsent(this.openedChests.get(player.getUniqueId()).getLocation(), spigotInventory);
     }
 
     @Override
@@ -424,6 +419,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
 
     private List<StorageItem> degroupItems(PlacedChest chest, Map<ItemStack, Integer> items, List<Integer> slots) {
         int i = 0;
+        slots = this.calculateSlots(chest, slots);
         int slot = slots.get(i);
         List<StorageItem> degroupItems = new ArrayList<>();
         for (Map.Entry<ItemStack, Integer> itemStackIntegerEntry : items.entrySet()) {
@@ -446,6 +442,30 @@ public class ZStoragePlusManager implements StoragePlusManager {
             }
         }
         return degroupItems;
+    }
+
+    private List<Integer> calculateSlots(PlacedChest chest, List<Integer> slots) {
+        if(chest.getChestTemplate().getMaxPages() == 1) {
+            return slots;
+        }
+        List<Integer> newSlots = new ArrayList<>();
+        if(chest.getChestTemplate().getMaxPages() == -1) {
+            int contentSize = this.getContent(chest).content().size();
+            int pages = (int) Math.ceil((double) contentSize / slots.size());
+            for (int i = 0; i < pages+10; i++) {
+                for (int slot : slots) {
+                    newSlots.add(slot*(i+1));
+                }
+            }
+        } else {
+            for (int i = 0; i < chest.getChestTemplate().getMaxPages(); i++) {
+                for (int slot : slots) {
+                    newSlots.add(slot*(i+1));
+                }
+            }
+        }
+
+        return newSlots;
     }
 
     @Override
@@ -579,7 +599,8 @@ public class ZStoragePlusManager implements StoragePlusManager {
             DropMode dropMode = DropMode.valueOf(config.getString("settings.drop-mode", "KEEP"));
             boolean infinite = config.getBoolean("settings.infinite", false);
             int maxStackSize = config.getInt("settings.max-stack-size", -1);
-            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, vacuum, blacklistVacuum, dropMode, infinite, maxStackSize));
+            int maxPages = config.getInt("settings.max-pages", 1);
+            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, vacuum, blacklistVacuum, dropMode, infinite, maxStackSize, maxPages));
             if(this.getPlugin().isDebug()) {
                 ZLogger.info("Registered chest " + name);
             }

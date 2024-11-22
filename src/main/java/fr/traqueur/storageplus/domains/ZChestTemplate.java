@@ -23,6 +23,7 @@ public class ZChestTemplate implements ChestTemplate {
     private final DropMode dropMode;
     private final boolean infinite;
     private final int maxStackSize;
+    private final int maxPages;
 
     /* Fields to manage auto sell */
     private final boolean autoSell;
@@ -33,7 +34,7 @@ public class ZChestTemplate implements ChestTemplate {
     private final boolean vacuum;
     private final List<Material> blacklistVacuum;
 
-    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<Hook> shops, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize) {
+    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<Hook> shops, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize, int maxPages) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
@@ -45,6 +46,7 @@ public class ZChestTemplate implements ChestTemplate {
         this.dropMode = dropMode;
         this.infinite = infinite;
         this.maxStackSize = maxStackSize;
+        this.maxPages = maxPages;
     }
 
     @Override
@@ -87,8 +89,8 @@ public class ZChestTemplate implements ChestTemplate {
         return this.infinite;
     }
 
-    public void open(StoragePlusPlugin plugin, Player player) {
-        plugin.getInventoryManager().openInventory(player, this.name);
+    public void open(StoragePlusPlugin plugin, Player player, int page) {
+        plugin.getInventoryManager().openInventory(player, plugin.getInventoryManager().getInventory(this.name).orElseThrow(), page);
     }
 
     @Override
@@ -100,6 +102,11 @@ public class ZChestTemplate implements ChestTemplate {
                 PersistentDataType.STRING, this.name);
         itemStack.setItemMeta(meta);
         return itemStack;
+    }
+
+    @Override
+    public int getMaxPages() {
+        return this.maxPages;
     }
 
     @Override

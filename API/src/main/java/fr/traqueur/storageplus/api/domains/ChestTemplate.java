@@ -27,9 +27,11 @@ public interface ChestTemplate {
 
     boolean isInfinite();
 
-    void open(StoragePlusPlugin plugin, Player player);
+    void open(StoragePlusPlugin plugin, Player player, int page);
 
     ItemStack build(Player player);
+
+    int getMaxPages();
 
     int getMaxStackSize();
 }
