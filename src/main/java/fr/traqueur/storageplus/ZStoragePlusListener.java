@@ -54,33 +54,33 @@ public class ZStoragePlusListener implements Listener {
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
-        List<ItemStack> items = this.manager.addItemsToChest(event.getItemDrop().getLocation().getChunk(), event.getItemDrop().getItemStack());
-        if (items.isEmpty()) {
+        ItemStack item = this.manager.addItemsToChest(event.getItemDrop().getLocation().getChunk(), event.getItemDrop().getItemStack());
+        if (item == null) {
             event.getItemDrop().remove();
         } else {
-            event.getItemDrop().setItemStack(items.getFirst());
+            event.getItemDrop().setItemStack(item);
         }
     }
 
 
     @EventHandler
     public void onDrop(EntityDropItemEvent event) {
-        List<ItemStack> items = this.manager.addItemsToChest(event.getItemDrop().getLocation().getChunk(),event.getItemDrop().getItemStack());
-        if (items.isEmpty()) {
+        ItemStack item = this.manager.addItemsToChest(event.getItemDrop().getLocation().getChunk(), event.getItemDrop().getItemStack());
+        if (item == null) {
             event.getItemDrop().remove();
         } else {
-            event.getItemDrop().setItemStack(items.getFirst());
+            event.getItemDrop().setItemStack(item);
         }
     }
 
     @EventHandler
     public void onDrop(BlockDropItemEvent event) {
         for (Item itemDrop : event.getItems()) {
-            List<ItemStack> items = this.manager.addItemsToChest(itemDrop.getLocation().getChunk(),itemDrop.getItemStack());
-            if (items.isEmpty()) {
+            ItemStack item = this.manager.addItemsToChest(itemDrop.getLocation().getChunk(), itemDrop.getItemStack());
+            if (item == null) {
                 itemDrop.remove();
             } else {
-                itemDrop.setItemStack(items.getFirst());
+                itemDrop.setItemStack(item);
             }
         }
     }

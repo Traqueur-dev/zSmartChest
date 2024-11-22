@@ -1,17 +1,17 @@
 package fr.traqueur.storageplus.api;
 
+import fr.maxlego08.menu.api.dupe.DupeManager;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
 import fr.traqueur.storageplus.api.domains.PlacedChestContent;
 import fr.traqueur.storageplus.api.domains.StorageItem;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
 
 import java.util.List;
 import java.util.Map;
@@ -61,7 +61,7 @@ public interface StoragePlusManager extends Manager {
 
     List<PlacedChest> getChestsInChunk(Chunk chunk);
 
-    List<ItemStack> addItemsToChest(Chunk chunk, ItemStack itemStack);
+    ItemStack addItemsToChest(Chunk chunk, ItemStack itemStack);
 
     void saveAll();
 
@@ -74,4 +74,6 @@ public interface StoragePlusManager extends Manager {
     void dropItems(Location location, int amount, ItemStack clone);
 
     void purge(Chunk chunk, int radius);
+
+    ItemStack cloneItemStack(ItemStack itemStack);
 }

@@ -31,6 +31,4 @@ public interface PlacedChest {
     ChestTemplate getChestTemplate();
 
     Location getLocation();
-
-    List<ItemStack> addItems(List<ItemStack> items);
 }

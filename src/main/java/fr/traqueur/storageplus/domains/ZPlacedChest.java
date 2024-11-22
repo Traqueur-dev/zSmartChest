@@ -111,9 +111,4 @@ public class ZPlacedChest implements PlacedChest {
     public Location getLocation() {
         return location;
     }
-
-    @Override
-    public List<ItemStack> addItems(List<ItemStack> items) {
-        return List.of();
-    }
 }

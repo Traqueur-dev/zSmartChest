@@ -48,7 +48,7 @@ public class ClickHolder {
             InventoryAction action = event.getAction();
             switch (action) {
                 case PLACE_ALL -> {
-                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.cloneItemStack(cursor), cursor.getAmount(), event);
+                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor), cursor.getAmount(), event);
                     event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                     CompatibilityUtil.setCursor(event, new ItemStack(Material.AIR));
                 }
@@ -57,9 +57,9 @@ public class ClickHolder {
                     int amountToAdd = cursor.getAmount();
                     int newAmount = Math.min(vaultItem.item().getMaxStackSize(), vaultItem.amount() + amountToAdd);
                     int restInCursor = amountToAdd - (newAmount - vaultItem.amount());
-                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.cloneItemStack(cursor), newAmount - vaultItem.amount(), event);
+                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor), newAmount - vaultItem.amount(), event);
                     event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
-                    ItemStack newCursor = this.cloneItemStack(cursor);
+                    ItemStack newCursor = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor);
                     if(restInCursor == 0) {
                         newCursor = new ItemStack(Material.AIR);
                     } else {
@@ -75,7 +75,7 @@ public class ClickHolder {
                 case PICKUP_ALL -> {
                     var newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, vaultItem.amount());
                     event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
-                    ItemStack toAdd = this.cloneItemStack(vaultItem.item());
+                    ItemStack toAdd = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
                     toAdd.setAmount(vaultItem.amount());
                     CompatibilityUtil.setCursor(event,toAdd);
                 }
@@ -115,14 +115,14 @@ public class ClickHolder {
                     }
                     var newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, halfAmount);
                     event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
-                    ItemStack toAdd = this.cloneItemStack(vaultItem.item());
+                    ItemStack toAdd = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
                     toAdd.setAmount(halfAmount);
                     CompatibilityUtil.setCursor(event,toAdd);
                 }
                 case PLACE_ONE -> {
-                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.cloneItemStack(cursor), 1, event);
+                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor), 1, event);
                     event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
-                    ItemStack newCursor = this.cloneItemStack(cursor);
+                    ItemStack newCursor = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor);
                     if(cursor.getAmount() - 1 == 0) {
                         newCursor = new ItemStack(Material.AIR);
                     } else {
@@ -169,7 +169,7 @@ public class ClickHolder {
                     }
                 }
                 int newCurrentAmount = rest.values().stream().mapToInt(ItemStack::getAmount).sum();
-                ItemStack newCurrent = this.cloneItemStack(current);
+                ItemStack newCurrent = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(current);
                 if(newCurrentAmount == 0) {
                     newCurrent = new ItemStack(Material.AIR);
                 } else {
@@ -198,7 +198,7 @@ public class ClickHolder {
 
         StorageItem newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, amountToDrop);
         event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
-        ItemStack item = this.cloneItemStack(vaultItem.item());
+        ItemStack item = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
         item.setAmount(amountToDrop);
         player.getWorld().dropItemNaturally(player.getLocation(), item);
     }
@@ -227,17 +227,17 @@ public class ClickHolder {
                 event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                 player.getInventory().setItem(event.getHotbarButton(), new ItemStack(Material.AIR));
             } else if(!vaultItem.isEmpty() && (hotbarItem == null || hotbarItem.getType().isAir())) {
-                ItemStack newHotbarItem = this.cloneItemStack(vaultItem.item());
+                ItemStack newHotbarItem = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
                 newHotbarItem.setAmount(vaultItem.amount());
                 player.getInventory().setItem(event.getHotbarButton(), newHotbarItem);
                 var newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, vaultItem.amount());
                 event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
-            } else if (hotbarItem != null && !this.isDifferent(this.cloneItemStack(vaultItem.item()), hotbarItem, false)) {
+            } else if (hotbarItem != null && !this.isDifferent(this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item()), hotbarItem, false)) {
                 int newAmount = Math.min(vaultItem.amount() + hotbarItem.getAmount(), vaultItem.item().getMaxStackSize());
                 int rest = hotbarItem.getAmount() - (newAmount - vaultItem.amount());
-                var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.cloneItemStack(hotbarItem), newAmount - vaultItem.amount(), event);
+                var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(hotbarItem), newAmount - vaultItem.amount(), event);
                 event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
-                ItemStack newHotbarItem = this.cloneItemStack(hotbarItem);
+                ItemStack newHotbarItem = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(hotbarItem);
                 if(rest == 0) {
                     newHotbarItem = new ItemStack(Material.AIR);
                 } else {
@@ -256,7 +256,7 @@ public class ClickHolder {
 
         StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == slot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slot));
         int removeAmount = Math.min(vaultItem.amount(), current.getMaxStackSize());
-        ItemStack toAdd = this.cloneItemStack(vaultItem.item());
+        ItemStack toAdd = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
         toAdd.setAmount(removeAmount);
         var rest = player.getInventory().addItem(toAdd);
         if(!rest.isEmpty()) {
@@ -269,7 +269,7 @@ public class ClickHolder {
     private void switchWithCursor(InventoryClickEvent event, Player player, ItemStack cursor, int slot, PlacedChest chest, PlacedChestContent vault, StorageItem vaultItem) {
         var newStorageItem = this.addToStorageItem(player, chest, vault, new StorageItem(new ItemStack(Material.AIR), 1, slot), cursor, cursor.getAmount(), event);
         event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
-        ItemStack toAdd = this.cloneItemStack(vaultItem.item());
+        ItemStack toAdd = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
         toAdd.setAmount(vaultItem.amount());
         CompatibilityUtil.setCursor(event,toAdd);
     }
@@ -351,21 +351,6 @@ public class ClickHolder {
         }
 
         return newStorageItem;
-    }
-
-    private ItemStack cloneItemStack(ItemStack itemStack) {
-        ItemStack clone = itemStack.clone();
-        ItemMeta cloneMeta = clone.getItemMeta();
-        if(cloneMeta == null) {
-            return clone;
-        }
-        PersistentDataContainer container = cloneMeta.getPersistentDataContainer();
-        NamespacedKey key = new NamespacedKey(Bukkit.getServer().getPluginManager().getPlugin("zMenu"), DupeManager.KEY);
-        if(container.has(key)) {
-            container.remove(key);
-        }
-        clone.setItemMeta(cloneMeta);
-        return clone;
     }
 
     private boolean isDifferent(ItemStack item1, ItemStack item2, boolean checkAmount) {

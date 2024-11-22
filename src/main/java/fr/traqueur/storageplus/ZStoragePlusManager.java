@@ -5,6 +5,7 @@ import fr.groupez.api.ZLogger;
 import fr.groupez.api.configurations.Configuration;
 import fr.groupez.api.zcore.ElapsedTime;
 import fr.maxlego08.menu.MenuItemStack;
+import fr.maxlego08.menu.api.dupe.DupeManager;
 import fr.maxlego08.menu.exceptions.InventoryException;
 import fr.maxlego08.menu.loader.MenuItemStackLoader;
 import fr.maxlego08.menu.zcore.utils.loader.Loader;
@@ -279,20 +280,37 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
-    public List<ItemStack> addItemsToChest(Chunk chunk, ItemStack itemStack) {
-        List<PlacedChest> chests = this.getChestsInChunk(chunk).stream().filter(PlacedChest::isVacuum).toList();
-        List<ItemStack> items = new ArrayList<>();
-        items.add(itemStack);
+    public ItemStack addItemsToChest(Chunk chunk, ItemStack itemStack) {
+        List<PlacedChest> chests = this.getChestsInChunk(chunk);
+        int rest = itemStack.getAmount();
         for (PlacedChest chest : chests) {
-            if(chest.getChestTemplate().getVacuumBlacklist().contains(itemStack.getType())) {
+            PlacedChestContent content = this.contents.get(chest.getUniqueId());
+            StorageItem storageItem = content.content()
+                    .stream()
+                    .filter(vaultItem1 -> vaultItem1.item().isSimilar(itemStack) && vaultItem1.amount() < this.getMaxStackSize(chest, itemStack))
+                    .findFirst().orElseGet(() -> content.content()
+                            .stream()
+                            .filter(StorageItem::isEmpty)
+                            .findFirst()
+                            .orElse(null));
+            if (storageItem == null) {
                 continue;
             }
-            if((items = chest.addItems(items)).isEmpty()) {
-                this.saveChestsInChunk(chunk, chests);
-                return items;
+            int amount = itemStack.getAmount();
+            int baseAmount = storageItem.isEmpty() ? 0 : storageItem.amount();
+            int newAmount = chest.getChestTemplate().isInfinite() ? baseAmount + amount : Math.min(storageItem.item().getMaxStackSize(), baseAmount + amount);
+            StorageItem finalVaultItem = new StorageItem(this.cloneItemStack(itemStack), newAmount, storageItem.slot());
+            this.setContent(chest, content.content().stream().map(vaultItem1 -> vaultItem1.slot() == finalVaultItem.slot() ? finalVaultItem : vaultItem1).collect(Collectors.toList()));
+            rest = Math.max(0, amount - (newAmount - baseAmount));
+            if(rest == 0) {
+                return null;
             }
+            itemStack.setAmount(rest);
         }
-        return items;
+        if (rest == 0) {
+            return null;
+        }
+        return itemStack;
     }
 
     @Override
@@ -418,6 +436,22 @@ public class ZStoragePlusManager implements StoragePlusManager {
                 this.saveChestsInChunk(loadedChunk, new ArrayList<>());
             }
         }
+    }
+
+    @Override
+    public ItemStack cloneItemStack(ItemStack itemStack) {
+        ItemStack clone = itemStack.clone();
+        ItemMeta cloneMeta = clone.getItemMeta();
+        if(cloneMeta == null) {
+            return clone;
+        }
+        PersistentDataContainer container = cloneMeta.getPersistentDataContainer();
+        NamespacedKey key = new NamespacedKey(Bukkit.getServer().getPluginManager().getPlugin("zMenu"), DupeManager.KEY);
+        if(container.has(key)) {
+            container.remove(key);
+        }
+        clone.setItemMeta(cloneMeta);
+        return clone;
     }
 
     @Override
