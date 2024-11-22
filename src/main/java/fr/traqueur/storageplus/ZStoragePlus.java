@@ -61,7 +61,6 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         buttonManager.register(new NoneLoader(this, ZToggleVacuumButton.class, "ZSTORAGEPLUS_TOGGLE_VACUUM"));
         buttonManager.register(new MaterialAuthorizedButtonLoader(this, ZCompressorButton.class, "ZSTORAGEPLUS_COMPRESSOR"));
         buttonManager.register(new MaterialAuthorizedButtonLoader(this, ZSmelterButton.class, "ZSTORAGEPLUS_SMELTER"));
-
         MigrationManager.registerMigration(new ChestContentCreateMigration(StoragePlusManager.TABLE_NAME));
 
         this.storage.onEnable();
