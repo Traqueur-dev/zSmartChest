@@ -1,3 +1,4 @@
 rootProject.name = 'zStoragePlus'
 include 'API'
+include 'Hooks'
 

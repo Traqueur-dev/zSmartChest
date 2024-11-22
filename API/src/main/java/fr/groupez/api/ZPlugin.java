@@ -78,6 +78,9 @@ public abstract class ZPlugin extends JavaPlugin {
         return commandManager;
     }
 
+
+    public abstract boolean isDebug();
+
     public void saveResource(String resourcePath, String toPath, boolean replace) {
         if (resourcePath != null && !resourcePath.equals("")) {
             resourcePath = resourcePath.replace('\\', '/');
@@ -121,6 +124,9 @@ public abstract class ZPlugin extends JavaPlugin {
 
     public <I extends Manager<? extends ZPlugin>, T extends I> I registerManager(Class<I> clazz, T manager) {
         getServer().getServicesManager().register(clazz, manager, this, org.bukkit.plugin.ServicePriority.Normal);
+        if(this.isDebug()) {
+            ZLogger.info("Registered manager: " + clazz.getSimpleName());
+        }
         return manager;
     }
 

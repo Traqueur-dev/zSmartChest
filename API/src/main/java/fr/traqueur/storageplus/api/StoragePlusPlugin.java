@@ -12,6 +12,4 @@ public abstract class StoragePlusPlugin extends ZPlugin {
 
     public abstract void loadCommands();
 
-    public abstract boolean isDebug();
-
 }

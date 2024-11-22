@@ -12,9 +12,11 @@ import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.gui.buttons.*;
 import fr.traqueur.storageplus.api.gui.loaders.MaterialAuthorizedButtonLoader;
+import fr.traqueur.storageplus.api.hooks.HooksManager;
 import fr.traqueur.storageplus.api.storage.Storage;
 import fr.traqueur.storageplus.commands.StoragePlusCommand;
 import fr.traqueur.storageplus.commands.converters.SmartChestConverter;
+import fr.traqueur.storageplus.hooks.ZStoragePlusHooksManager;
 import fr.traqueur.storageplus.storage.ChestContentCreateMigration;
 import fr.traqueur.storageplus.storage.SQLStorage;
 
@@ -65,6 +67,7 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         this.storage.onEnable();
 
         var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
+        this.registerManager(HooksManager.class, new ZStoragePlusHooksManager());
 
         this.commandManager.setDebug(configuration.isDebug());
         this.commandManager.registerConverter(ChestTemplate.class, new SmartChestConverter(manager));
