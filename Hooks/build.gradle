@@ -3,7 +3,8 @@ group 'Hooks'
 dependencies {
     implementation project(':API')
     compileOnly 'com.github.brcdev-minecraft:shopgui-api:3.0.0'
-    compileOnly ('com.github.Maxlego08:zShop-API:3.0.5')
+    compileOnly 'com.github.Maxlego08:zShop-API:3.0.5'
+    compileOnly 'com.github.Gypopo:EconomyShopGUI-API:1.7.2'
 }
 configurations.configureEach {
     resolutionStrategy {

@@ -2,6 +2,7 @@ package fr.traqueur.storageplus.hooks;
 
 import fr.traqueur.storageplus.api.hooks.Hook;
 import fr.traqueur.storageplus.api.hooks.ShopProvider;
+import fr.traqueur.storageplus.hooks.providers.EconomyShopGUIProvider;
 import fr.traqueur.storageplus.hooks.providers.ShopGUIPlusProvider;
 import fr.traqueur.storageplus.hooks.providers.ZShopProvider;
 import org.bukkit.Bukkit;
@@ -9,7 +10,8 @@ import org.bukkit.Bukkit;
 public enum Hooks implements Hook {
 
     SHOPGUIPLUS("ShopGUIPlus", ShopGUIPlusProvider.class),
-    ZSHOP("ZShop",ZShopProvider.class);
+    ZSHOP("ZShop",ZShopProvider.class),
+    ECONOMYSHOPGUI("EconomyShopGUI", EconomyShopGUIProvider.class);
 
 
     private final String name;
