@@ -34,7 +34,9 @@ public enum Messages {
 
     DESCRIPTION_GIVE_COMMAND("Give a chest to a player."),
 
-    NOT_ENOUGH_MONEY("You do not have enough money to do this."),;
+    NOT_ENOUGH_MONEY("You do not have enough money to do this."),
+    DESCRIPTION_PURGE("Delete all chests save in chunks around you."),
+    PURGE("&aYou have just purged the chests in %amount% chunks"),;
 
     private final ZMessage message;
 

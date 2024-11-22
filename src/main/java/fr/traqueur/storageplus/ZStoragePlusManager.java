@@ -23,6 +23,7 @@ import fr.traqueur.storageplus.domains.ZPlacedChest;
 import fr.traqueur.storageplus.storage.PlacedChestRepository;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.FurnaceRecipe;
@@ -95,13 +96,10 @@ public class ZStoragePlusManager implements StoragePlusManager {
             }
         }
 
-        Chunk chunk = location.getChunk();
-        PersistentDataContainer container = chunk.getPersistentDataContainer();
         PlacedChest chestLocation = uuid == null ? new ZPlacedChest(player.getUniqueId(), location, chest) : new ZPlacedChest(uuid, player.getUniqueId(), location, chest);
-        List<PlacedChest> chests = container.getOrDefault(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), new ArrayList<>());
-        chests = new ArrayList<>(chests);
+        List<PlacedChest> chests = this.getChestsInChunk(location.getChunk());
         chests.add(chestLocation);
-        container.set(this.getNamespaceKey(), PersistentDataType.LIST.listTypeFrom(ChestLocationDataType.INSTANCE), chests);
+        this.saveChestsInChunk(location.getChunk(), chests);
 
         if(!this.contents.containsKey(chestLocation.getUniqueId())) {
             this.contents.put(chestLocation.getUniqueId(), new PlacedChestContent(chestLocation.getUniqueId(), new ArrayList<>()));
@@ -114,42 +112,45 @@ public class ZStoragePlusManager implements StoragePlusManager {
 
     @Override
     public void breakChest(BlockBreakEvent event, Location location) {
-        Chunk chunk = location.getChunk();
-        List<PlacedChest> chests = this.getChestsInChunk(chunk);
-        PlacedChest chest = chests.stream().filter(e -> this.locationEquals(e.getLocation(), location)).findFirst().orElse(null);
-        boolean result = chests.removeIf(e -> this.locationEquals(e.getLocation(), location));
-        this.saveChestsInChunk(chunk, chests);
-        if(result && chest != null) {
+        this.getChestFromBlock(location).ifPresent(chest -> {
             event.setDropItems(false);
-            ItemStack itemStack = chest.getChestTemplate().build(event.getPlayer());
+
+            List<PlacedChest> chests = this.getChestsInChunk(location.getChunk());
+            chests.removeIf(e -> this.locationEquals(e.getLocation(), location));
+            this.saveChestsInChunk(location.getChunk(), chests);
+
+            ItemStack item = chest.getChestTemplate().build(event.getPlayer());
+
             switch (chest.getChestTemplate().getDropMode()) {
                 case KEEP -> {
-                    ItemMeta meta = itemStack.getItemMeta();
-                    PersistentDataContainer container = meta.getPersistentDataContainer();
-                    container.set(this.getNamespaceKeyUUID(), PersistentDataType.STRING, chest.getUniqueId().toString());
-                    itemStack.setItemMeta(meta);
+                    ItemMeta meta = item.getItemMeta();
+                    if(meta != null) {
+                        PersistentDataContainer container = meta.getPersistentDataContainer();
+                        container.set(this.getNamespaceKeyUUID(), PersistentDataType.STRING, chest.getUniqueId().toString());
+                        item.setItemMeta(meta);
+                    }
                 }
                 case DROP -> {
-                    this.contents.get(chest.getUniqueId()).content().forEach(e -> {
-                        int amount = e.amount();
-                        ItemStack item = e.item();
-                        while (amount > 0) {
-                            int toAdd = Math.min(amount, item.getMaxStackSize());
-                            ItemStack clone = item.clone();
-                            clone.setAmount(toAdd);
-                            event.getBlock().getWorld().dropItemNaturally(location, clone);
-                            amount -= toAdd;
+                    PlacedChestContent content = this.contents.remove(chest.getUniqueId());
+                    if(content != null) {
+                        for (StorageItem storageItem : content.content()) {
+                            if(storageItem.isEmpty()) {
+                                continue;
+                            }
+                            this.getPlugin().getScheduler().runAtLocation(location, (task) -> this.dropItems(location, storageItem.amount(), storageItem.item()));
                         }
-                    });
-                    this.service.delete(this.contents.remove(chest.getUniqueId()));
+                        this.service.delete(content);
+                    }
                 }
             }
-            event.getBlock().getWorld().dropItemNaturally(location, itemStack);
-        }
+            this.getPlugin().getScheduler().runAtLocation(location, (task) -> event.getPlayer().getWorld().dropItemNaturally(location, item));
+            if(this.getPlugin().isDebug()) {
+                ZLogger.info("Broke chest at " + location);
+            }
+        });
 
-        if(this.getPlugin().isDebug()) {
-            ZLogger.info("Broke chest at " + location);
-        }
+
+
     }
 
     @Override
@@ -295,8 +296,8 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
-    public List<ItemStack> compress(List<ItemStack> items, List<Material> availableMaterials) {
-        Map<ItemStack, Integer> groupedItems = this.groupItems(items);
+    public void compress(PlacedChest chest, List<Material> availableMaterials, List<Integer> slots) {
+        Map<ItemStack, Integer> groupedItems = this.groupItems(this.getContent(chest).content());
         Map<ItemStack, Integer> compressedItems = new HashMap<>();
 
         for (Map.Entry<ItemStack, Integer> itemStackIntegerEntry : groupedItems.entrySet()) {
@@ -312,28 +313,111 @@ public class ZStoragePlusManager implements StoragePlusManager {
                 this.addInMap(compressedItems, item, amount);
             }
         }
-
-        return this.degroupItems(compressedItems);
+        this.setContent(chest, this.degroupItems(chest, compressedItems, slots));
     }
 
     @Override
-    public List<ItemStack> smelt(List<ItemStack> items, List<Material> availableMaterials) {
-        Map<ItemStack, Integer> groupedItems = this.groupItems(items);
-        Map<ItemStack, Integer> compressedItems = new HashMap<>();
-
+    public void smelt(PlacedChest chest, List<Material> availableMaterials, List<Integer> slots) {
+        Map<ItemStack, Integer> groupedItems = this.groupItems(this.getContent(chest).content());
+        Map<ItemStack, Integer> smeltItems = new HashMap<>();
         for (Map.Entry<ItemStack, Integer> itemStackIntegerEntry : groupedItems.entrySet()) {
             ItemStack item = itemStackIntegerEntry.getKey();
             int amount = itemStackIntegerEntry.getValue();
             ItemStack result = this.getSmeltedItems(item);
             if(availableMaterials.contains(item.getType()) && !result.isSimilar(item)) {
                 int smeltAmount = amount*result.getAmount();
-                this.addInMap(compressedItems, result, smeltAmount);
+                this.addInMap(smeltItems, result, smeltAmount);
             } else {
-                this.addInMap(compressedItems, item, amount);
+                this.addInMap(smeltItems, item, amount);
             }
         }
+        this.setContent(chest, this.degroupItems(chest, smeltItems, slots));
+    }
 
-        return this.degroupItems(compressedItems);
+    private void addInMap(Map<ItemStack, Integer> compressedItems, ItemStack item, int amount) {
+        if(compressedItems.entrySet().stream().anyMatch(e -> e.getKey().isSimilar(item))) {
+            ItemStack similarItem = compressedItems.keySet().stream().filter(e -> e.isSimilar(item)).findFirst().get();
+            compressedItems.put(similarItem, compressedItems.get(similarItem) + amount);
+        } else {
+            compressedItems.put(item, amount);
+        }
+    }
+
+    private Map<ItemStack, Integer> groupItems(List<StorageItem> items) {
+        Map<ItemStack, Integer> map = new HashMap<>();
+        for (StorageItem item : items) {
+            if(item.isEmpty()) {
+                continue;
+            }
+            Optional<ItemStack> similarItem = map.keySet().stream()
+                    .filter(existing -> existing.isSimilar(item.item()))
+                    .findFirst();
+            if (similarItem.isPresent()) {
+                map.put(similarItem.get(), map.get(similarItem.get()) + item.amount());
+            } else {
+                map.put(item.item().clone(), item.amount());
+            }
+        }
+        return map;
+    }
+
+    private List<StorageItem> degroupItems(PlacedChest chest, Map<ItemStack, Integer> items, List<Integer> slots) {
+        int i = 0;
+        int slot = slots.get(i);
+        List<StorageItem> degroupItems = new ArrayList<>();
+        for (Map.Entry<ItemStack, Integer> itemStackIntegerEntry : items.entrySet()) {
+            ItemStack item = itemStackIntegerEntry.getKey();
+            int amount = itemStackIntegerEntry.getValue();
+            int maxStackSize = this.getMaxStackSize(chest, item);
+
+            while (amount > 0) {
+                int toAdd = Math.min(amount, maxStackSize);
+                ItemStack clone = item.clone();
+                clone.setAmount(toAdd);
+                if(i >= slots.size()) {
+                    this.dropItems(chest.getLocation(), amount, clone);
+                    break;
+                } else {
+                    degroupItems.add(new StorageItem(clone, toAdd, slot));
+                    slot = slots.get(++i);
+                }
+                amount -= toAdd;
+            }
+        }
+        return degroupItems;
+    }
+
+    @Override
+    public int getMaxStackSize(PlacedChest chest, ItemStack item) {
+        return chest.getChestTemplate().isInfinite() ? (chest.getChestTemplate().getMaxStackSize() == -1 ? Integer.MAX_VALUE : chest.getChestTemplate().getMaxStackSize())  : item.getMaxStackSize();
+    }
+
+    @Override
+    public void dropItems(Location location, int amount, ItemStack itemStack) {
+        while (amount > 0) {
+            int toAdd = Math.min(amount, itemStack.getMaxStackSize());
+            ItemStack item = itemStack.clone();
+            item.setAmount(toAdd);
+            location.getWorld().dropItemNaturally(location, item);
+            amount -= toAdd;
+        }
+    }
+
+    @Override
+    public void purge(Chunk chunk, int radius) {
+        for (int x = -radius; x <= radius; x++) {
+            for (int z = -radius; z <= radius; z++) {
+                Chunk loadedChunk = chunk.getWorld().getChunkAt(chunk.getX() + x, chunk.getZ() + z);
+                List<PlacedChest> chests = this.getChestsInChunk(loadedChunk);
+                for (PlacedChest chest : chests) {
+                    PlacedChestContent content = this.contents.remove(chest.getUniqueId());
+                    if(content != null) {
+                        this.service.delete(content);
+                    }
+                }
+                this.saveChestsInChunk(loadedChunk, new ArrayList<>());
+            }
+        }
     }
 
     @Override
@@ -357,6 +441,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
         });
     }
 
+
     private ItemStack getSmeltedItems(ItemStack itemStack) {
         Iterator<Recipe> recipes = Bukkit.recipeIterator();
         while (recipes.hasNext()) {
@@ -368,45 +453,6 @@ public class ZStoragePlusManager implements StoragePlusManager {
             }
         }
         return itemStack;
-    }
-
-    private void addInMap(Map<ItemStack, Integer> compressedItems, ItemStack item, int amount) {
-        if(compressedItems.entrySet().stream().anyMatch(e -> e.getKey().isSimilar(item))) {
-            ItemStack similarItem = compressedItems.keySet().stream().filter(e -> e.isSimilar(item)).findFirst().get();
-            compressedItems.put(similarItem, compressedItems.get(similarItem) + amount);
-        } else {
-            compressedItems.put(item, amount);
-        }
-    }
-
-    private List<ItemStack> degroupItems(Map<ItemStack, Integer> items) {
-        return items.entrySet().stream().flatMap(e -> {
-            List<ItemStack> stacks = new ArrayList<>();
-            int amount = e.getValue();
-            while (amount > 0) {
-                int toAdd = Math.min(amount, e.getKey().getMaxStackSize());
-                ItemStack clone = e.getKey().clone();
-                clone.setAmount(toAdd);
-                stacks.add(clone);
-                amount -= toAdd;
-            }
-            return stacks.stream();
-        }).collect(Collectors.toList());
-    }
-
-    private Map<ItemStack, Integer> groupItems(List<ItemStack> items) {
-        Map<ItemStack, Integer> map = new HashMap<>();
-        for (ItemStack item : items) {
-            Optional<ItemStack> similarItem = map.keySet().stream()
-                    .filter(existing -> existing.isSimilar(item))
-                    .findFirst();
-            if (similarItem.isPresent()) {
-                map.put(similarItem.get(), map.get(similarItem.get()) + item.getAmount());
-            } else {
-                map.put(item.clone(), item.getAmount());
-            }
-        }
-        return map;
     }
 
     private Material getCompressedType(Material material) {

@@ -7,6 +7,7 @@ import fr.traqueur.commands.api.Arguments;
 import fr.traqueur.commands.api.Command;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.commands.admin.GiveCommand;
+import fr.traqueur.storageplus.commands.admin.PurgeCommand;
 import fr.traqueur.storageplus.commands.admin.ReloadCommand;
 import org.bukkit.command.CommandSender;
 
@@ -17,7 +18,7 @@ public class StoragePlusCommand extends ZCommand<StoragePlusPlugin> {
     public StoragePlusCommand(StoragePlusPlugin plugin) {
         super(plugin, "storageplus");
 
-        this.addSubCommand(new ReloadCommand(plugin), new GiveCommand(plugin));
+        this.addSubCommand(new ReloadCommand(plugin), new GiveCommand(plugin), new PurgeCommand(plugin));
     }
 
     @Override

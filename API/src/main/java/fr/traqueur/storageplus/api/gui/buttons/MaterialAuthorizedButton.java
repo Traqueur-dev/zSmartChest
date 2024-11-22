@@ -4,7 +4,9 @@ import fr.groupez.api.messaging.Messages;
 import fr.maxlego08.menu.button.ZButton;
 import fr.maxlego08.menu.inventory.inventories.InventoryDefault;
 import fr.traqueur.currencies.Currencies;
+import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.domains.PlacedChest;
 import fr.traqueur.storageplus.api.functions.ItemTransformationFunction;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -40,36 +42,12 @@ public abstract class MaterialAuthorizedButton extends ZButton {
                 Messages.NOT_ENOUGH_MONEY.send(player);
                 return;
             }
-
             currency.withdraw(player, new BigDecimal(this.amount), this.currencyName);
-
         }
-
-        List<ZChestContentButton> contentButtons = inventory.getButtons().stream().filter(button -> button instanceof ZChestContentButton).map(button -> (ZChestContentButton) button).toList();
-        if(contentButtons.size() != 1) {
-            throw new IllegalStateException("There should be only one ZChestContentButton in the inventory");
-        }
-        ZChestContentButton contentButton = contentButtons.getFirst();
-        List<ItemStack> items = contentButton.getSlots()
-                .stream()
-                .map(slotInner -> {
-                    ItemStack item = inventory.getInventory().getItem(slotInner);
-                    if (item == null) {
-                        return null;
-                    }
-                    item = item.clone();
-                    inventory.getInventory().setItem(slotInner, null);
-                    return item;
-                })
-                .filter(Objects::nonNull)
-                .toList();
-        if (items.isEmpty()) {
-            return;
-        }
-        List<ItemStack> newItems = function.transfrom(items, availableMaterials);
-        for (int i = 0; i < newItems.size(); i++) {
-            inventory.getInventory().setItem(new ArrayList<>(contentButton.getSlots()).get(i), newItems.get(i));
-        }
+        ZChestContentButton button = inventory.getButtons().stream().filter(buttonInner -> buttonInner instanceof ZChestContentButton).map(buttonInner -> (ZChestContentButton) buttonInner).findFirst().orElseThrow();
+        PlacedChest chest = plugin.getManager(StoragePlusManager.class).getOpenedChest(player);
+        function.transfrom(chest, availableMaterials, new ArrayList<>(button.getSlots()));
+        button.onRender(player, inventory);
     }
 
 }

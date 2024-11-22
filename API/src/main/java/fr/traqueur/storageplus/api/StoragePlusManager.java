@@ -55,9 +55,9 @@ public interface StoragePlusManager extends Manager {
 
     void saveChest(PlacedChest chest);
 
-    List<ItemStack> compress(List<ItemStack> items, List<Material> availableMaterials);
+    void compress(PlacedChest chest, List<Material> availableMaterials, List<Integer> slots);
 
-    List<ItemStack> smelt(List<ItemStack> items, List<Material> availableMaterials);
+    void smelt(PlacedChest chest, List<Material> availableMaterials, List<Integer> slots);
 
     List<PlacedChest> getChestsInChunk(Chunk chunk);
 
@@ -68,4 +68,10 @@ public interface StoragePlusManager extends Manager {
     PlacedChestContent getContent(PlacedChest chest);
 
     void setContent(PlacedChest chest, List<StorageItem> items);
+
+    int getMaxStackSize(PlacedChest chest, ItemStack item);
+
+    void dropItems(Location location, int amount, ItemStack clone);
+
+    void purge(Chunk chunk, int radius);
 }

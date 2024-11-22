@@ -305,7 +305,7 @@ public class ClickHolder {
 
     private int findCorrespondingSlot(Inventory inventory, ItemStack correspond, PlacedChestContent vault, PlacedChest chest) {
         for (StorageItem vaultItem : vault.content()) {
-            if(correspond.isSimilar(vaultItem.item()) && vaultItem.amount() < this.getMaxStackSize(chest, vaultItem.item())) {
+            if(correspond.isSimilar(vaultItem.item()) && vaultItem.amount() < this.plugin.getManager(StoragePlusManager.class).getMaxStackSize(chest, vaultItem.item())) {
                 return vaultItem.slot();
             }
         }
@@ -325,7 +325,7 @@ public class ClickHolder {
     }
 
     private StorageItem addToStorageItem(Player player, PlacedChest chest, PlacedChestContent content, StorageItem vaultItem, ItemStack cursor, int amount, InventoryClickEvent event) {
-        int maxStackSize = this.getMaxStackSize(chest, cursor);
+        int maxStackSize = this.plugin.getManager(StoragePlusManager.class).getMaxStackSize(chest, cursor);
         int remainingAmount = amount;
         int currentAmount = vaultItem.isEmpty() ? 0 : vaultItem.amount();
 
@@ -351,10 +351,6 @@ public class ClickHolder {
         }
 
         return newStorageItem;
-    }
-
-    private int getMaxStackSize(PlacedChest chest, ItemStack item) {
-        return chest.getChestTemplate().isInfinite() ? (chest.getChestTemplate().getMaxStackSize() == -1 ? Integer.MAX_VALUE : chest.getChestTemplate().getMaxStackSize())  : item.getMaxStackSize();
     }
 
     private ItemStack cloneItemStack(ItemStack itemStack) {
