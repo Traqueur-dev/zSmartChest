@@ -6,7 +6,6 @@ import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
 import fr.maxlego08.menu.button.loader.NoneLoader;
 import fr.maxlego08.sarah.MigrationManager;
-import fr.maxlego08.sarah.database.Migration;
 import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;

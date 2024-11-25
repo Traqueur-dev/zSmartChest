@@ -3,8 +3,6 @@ package fr.traqueur.storageplus.hooks.providers;
 import fr.traqueur.storageplus.api.hooks.ShopProvider;
 import me.gypopo.economyshopgui.api.EconomyShopGUIHook;
 import me.gypopo.economyshopgui.api.objects.SellPrice;
-
-import me.gypopo.economyshopgui.objects.ShopItem;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

@@ -1,7 +1,6 @@
 package fr.groupez.api.zcore;
 
 import org.bukkit.event.inventory.InventoryEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.InvocationTargetException;

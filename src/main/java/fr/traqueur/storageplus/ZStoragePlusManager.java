@@ -349,19 +349,27 @@ public class ZStoragePlusManager implements StoragePlusManager {
                             .filter(StorageItem::isEmpty)
                             .findFirst()
                             .orElse(null));
-            if (storageItem == null) {
-                continue;
+
+            while(storageItem != null) {
+                int amount = itemStack.getAmount();
+                int baseAmount = storageItem.isEmpty() ? 0 : storageItem.amount();
+                int newAmount = Math.min(this.getMaxStackSize(chest, storageItem.item()), baseAmount + amount);
+                StorageItem finalVaultItem = new StorageItem(this.cloneItemStack(itemStack), newAmount, storageItem.slot());
+                this.setContent(chest, content.content().stream().map(vaultItem1 -> vaultItem1.slot() == finalVaultItem.slot() ? finalVaultItem : vaultItem1).collect(Collectors.toList()));
+                rest = Math.max(0, amount - (newAmount - baseAmount));
+                if(rest == 0) {
+                    return null;
+                }
+                itemStack.setAmount(rest);
+                storageItem = content.content()
+                        .stream()
+                        .filter(vaultItem1 -> vaultItem1.item().isSimilar(itemStack) && vaultItem1.amount() < this.getMaxStackSize(chest, itemStack))
+                        .findFirst().orElseGet(() -> content.content()
+                                .stream()
+                                .filter(StorageItem::isEmpty)
+                                .findFirst()
+                                .orElse(null));
             }
-            int amount = itemStack.getAmount();
-            int baseAmount = storageItem.isEmpty() ? 0 : storageItem.amount();
-            int newAmount = chest.getChestTemplate().isInfinite() ? baseAmount + amount : Math.min(storageItem.item().getMaxStackSize(), baseAmount + amount);
-            StorageItem finalVaultItem = new StorageItem(this.cloneItemStack(itemStack), newAmount, storageItem.slot());
-            this.setContent(chest, content.content().stream().map(vaultItem1 -> vaultItem1.slot() == finalVaultItem.slot() ? finalVaultItem : vaultItem1).collect(Collectors.toList()));
-            rest = Math.max(0, amount - (newAmount - baseAmount));
-            if(rest == 0) {
-                return null;
-            }
-            itemStack.setAmount(rest);
         }
         if (rest == 0) {
             return null;

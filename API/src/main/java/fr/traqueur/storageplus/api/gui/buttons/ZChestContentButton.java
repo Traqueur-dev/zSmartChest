@@ -1,6 +1,5 @@
 package fr.traqueur.storageplus.api.gui.buttons;
 
-import fr.groupez.api.ZLogger;
 import fr.maxlego08.menu.api.button.PaginateButton;
 import fr.maxlego08.menu.button.ZButton;
 import fr.maxlego08.menu.inventory.inventories.InventoryDefault;
@@ -62,7 +61,6 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
             inventory.addItem(slot, item.get()).setClick(event -> event.setCancelled(true));
         }
         manager.setContent(chest, content);
-        ZLogger.info("<yellow>" + manager.getContent(chest).content());
     }
 
     @Override

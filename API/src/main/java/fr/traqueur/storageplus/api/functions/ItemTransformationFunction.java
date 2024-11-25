@@ -2,7 +2,6 @@ package fr.traqueur.storageplus.api.functions;
 
 import fr.traqueur.storageplus.api.domains.PlacedChest;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 

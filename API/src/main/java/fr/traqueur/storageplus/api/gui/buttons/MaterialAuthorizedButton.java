@@ -10,12 +10,10 @@ import fr.traqueur.storageplus.api.domains.PlacedChest;
 import fr.traqueur.storageplus.api.functions.ItemTransformationFunction;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public abstract class MaterialAuthorizedButton extends ZButton {
 

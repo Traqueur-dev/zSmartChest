@@ -1,7 +1,6 @@
 package fr.traqueur.storageplus.api.gui;
 
 import fr.groupez.api.zcore.CompatibilityUtil;
-import fr.maxlego08.menu.api.dupe.DupeManager;
 import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
@@ -9,7 +8,6 @@ import fr.traqueur.storageplus.api.domains.PlacedChestContent;
 import fr.traqueur.storageplus.api.domains.StorageItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;

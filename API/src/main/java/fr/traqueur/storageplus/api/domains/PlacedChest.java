@@ -1,9 +1,7 @@
 package fr.traqueur.storageplus.api.domains;
 
 import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface PlacedChest {
