@@ -16,6 +16,10 @@ import java.util.ArrayList;
 
 public record StorageItem(ItemStack item, int amount, int slot) {
 
+    public static StorageItem empty(int slot) {
+        return new StorageItem(new ItemStack(Material.AIR), 1, slot);
+    }
+
     public String serialize() {
         return Base64.encodeItem(this.item) + ":" + this.amount + ":" + this.slot;
     }

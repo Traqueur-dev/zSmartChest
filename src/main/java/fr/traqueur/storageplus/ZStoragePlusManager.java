@@ -24,12 +24,12 @@ import fr.traqueur.storageplus.api.storage.Service;
 import fr.traqueur.storageplus.api.storage.dto.PlacedChestDTO;
 import fr.traqueur.storageplus.domains.ZChestTemplate;
 import fr.traqueur.storageplus.domains.ZPlacedChest;
+import fr.traqueur.storageplus.domains.ZPlacedChestContent;
 import fr.traqueur.storageplus.hooks.Hooks;
 import fr.traqueur.storageplus.storage.PlacedChestRepository;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.FurnaceRecipe;
@@ -108,12 +108,25 @@ public class ZStoragePlusManager implements StoragePlusManager {
         this.saveChestsInChunk(location.getChunk(), chests);
 
         if(!this.contents.containsKey(chestLocation.getUniqueId())) {
-            this.contents.put(chestLocation.getUniqueId(), new PlacedChestContent(chestLocation.getUniqueId(), new ArrayList<>()));
+            this.contents.put(chestLocation.getUniqueId(), new ZPlacedChestContent(chestLocation.getUniqueId(), this.generateItemList(getPlugin().getInventoryManager().getInventory(chest.getName()).get().size(), chest.getMaxPages(), getPlugin().getInventoryManager().getInventory(chest.getName()).get().getButtons().stream().filter(button -> button instanceof ZChestContentButton).map(ZChestContentButton.class::cast).findFirst().get().getSlots())));
         }
 
         if(this.getPlugin().isDebug()) {
             ZLogger.info("Placed chest " + chest.getName() + " at " + location);
         }
+    }
+
+    private List<StorageItem> generateItemList(int size, int numberPages, Collection<Integer> slots) {
+        List<StorageItem> items = new ArrayList<>();
+        if(numberPages == -1) {
+            numberPages = 1;
+        }
+        for (int i = 0; i < numberPages; i++) {
+            for (int slot : slots) {
+                items.add(StorageItem.empty(slot+(size*(i))));
+            }
+        }
+        return items;
     }
 
     @Override
@@ -219,7 +232,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
                             for (HumanEntity viewer : new ArrayList<>(inventory.getViewers())) {
                                 this.openedChests.remove(viewer.getUniqueId());
                                 viewer.closeInventory();
-                                this.openChest((Player) viewer, chest, 0);
+                                this.openChest((Player) viewer, chest, 0, true);
                             }
                         }
                         if(this.getPlugin().isDebug()) {
@@ -271,12 +284,17 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
-    public void openChest(Player player, PlacedChest chest, int page) {
-        if(page == 1) {
+    public void openChest(Player player, PlacedChest chest, int page, boolean first) {
+        if(first) {
             this.openedChests.put(player.getUniqueId(), chest);
         }
+        var inventory = getPlugin().getInventoryManager().getInventory(chest.getChestTemplate().getName()).get();
+        var zbutton = inventory.getButtons().stream().filter(button -> button instanceof ZChestContentButton).map(ZChestContentButton.class::cast).findFirst().get();
+
+        this.contents.get(chest.getUniqueId()).generatePage(zbutton.getSlots(), inventory.size(),page);
+
         chest.getChestTemplate().open(this.getPlugin(), player, page);
-        if(page != 1) {
+        if(!first) {
             this.openedChests.put(player.getUniqueId(), chest);
         }
     }
@@ -449,22 +467,20 @@ public class ZStoragePlusManager implements StoragePlusManager {
             return slots;
         }
         List<Integer> newSlots = new ArrayList<>();
+        int size = this.getPlugin().getInventoryManager().getInventory(chest.getChestTemplate().getName()).get().size();
+        int nbIterations;
         if(chest.getChestTemplate().getMaxPages() == -1) {
             int contentSize = this.getContent(chest).content().size();
             int pages = (int) Math.ceil((double) contentSize / slots.size());
-            for (int i = 0; i < pages+10; i++) {
-                for (int slot : slots) {
-                    newSlots.add(slot*(i+1));
-                }
-            }
+            nbIterations = pages+10;
         } else {
-            for (int i = 0; i < chest.getChestTemplate().getMaxPages(); i++) {
-                for (int slot : slots) {
-                    newSlots.add(slot*(i+1));
-                }
+            nbIterations = chest.getChestTemplate().getMaxPages();
+        }
+        for (int i = 0; i < nbIterations; i++) {
+            for (int slot : slots) {
+                newSlots.add(slot+(size*(i)));
             }
         }
-
         return newSlots;
     }
 

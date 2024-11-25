@@ -15,8 +15,6 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,27 +27,30 @@ public class ClickHolder {
         this.plugin = plugin;
     }
 
-    public void handleLeftClick(InventoryClickEvent event, Player player, ItemStack cursor, int slot, PlacedChest chest, PlacedChestContent vault) {
-        StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == slot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slot));
+    public void handleLeftClick(InventoryClickEvent event, Player player, ItemStack cursor, int slot, PlacedChest chest, PlacedChestContent vault, int page, int inventorySize) {
+        int slotInInventory = slot;
+        slot = slot + ((page-1) * inventorySize);
+        int finalSlot = slot;
+        StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == finalSlot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slot));
         if(chest.getChestTemplate().isInfinite()) {
             ItemStack current = vaultItem.item();
             if(cursor == null || cursor.getType().isAir() && !vaultItem.isEmpty()) {
                 int amountToRemove = Math.min(vaultItem.amount(), current.getMaxStackSize());
-                this.removeItem(event, player, slot, vault, chest, vaultItem, amountToRemove);
+                this.removeItem(event, player, slot, vault, chest, vaultItem, amountToRemove, inventorySize, page);
             } else if(!cursor.getType().isAir()) {
                 int slotToAdd = this.findCorrespondingSlot(event.getInventory(), cursor, vault, chest);
                 if(slotToAdd == -1) {
                     return;
                 }
                 vaultItem = vault.content().stream().filter(item -> item.slot() == slotToAdd).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slotToAdd));
-                this.addItem(event, player, slotToAdd, vault, chest, vaultItem, cursor, cursor.getAmount());
+                this.addItem(event, player, slotToAdd, vault, chest, vaultItem, cursor, cursor.getAmount(), inventorySize, page);
             }
         } else {
             InventoryAction action = event.getAction();
             switch (action) {
                 case PLACE_ALL -> {
-                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor), cursor.getAmount(), event);
-                    event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor), cursor.getAmount(), event, inventorySize, page);
+                    event.getInventory().setItem(slotInInventory, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                     CompatibilityUtil.setCursor(event, new ItemStack(Material.AIR));
                 }
 
@@ -57,8 +58,8 @@ public class ClickHolder {
                     int amountToAdd = cursor.getAmount();
                     int newAmount = Math.min(vaultItem.item().getMaxStackSize(), vaultItem.amount() + amountToAdd);
                     int restInCursor = amountToAdd - (newAmount - vaultItem.amount());
-                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor), newAmount - vaultItem.amount(), event);
-                    event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor), newAmount - vaultItem.amount(), event, inventorySize, page);
+                    event.getInventory().setItem(slotInInventory, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                     ItemStack newCursor = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor);
                     if(restInCursor == 0) {
                         newCursor = new ItemStack(Material.AIR);
@@ -69,12 +70,12 @@ public class ClickHolder {
                 }
 
                 case SWAP_WITH_CURSOR -> {
-                    this.switchWithCursor(event, player, cursor, slot, chest, vault, vaultItem);
+                    this.switchWithCursor(event, player, cursor, slotInInventory, chest, vault, vaultItem, inventorySize, page);
                 }
 
                 case PICKUP_ALL -> {
-                    var newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, vaultItem.amount());
-                    event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+                    var newStorageItem = this.removeFromStorageItem(vault, vaultItem, vaultItem.amount());
+                    event.getInventory().setItem(slotInInventory, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                     ItemStack toAdd = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
                     toAdd.setAmount(vaultItem.amount());
                     CompatibilityUtil.setCursor(event,toAdd);
@@ -84,28 +85,31 @@ public class ClickHolder {
     }
 
     
-    public void handleRightClick(InventoryClickEvent event, Player player, ItemStack cursor, ItemStack current, int slot, int inventorySize, PlacedChestContent vault, PlacedChest chest) {
-        StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == slot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slot));
+    public void handleRightClick(InventoryClickEvent event, Player player, ItemStack cursor, int slot, PlacedChestContent vault, PlacedChest chest, int page, int inventorySize) {
+        int slotInInventory = slot;
+        slot = slot + ((page-1) * inventorySize);
+        int finalSlot = slot;
+        StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == finalSlot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slot));
         if (chest.getChestTemplate().isInfinite()) {
             if(cursor == null || cursor.getType().isAir() && !vaultItem.isEmpty()) {
                 int amountToRemove = Math.min(vaultItem.amount() / 2, vaultItem.item().getMaxStackSize() / 2);
                 if(amountToRemove == 0) {
                     amountToRemove = 1;
                 }
-                this.removeItem(event, player, slot, vault, chest, vaultItem, amountToRemove);
+                this.removeItem(event, player, slot, vault, chest, vaultItem, amountToRemove, inventorySize, page);
             } else if(!cursor.getType().isAir()) {
                 int slotToAdd = this.findCorrespondingSlot(event.getInventory(), cursor, vault, chest);
                 if(slotToAdd == -1) {
                     return;
                 }
                 vaultItem = vault.content().stream().filter(item -> item.slot() == slotToAdd).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slotToAdd));
-                this.addItem(event, player, slotToAdd, vault, chest, vaultItem, cursor, 1);
+                this.addItem(event, player, slotToAdd, vault, chest, vaultItem, cursor, 1, inventorySize, page);
             }
         } else {
             InventoryAction action = event.getAction();
             switch (action) {
                 case SWAP_WITH_CURSOR -> {
-                    this.switchWithCursor(event, player, cursor, slot, chest,vault, vaultItem);
+                    this.switchWithCursor(event, player, cursor, slotInInventory, chest,vault, vaultItem, inventorySize, page);
                 }
 
                 case PICKUP_HALF -> {
@@ -113,15 +117,15 @@ public class ClickHolder {
                     if(halfAmount == 0) {
                         halfAmount = 1;
                     }
-                    var newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, halfAmount);
-                    event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+                    var newStorageItem = this.removeFromStorageItem(vault, vaultItem, halfAmount);
+                    event.getInventory().setItem(slotInInventory, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                     ItemStack toAdd = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
                     toAdd.setAmount(halfAmount);
                     CompatibilityUtil.setCursor(event,toAdd);
                 }
                 case PLACE_ONE -> {
-                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor), 1, event);
-                    event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+                    var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor), 1, event, inventorySize, page);
+                    event.getInventory().setItem(slotInInventory, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                     ItemStack newCursor = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(cursor);
                     if(cursor.getAmount() - 1 == 0) {
                         newCursor = new ItemStack(Material.AIR);
@@ -135,9 +139,11 @@ public class ClickHolder {
     }
 
     
-    public void handleShift(InventoryClickEvent event, Player player, ItemStack cursor, ItemStack current, int slot, int inventorySize, PlacedChestContent vault, PlacedChest chest, List<Integer> slots) {
+    public void handleShift(InventoryClickEvent event, Player player, ItemStack cursor, ItemStack current, int slot, int inventorySize, PlacedChestContent vault, PlacedChest chest, List<Integer> slots, int page) {
+        int slotInInventory = slot;
+        slot = slot + ((page-1) * inventorySize);
         if(chest.getChestTemplate().isInfinite()) {
-            if (slot >= inventorySize) {
+            if (slotInInventory >= inventorySize) {
                 if(cursor == null || cursor.getType().isAir() && current == null || current.getType().isAir()) {
                     return;
                 }
@@ -146,14 +152,14 @@ public class ClickHolder {
                     return;
                 }
                 StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == slotToAdd).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slotToAdd));
-                var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, current, current.getAmount(), event);
-                event.getInventory().setItem(slotToAdd, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+                var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, current, current.getAmount(), event, inventorySize, page);
+                event.getInventory().setItem(slotToAdd - ((page-1)*inventorySize), newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                 event.setCurrentItem(new ItemStack(Material.AIR));
             } else {
-                this.shiftClickFromPlacedChestContent(event, player, cursor, current, slot, vault, chest);
+                this.shiftClickFromPlacedChestContent(event, player, cursor, current, slot, vault, chest, inventorySize, page);
             }
         } else {
-            if (slot >= inventorySize) {
+            if (slotInInventory >= inventorySize) {
                 if(cursor == null || cursor.getType().isAir() && current == null || current.getType().isAir()) {
                     return;
                 }
@@ -164,7 +170,7 @@ public class ClickHolder {
                     ItemStack virtual = virtualInv.getItem(i);
                     ItemStack real = event.getInventory().getItem(i);
                     if(this.isDifferent(virtual, real, true)) {
-                        var newStorageItem = this.addToStorageItem(player, chest, vault, new StorageItem(new ItemStack(Material.AIR), 1, i), virtual, virtual.getAmount(), event);
+                        var newStorageItem = this.addToStorageItem(player, chest, vault, new StorageItem(new ItemStack(Material.AIR), 1, i + ((page-1)*inventorySize)), virtual, virtual.getAmount(), event, inventorySize, page);
                         event.getInventory().setItem(i, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                     }
                 }
@@ -177,15 +183,16 @@ public class ClickHolder {
                 }
                 player.getInventory().setItem(event.getSlot(), newCurrent);
             } else {
-                this.shiftClickFromPlacedChestContent(event, player, cursor, current, slot, vault, chest);
+                this.shiftClickFromPlacedChestContent(event, player, cursor, current, slot, vault, chest, inventorySize, page);
             }
 
         }
     }
 
     
-    public void handleDrop(InventoryClickEvent event, Player player, ItemStack cursor, ItemStack current, int slot, int inventorySize, PlacedChestContent vault, PlacedChest chest, boolean controlDrop) {
-        StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == slot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slot));
+    public void handleDrop(InventoryClickEvent event, Player player, int slot, PlacedChestContent vault, PlacedChest chest, boolean controlDrop, int page, int inventorySize) {
+        int finalSlot = slot + ((page-1) * inventorySize);
+        StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == finalSlot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, finalSlot));
         if(vaultItem.isEmpty()) {
             return;
         }
@@ -196,7 +203,7 @@ public class ClickHolder {
             amountToDrop = 1;
         }
 
-        StorageItem newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, amountToDrop);
+        StorageItem newStorageItem = this.removeFromStorageItem(vault, vaultItem, amountToDrop);
         event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
         ItemStack item = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
         item.setAmount(amountToDrop);
@@ -204,38 +211,39 @@ public class ClickHolder {
     }
 
     
-    public void handleNumberKey(InventoryClickEvent event, Player player, ItemStack cursor, ItemStack current, int slot, int inventorySize, PlacedChestContent vault, PlacedChest chest) {
+    public void handleNumberKey(InventoryClickEvent event, Player player, int slot, PlacedChestContent vault, PlacedChest chest, int page, int inventorySize) {
+        int finalSlot = slot + ((page-1) * inventorySize);
         ItemStack hotbarItem = player.getInventory().getItem(event.getHotbarButton());
-        StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == slot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slot));
+        StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == finalSlot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, finalSlot));
 
         if(chest.getChestTemplate().isInfinite()) {
             if(vaultItem.isEmpty() && hotbarItem != null && !hotbarItem.getType().isAir()) {
-                this.addFromHotbar(event, player, chest, vault, hotbarItem);
+                this.addFromHotbar(event, player, chest, vault, hotbarItem, inventorySize, page);
             } else if(!vaultItem.isEmpty() && (hotbarItem == null || hotbarItem.getType().isAir())) {
                 int amount = Math.min(vaultItem.amount(), vaultItem.item().getMaxStackSize());
                 ItemStack toAdd = vaultItem.item().clone();
                 toAdd.setAmount(amount);
                 player.getInventory().setItem(event.getHotbarButton(), toAdd);
-                var newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, amount);
+                var newStorageItem = this.removeFromStorageItem(vault, vaultItem, amount);
                 event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
             } else if (hotbarItem != null && vaultItem.item().isSimilar(hotbarItem)) {
-                this.addFromHotbar(event, player, chest, vault, hotbarItem);
+                this.addFromHotbar(event, player, chest, vault, hotbarItem, inventorySize, page);
             }
         } else {
             if(vaultItem.isEmpty() && hotbarItem != null && !hotbarItem.getType().isAir()) {
-                var newStorageItem = this.addToStorageItem(player, chest, vault, new StorageItem(new ItemStack(Material.AIR), 1, slot), hotbarItem, hotbarItem.getAmount(),event);
+                var newStorageItem = this.addToStorageItem(player, chest, vault, new StorageItem(new ItemStack(Material.AIR), 1, finalSlot), hotbarItem, hotbarItem.getAmount(),event, inventorySize, page);
                 event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                 player.getInventory().setItem(event.getHotbarButton(), new ItemStack(Material.AIR));
             } else if(!vaultItem.isEmpty() && (hotbarItem == null || hotbarItem.getType().isAir())) {
                 ItemStack newHotbarItem = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
                 newHotbarItem.setAmount(vaultItem.amount());
                 player.getInventory().setItem(event.getHotbarButton(), newHotbarItem);
-                var newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, vaultItem.amount());
+                var newStorageItem = this.removeFromStorageItem(vault, vaultItem, vaultItem.amount());
                 event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
             } else if (hotbarItem != null && !this.isDifferent(this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item()), hotbarItem, false)) {
                 int newAmount = Math.min(vaultItem.amount() + hotbarItem.getAmount(), vaultItem.item().getMaxStackSize());
                 int rest = hotbarItem.getAmount() - (newAmount - vaultItem.amount());
-                var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(hotbarItem), newAmount - vaultItem.amount(), event);
+                var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, this.plugin.getManager(StoragePlusManager.class).cloneItemStack(hotbarItem), newAmount - vaultItem.amount(), event, inventorySize, page);
                 event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
                 ItemStack newHotbarItem = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(hotbarItem);
                 if(rest == 0) {
@@ -249,7 +257,7 @@ public class ClickHolder {
 
     }
 
-    private void shiftClickFromPlacedChestContent(InventoryClickEvent event, Player player, ItemStack cursor, ItemStack current, int slot, PlacedChestContent vault, PlacedChest chest) {
+    private void shiftClickFromPlacedChestContent(InventoryClickEvent event, Player player, ItemStack cursor, ItemStack current, int slot, PlacedChestContent vault, PlacedChest chest, int inventorySize, int page) {
         if(cursor == null || cursor.getType().isAir() && current == null || current.getType().isAir()) {
             return;
         }
@@ -262,30 +270,37 @@ public class ClickHolder {
         if(!rest.isEmpty()) {
             removeAmount -= rest.values().stream().mapToInt(ItemStack::getAmount).sum();
         }
-        var newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, removeAmount);
-        event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+        var newStorageItem = this.removeFromStorageItem(vault, vaultItem, removeAmount);
+        event.getInventory().setItem(slot - ((page-1)*inventorySize), newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
     }
 
-    private void switchWithCursor(InventoryClickEvent event, Player player, ItemStack cursor, int slot, PlacedChest chest, PlacedChestContent vault, StorageItem vaultItem) {
-        var newStorageItem = this.addToStorageItem(player, chest, vault, new StorageItem(new ItemStack(Material.AIR), 1, slot), cursor, cursor.getAmount(), event);
+    private void switchWithCursor(InventoryClickEvent event, Player player, ItemStack cursor, int slot, PlacedChest chest, PlacedChestContent vault, StorageItem vaultItem, int inventorySize, int page) {
+        var newStorageItem = this.addToStorageItem(player, chest, vault, new StorageItem(new ItemStack(Material.AIR), 1, slot + ((page-1)*inventorySize)), cursor, cursor.getAmount(), event, inventorySize, page);
         event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
         ItemStack toAdd = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
         toAdd.setAmount(vaultItem.amount());
         CompatibilityUtil.setCursor(event,toAdd);
     }
 
-    private void addFromHotbar(InventoryClickEvent event, Player player, PlacedChest chest, PlacedChestContent vault, ItemStack hotbarItem) {
+    private void addFromHotbar(InventoryClickEvent event, Player player, PlacedChest chest, PlacedChestContent vault, ItemStack hotbarItem, int inventorySize, int page) {
         StorageItem vaultItem;
         int slotToAdd = this.findCorrespondingSlot(event.getInventory(), hotbarItem, vault, chest);
         vaultItem = vault.content().stream().filter(item -> item.slot() == slotToAdd).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, slotToAdd));
-        var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, hotbarItem, hotbarItem.getAmount(), event);
-        event.getInventory().setItem(slotToAdd, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+        var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, hotbarItem, hotbarItem.getAmount(), event, inventorySize, page);
+        int itemPage = (slotToAdd / inventorySize) + 1;
+        if(itemPage == page) {
+            event.getInventory().setItem(slotToAdd- ((page-1)*inventorySize), newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+        }
         player.getInventory().setItem(event.getHotbarButton(), new ItemStack(Material.AIR));
     }
 
-    private void addItem(InventoryClickEvent event, Player player, int slot, PlacedChestContent vault, PlacedChest chest, StorageItem vaultItem, ItemStack cursor, int amountToAdd) {
-        var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, cursor, amountToAdd, event);
-        event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+    private void addItem(InventoryClickEvent event, Player player, int slot, PlacedChestContent vault, PlacedChest chest, StorageItem vaultItem, ItemStack cursor, int amountToAdd, int inventorySize, int page) {
+        var newStorageItem = this.addToStorageItem(player, chest, vault, vaultItem, cursor, amountToAdd, event, inventorySize, page);
+
+        int itemPage = (slot / inventorySize) + 1;
+        if(itemPage == page) {
+            event.getInventory().setItem(slot - ((page-1)*inventorySize), newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+        }
         int newAmount = cursor.getAmount() - amountToAdd;
         if(newAmount == 0) {
             CompatibilityUtil.setCursor(event,new ItemStack(Material.AIR));
@@ -295,9 +310,12 @@ public class ClickHolder {
         CompatibilityUtil.setCursor(event,cursor);
     }
 
-    private void removeItem(InventoryClickEvent event, Player player, int slot, PlacedChestContent vault, PlacedChest chest, StorageItem vaultItem, int amountToRemove) {
-        var newStorageItem = this.removeFromStorageItem(player, vault, vaultItem, amountToRemove);
-        event.getInventory().setItem(slot, newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+    private void removeItem(InventoryClickEvent event, Player player, int slot, PlacedChestContent vault, PlacedChest chest, StorageItem vaultItem, int amountToRemove, int inventorySize, int page) {
+        var newStorageItem = this.removeFromStorageItem(vault, vaultItem, amountToRemove);
+        int itemPage = (slot / inventorySize) + 1;
+        if(itemPage == page) {
+            event.getInventory().setItem(slot - ((page-1)*inventorySize), newStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+        }
         ItemStack newCursor = newStorageItem.isEmpty() ? vaultItem.item().clone() : newStorageItem.item().clone();
         newCursor.setAmount(amountToRemove);
         CompatibilityUtil.setCursor(event,newCursor);
@@ -312,7 +330,7 @@ public class ClickHolder {
         return inventory.firstEmpty();
     }
 
-    private StorageItem removeFromStorageItem(Player player, PlacedChestContent vault, StorageItem vaultItem, int amount) {
+    private StorageItem removeFromStorageItem(PlacedChestContent vault, StorageItem vaultItem, int amount) {
         int currentAmount = vaultItem.amount();
         StorageItem newStorageItem;
         if(currentAmount - amount == 0) {
@@ -324,7 +342,7 @@ public class ClickHolder {
         return newStorageItem;
     }
 
-    private StorageItem addToStorageItem(Player player, PlacedChest chest, PlacedChestContent content, StorageItem vaultItem, ItemStack cursor, int amount, InventoryClickEvent event) {
+    private StorageItem addToStorageItem(Player player, PlacedChest chest, PlacedChestContent content, StorageItem vaultItem, ItemStack cursor, int amount, InventoryClickEvent event, int inventorySize, int page) {
         int maxStackSize = this.plugin.getManager(StoragePlusManager.class).getMaxStackSize(chest, cursor);
         int remainingAmount = amount;
         int currentAmount = vaultItem.isEmpty() ? 0 : vaultItem.amount();
@@ -344,7 +362,12 @@ public class ClickHolder {
                 int amountToAdd = Math.min(maxStackSize, remainingAmount);
                 StorageItem additionalStorageItem = new StorageItem(cursor, amountToAdd, slot.slot());
                 plugin.getManager(StoragePlusManager.class).setContent(chest,content.content().stream().map(v -> v.slot() == additionalStorageItem.slot() ? additionalStorageItem : v).collect(Collectors.toList()));
-                event.getInventory().setItem(slot.slot(), additionalStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+
+                int itemPage = (slot.slot() / inventorySize) + 1;
+                if(itemPage == page) {
+                    event.getInventory().setItem(slot.slot() - ((page-1)*inventorySize), additionalStorageItem.toItem(player, chest.getChestTemplate().isInfinite()));
+                }
+
                 remainingAmount -= amountToAdd;
                 if (remainingAmount <= 0) break;
             }

@@ -1,10 +1,9 @@
 package fr.traqueur.storageplus.api.gui.buttons;
 
+import fr.groupez.api.ZLogger;
 import fr.maxlego08.menu.api.button.PaginateButton;
-import fr.maxlego08.menu.api.utils.Placeholders;
 import fr.maxlego08.menu.button.ZButton;
 import fr.maxlego08.menu.inventory.inventories.InventoryDefault;
-import fr.maxlego08.menu.zcore.utils.inventory.Pagination;
 import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
@@ -32,12 +31,12 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
     }
 
     @Override
-    public void onInventoryOpen(Player player, InventoryDefault inventory, Placeholders placeholders) {
-        inventory.setDisablePlayerInventoryClick(false);
+    public boolean hasSpecialRender() {
+        return true;
     }
 
     @Override
-    public boolean hasSpecialRender() {
+    public boolean isPermanent() {
         return true;
     }
 
@@ -49,21 +48,21 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
     private void displayItems(Player player, InventoryDefault inventory) {
         StoragePlusManager manager = plugin.getManager(StoragePlusManager.class);
         PlacedChest chest = manager.getOpenedChest(player);
-        Pagination<StorageItem> pagination = new Pagination<>();
-        List<StorageItem> items = pagination.paginate(manager.getContent(chest).content(), this.slots.size(), inventory.getPage());
+        List<StorageItem> content = manager.getContent(chest).content();
         for (int slot : this.slots) {
-            int calculatedSlot = slot * (inventory.getPage()+1);
+            int calculatedSlot = slot + (inventory.getMenuInventory().size() * (inventory.getPage()-1));
             AtomicReference<ItemStack> item = new AtomicReference<>();
-            items.stream().filter(storageItem -> storageItem.slot() == calculatedSlot).findFirst().ifPresentOrElse(storageItem -> {
+            content.stream().filter(storageItem -> storageItem.slot() == calculatedSlot).findFirst().ifPresentOrElse(storageItem -> {
                 item.set(storageItem.toItem(player, chest.getChestTemplate().isInfinite()));
             }, () -> {
                 StorageItem newItem = new StorageItem(new ItemStack(Material.AIR), 1, calculatedSlot);
                 item.set(newItem.toItem(player, chest.getChestTemplate().isInfinite()));
-                items.add(newItem);
+                content.add(newItem);
             });
             inventory.addItem(slot, item.get()).setClick(event -> event.setCancelled(true));
         }
-        manager.setContent(chest, items);
+        manager.setContent(chest, content);
+        ZLogger.info("<yellow>" + manager.getContent(chest).content());
     }
 
     @Override
@@ -82,12 +81,14 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
 
         event.setCancelled(true);
 
+        int page = inventoryDefault.getPage();
+
         switch (clickType) {
-            case LEFT -> this.holder.handleLeftClick(event, player, cursor, slot, chest, vault);
-            case RIGHT -> this.holder.handleRightClick(event, player, cursor, current, slot, inventorySize, vault, chest);
-            case SHIFT_LEFT, SHIFT_RIGHT -> this.holder.handleShift(event, player, cursor, current, slot, inventorySize, vault, chest, this.slots);
-            case DROP, CONTROL_DROP -> this.holder.handleDrop(event, player, cursor, current, slot, inventorySize, vault, chest,clickType == ClickType.CONTROL_DROP);
-            case NUMBER_KEY -> this.holder.handleNumberKey(event, player, cursor, current, slot, inventorySize, vault,chest);
+            case LEFT -> this.holder.handleLeftClick(event, player, cursor, slot, chest, vault, page, inventorySize);
+            case RIGHT -> this.holder.handleRightClick(event, player, cursor, slot, vault, chest, page, inventorySize);
+            case SHIFT_LEFT, SHIFT_RIGHT -> this.holder.handleShift(event, player, cursor, current, slot, inventorySize, vault, chest, this.slots, page);
+            case DROP, CONTROL_DROP -> this.holder.handleDrop(event, player, slot, vault, chest,clickType == ClickType.CONTROL_DROP, page, inventorySize);
+            case NUMBER_KEY -> this.holder.handleNumberKey(event, player, slot, vault, chest, page, inventorySize);
         }
     }
 

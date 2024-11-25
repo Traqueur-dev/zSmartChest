@@ -4,6 +4,7 @@ import fr.traqueur.storageplus.api.domains.PlacedChestContent;
 import fr.traqueur.storageplus.api.domains.StorageItem;
 import fr.traqueur.storageplus.api.storage.Repository;
 import fr.traqueur.storageplus.api.storage.dto.PlacedChestDTO;
+import fr.traqueur.storageplus.domains.ZPlacedChestContent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +22,7 @@ public class PlacedChestRepository implements Repository<PlacedChestContent, Pla
                     .map(StorageItem::deserialize)
                     .collect(Collectors.toList());
         }
-        return new PlacedChestContent(placedChestDTO.uniqueId(), content);
+        return new ZPlacedChestContent(placedChestDTO.uniqueId(), content);
     }
 
     @Override

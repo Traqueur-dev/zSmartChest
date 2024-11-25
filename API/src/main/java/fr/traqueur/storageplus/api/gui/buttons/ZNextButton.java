@@ -1,7 +1,5 @@
 package fr.traqueur.storageplus.api.gui.buttons;
 
-import fr.maxlego08.menu.api.Inventory;
-import fr.maxlego08.menu.api.InventoryManager;
 import fr.maxlego08.menu.api.button.buttons.NextButton;
 import fr.maxlego08.menu.api.utils.Placeholders;
 import fr.maxlego08.menu.button.ZButton;
@@ -20,7 +18,7 @@ public class ZNextButton extends ZButton implements NextButton {
         if (inventory.getPage() != inventory.getMaxPage()) {
             var manager = JavaPlugin.getPlugin(StoragePlusPlugin.class).getManager(StoragePlusManager.class);
             PlacedChest chest = manager.getOpenedChest(player);
-            manager.openChest(player, chest, event.isLeftClick() ? inventory.getPage() + 1 : inventory.getMaxPage());
+            manager.openChest(player, chest, event.isLeftClick() ? inventory.getPage() + 1 : inventory.getMaxPage(), false);
         }
     }
 

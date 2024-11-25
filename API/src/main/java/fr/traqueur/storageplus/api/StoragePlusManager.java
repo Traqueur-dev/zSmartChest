@@ -1,6 +1,5 @@
 package fr.traqueur.storageplus.api;
 
-import fr.maxlego08.menu.api.dupe.DupeManager;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
 import fr.traqueur.storageplus.api.domains.PlacedChestContent;
@@ -8,10 +7,7 @@ import fr.traqueur.storageplus.api.domains.StorageItem;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
 
 import java.util.List;
 import java.util.Map;
@@ -45,7 +41,7 @@ public interface StoragePlusManager extends Manager {
 
     PlacedChest deserializeChest(String s);
     
-    void openChest(Player player, PlacedChest chest, int page);
+    void openChest(Player player, PlacedChest chest, int page, boolean first);
     
     void closeChest(Player player);
 

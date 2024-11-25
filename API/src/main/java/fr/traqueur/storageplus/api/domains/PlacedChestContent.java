@@ -1,27 +1,16 @@
 package fr.traqueur.storageplus.api.domains;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-public class PlacedChestContent {
+public interface PlacedChestContent {
 
-    private final UUID uuid;
-    private List<StorageItem> content;
+    void setContent(List<StorageItem> collect);
 
-    public PlacedChestContent(UUID uuid, List<StorageItem> content) {
-        this.uuid = uuid;
-        this.content = content;
-    }
+    UUID uuid();
 
-    public void setContent(List<StorageItem> collect) {
-        this.content = collect;
-    }
+    List<StorageItem> content();
 
-    public UUID uuid() {
-        return this.uuid;
-    }
-
-    public List<StorageItem> content() {
-        return this.content;
-    }
+    void generatePage(Collection<Integer> slots, int size, int page);
 }

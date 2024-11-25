@@ -13,8 +13,6 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-
 public class ZStoragePlusListener implements Listener {
 
     private final StoragePlusManager manager;
@@ -48,7 +46,7 @@ public class ZStoragePlusListener implements Listener {
 
         this.manager.getChestFromBlock(event.getClickedBlock().getLocation()).ifPresent(chest -> {
             event.setCancelled(true);
-            this.manager.openChest(event.getPlayer(), chest, 1);
+            this.manager.openChest(event.getPlayer(), chest, 1, true);
         });
     }
 

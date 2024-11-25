@@ -27,6 +27,7 @@ name: "ᴀᴜᴛᴏsᴇʟʟ ᴄʜᴇsᴛ %page%/%maxPage%"
 size: 54
 items:
   content:
+    isPermanent: true
     type: ZSTORAGEPLUS_CONTENT
     slots:
       - 10-16
