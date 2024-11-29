@@ -257,7 +257,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
                 if(opt.isEmpty()) {
                     continue;
                 }
-                if(opt.get().sellItems(Bukkit.getPlayer(chest.getOwner()), item, amount)) {
+                if(opt.get().sellItems(Bukkit.getOfflinePlayer(chest.getOwner()), item, amount)) {
                     hasSell = true;
                     break;
                 }

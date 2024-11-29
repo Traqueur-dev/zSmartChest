@@ -6,15 +6,41 @@ import fr.groupez.api.zcore.Base64;
 import fr.groupez.api.zcore.MaterialLocalization;
 import fr.maxlego08.menu.MenuItemStack;
 import fr.maxlego08.menu.api.utils.Placeholders;
+import fr.traqueur.storageplus.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public record StorageItem(ItemStack item, int amount, int slot) {
+public class StorageItem {
+
+    private ItemStack item;
+    private final int slot;
+    private int amount;
+
+    public StorageItem(ItemStack item, int amount, int slot) {
+        item.setAmount(1);
+        this.item = item;
+        this.amount = amount;
+        this.slot = slot;
+    }
+
+    public ItemStack item() {
+        return this.item;
+    }
+
+    public int amount() {
+        return this.amount;
+    }
+
+    public int slot() {
+        return this.slot;
+    }
 
     public static StorageItem empty(int slot) {
         return new StorageItem(new ItemStack(Material.AIR), 1, slot);
@@ -25,7 +51,7 @@ public record StorageItem(ItemStack item, int amount, int slot) {
     }
 
     public boolean isEmpty() {
-        return this.item == null || this.item.getType().isAir();
+        return this.item == null || this.item.getType().isAir() || this.amount == 0;
     }
 
     public ItemStack toItem(Player player, boolean infinite) {
@@ -92,5 +118,22 @@ public record StorageItem(ItemStack item, int amount, int slot) {
     public static StorageItem deserialize(String serialized) {
         String[] parts = serialized.split(":");
         return new StorageItem(Base64.decodeItem(parts[0]), Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+    }
+
+    public void setItem(ItemStack item) {
+        item.setAmount(1);
+        this.item = item;
+    }
+
+    public void addAmount(int i) {
+        this.amount += i;
+    }
+
+    public void removeAmount(int i) {
+        this.amount -= i;
+        if(this.amount <= 0) {
+            this.item = new ItemStack(Material.AIR);
+            this.amount = 0;
+        }
     }
 }
