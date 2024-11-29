@@ -84,7 +84,7 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
         switch (clickType) {
             case LEFT -> this.holder.handleLeftClick(event, player, cursor, slot, chest, vault, page, inventorySize);
             case RIGHT -> this.holder.handleRightClick(event, player, cursor, slot, vault, chest, page, inventorySize);
-            case SHIFT_LEFT, SHIFT_RIGHT -> this.holder.handleShift(event, player, cursor, current, slot, inventorySize, vault, chest, this.slots, page);
+            case SHIFT_LEFT, SHIFT_RIGHT -> this.holder.handleShift(event, player, slot, inventorySize, vault, chest, this.slots, page);
             case DROP, CONTROL_DROP -> this.holder.handleDrop(event, player, slot, vault, chest,clickType == ClickType.CONTROL_DROP, page, inventorySize);
             case NUMBER_KEY -> this.holder.handleNumberKey(event, player, slot, vault, chest, page, inventorySize);
         }

@@ -65,6 +65,9 @@ public class ClickHolder {
         switch (action) {
             case PICKUP_HALF -> {
                 int amountToRemove = Math.min(vaultItem.item().getMaxStackSize() / 2, Math.min(vaultItem.amount(), vaultItem.amount() / 2));
+                if(vaultItem.amount() == 1) {
+                    amountToRemove = 1;
+                }
                 vaultItem.removeAmount(amountToRemove);
                 if(vaultItem.isEmpty()) {
                     event.getInventory().setItem(slotInInventory, new ItemStack(Material.AIR));
@@ -74,7 +77,6 @@ public class ClickHolder {
                 var itemCursor = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
                 itemCursor.setAmount(amountToRemove);
                 player.setItemOnCursor(itemCursor);
-
             }
             case PLACE_ONE, SWAP_WITH_CURSOR -> {
                 int leftToAdd = this.addItemInChest(content, cursor, 1, chest, page, event.getInventory(), player);
@@ -90,65 +92,68 @@ public class ClickHolder {
     }
 
     
-    public void handleShift(InventoryClickEvent event, Player player, ItemStack cursor, ItemStack current, int slot, int inventorySize, PlacedChestContent vault, PlacedChest chest, List<Integer> slots, int page) {
+    public void handleShift(InventoryClickEvent event, Player player, int slot, int inventorySize, PlacedChestContent vault, PlacedChest chest, List<Integer> slots, int page) {
         int slotInInventory = slot;
         slot = slot + ((page-1) * inventorySize);
-        if(chest.getChestTemplate().isInfinite()) {
-            if (slotInInventory >= inventorySize) {
-                if(cursor == null || cursor.getType().isAir() && current == null || current.getType().isAir()) {
-                    return;
-                }
-                int slotToAdd = this.findCorrespondingSlot(current, vault, chest);
-                if(slotToAdd == -1) {
-                    return;
-                }
-                
+        boolean isTop = slotInInventory < inventorySize;
+        StoragePlusManager manager = this.plugin.getManager(StoragePlusManager.class);
+        if(isTop) {
+            StorageItem item = this.getItemIntSlot(vault, slot);
+            ItemStack clone = manager.cloneItemStack(item.item());
+            int amountToRemove = Math.min(item.amount(), item.item().getMaxStackSize());
+            item.removeAmount(amountToRemove);
+            if(item.isEmpty()) {
+                event.getInventory().setItem(slotInInventory, new ItemStack(Material.AIR));
             } else {
-                //get from chest
+                event.getInventory().setItem(slotInInventory, item.toItem(player, chest.getChestTemplate().isInfinite()));
+            }
+            clone.setAmount(amountToRemove);
+            var left = player.getInventory().addItem(clone);
+            if(!left.isEmpty()) {
+                left.forEach((integer, itemStack) -> {
+                    player.getWorld().dropItem(player.getLocation(), itemStack);
+                });
             }
         } else {
-            if (slotInInventory >= inventorySize) {
-                if(cursor == null || cursor.getType().isAir() && current == null || current.getType().isAir()) {
-                    return;
-                }
-                var virtualInv = Bukkit.createInventory(null, inventorySize, "virtual_inv");
-                virtualInv.setContents(event.getInventory().getContents());
-                var rest = virtualInv.addItem(current);
-                for (int i : slots) {
-                    ItemStack virtual = virtualInv.getItem(i);
-                    ItemStack real = event.getInventory().getItem(i);
-                    if(this.isDifferent(virtual, real, true)) {
-
-                    }
-                }
-                int newCurrentAmount = rest.values().stream().mapToInt(ItemStack::getAmount).sum();
-                ItemStack newCurrent = this.plugin.getManager(StoragePlusManager.class).cloneItemStack(current);
-                if(newCurrentAmount == 0) {
-                    newCurrent = new ItemStack(Material.AIR);
-                } else {
-                    newCurrent.setAmount(newCurrentAmount);
-                }
-                player.getInventory().setItem(event.getSlot(), newCurrent);
-            } else {
-                //get from chest
-
+            if(event.getCurrentItem() == null || event.getCurrentItem().getType().isAir()) {
+                return;
             }
-
+            int leftToAdd = this.addItemInChest(vault, event.getCurrentItem(), event.getCurrentItem().getAmount(), chest, page, event.getInventory(), player);
+            if(leftToAdd == 0) {
+                player.getInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
+            } else {
+                event.getCurrentItem().setAmount(leftToAdd);
+                player.getInventory().setItem(event.getSlot(), event.getCurrentItem());
+            }
         }
     }
 
     
     public void handleDrop(InventoryClickEvent event, Player player, int slot, PlacedChestContent vault, PlacedChest chest, boolean controlDrop, int page, int inventorySize) {
+        int slotInInventory = slot;
         int finalSlot = slot + ((page-1) * inventorySize);
-        StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == finalSlot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, finalSlot));
+        StorageItem vaultItem = this.getItemIntSlot(vault, finalSlot);
         if(vaultItem.isEmpty()) {
             return;
         }
         int amountToDrop;
         if(controlDrop) {
-            amountToDrop = Math.min(vaultItem.amount(), plugin.getManager(StoragePlusManager.class).getMaxStackSize(chest, vaultItem.item()));
+            amountToDrop = Math.min(vaultItem.amount(), vaultItem.item().getMaxStackSize());
         } else {
             amountToDrop = 1;
+        }
+        ItemStack clone = plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
+        vaultItem.removeAmount(amountToDrop);
+        if(vaultItem.isEmpty()) {
+            event.getInventory().setItem(slotInInventory, new ItemStack(Material.AIR));
+        } else {
+            event.getInventory().setItem(slotInInventory, vaultItem.toItem(player, chest.getChestTemplate().isInfinite()));
+        }
+        while (amountToDrop > 0) {
+            int amount = Math.min(amountToDrop, clone.getMaxStackSize());
+            clone.setAmount(amount);
+            player.getWorld().dropItem(player.getLocation(), clone);
+            amountToDrop -= amount;
         }
         
     }
@@ -243,7 +248,7 @@ public class ClickHolder {
             }
             StorageItem storageItem = this.getItemIntSlot(content, slotToAdd);
             int maxStackSize = manager.getMaxStackSize(chest, item);
-            int amountToAdd = Math.min(amount, maxStackSize - storageItem.amount());
+            int amountToAdd = Math.min(leftAmount, maxStackSize - storageItem.amount());
             if(storageItem.isEmpty()) {
                 storageItem.setItem(item.clone());
             }
