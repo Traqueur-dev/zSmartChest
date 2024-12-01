@@ -123,9 +123,11 @@ public class StorageItem {
 
     public void addAmount(int i) {
         if(this.isEmpty()) {
+            System.out.println("Adding " + i + " to 0");
             this.amount = i;
             return;
         }
+        System.out.println("Adding " + i + " to " + this.amount);
         this.amount += i;
     }
 
@@ -133,7 +135,7 @@ public class StorageItem {
         this.amount -= i;
         if(this.amount <= 0) {
             this.item = new ItemStack(Material.AIR);
-            this.amount = 0;
+            this.amount = 1;
         }
     }
 

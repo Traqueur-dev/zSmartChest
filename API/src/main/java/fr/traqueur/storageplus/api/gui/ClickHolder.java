@@ -136,10 +136,37 @@ public class ClickHolder {
                 }
             }
         }
-
     }
 
     public void handleShift(InventoryClickEvent event, Player player, int slot, int inventorySize, PlacedChestContent vault, PlacedChest chest, List<Integer> slots, int page) {
+        boolean isTop = slot < inventorySize;
+        StoragePlusManager manager = this.plugin.getManager(StoragePlusManager.class);
+        if(isTop) {
+            StorageItem item = this.getItemIntSlot(vault, this.getSlotFromPage(slot, page, inventorySize));
+            ItemStack clone = manager.cloneItemStack(item.item());
+            int amountToRemove = item.amount();
+            item.removeAmount(amountToRemove);
+            event.getInventory().setItem(slot, new ItemStack(Material.AIR));
+            clone.setAmount(amountToRemove);
+            var left = player.getInventory().addItem(clone);
+            if(!left.isEmpty()) {
+                left.forEach((integer, itemStack) -> {
+                    player.getWorld().dropItem(player.getLocation(), itemStack);
+                });
+            }
+        } else {
+            if(event.getCurrentItem() == null || event.getCurrentItem().getType().isAir()) {
+                return;
+            }
+            int leftToAdd = this.addItemInChest(vault, event.getCurrentItem(), event.getCurrentItem().getAmount(), chest, page, event.getInventory(), player);
+            if(leftToAdd == 0) {
+                player.getInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
+            } else {
+                ItemStack clone = event.getCurrentItem().clone();
+                clone.setAmount(leftToAdd);
+                player.getInventory().setItem(event.getSlot(), clone);
+            }
+        }
     }
 
     public void handleDrop(InventoryClickEvent event, Player player, int slot, PlacedChestContent vault, PlacedChest chest, boolean all, int page, int inventorySize) {
@@ -406,12 +433,14 @@ public class ClickHolder {
             int maxStackSize = manager.getMaxStackSize(chest, item);
             int amountToAdd;
             if(storageItem.isEmpty()) {
-                storageItem.setItem(item.clone());
                 amountToAdd = Math.min(leftAmount, maxStackSize);
             } else {
                 amountToAdd = Math.min(leftAmount, maxStackSize - storageItem.amount());
             }
             storageItem.addAmount(amountToAdd);
+            if(storageItem.isEmpty()) {
+                storageItem.setItem(item.clone());
+            }
             if(this.getPageFromSlot(slotToAdd, chestInventory.getSize()) == page) {
                 chestInventory.setItem(getRawSlotFromSlot(slotToAdd, page, chestInventory.getSize()), storageItem.toItem(player, chest.getChestTemplate().isInfinite()));
             }
