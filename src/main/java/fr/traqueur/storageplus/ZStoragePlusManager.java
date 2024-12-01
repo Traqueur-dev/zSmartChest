@@ -501,7 +501,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
     public void dropItems(Location location, int amount, ItemStack itemStack) {
         while (amount > 0) {
             int toAdd = Math.min(amount, itemStack.getMaxStackSize());
-            ItemStack item = itemStack.clone();
+            ItemStack item = this.cloneItemStack(itemStack);
             item.setAmount(toAdd);
             location.getWorld().dropItemNaturally(location, item);
             amount -= toAdd;

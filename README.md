@@ -13,7 +13,7 @@
 
 # Additional Features
 - Hologram above the chest, with an option to disable
-- Ability to create different types of chests
+- Ability to create different types of chests 
 - "Chest Owner" system (e.g., if I buy the chest, only I can open it; with a trust system to allow friends to open it)
 
 # Upgrade System for the Chest:
