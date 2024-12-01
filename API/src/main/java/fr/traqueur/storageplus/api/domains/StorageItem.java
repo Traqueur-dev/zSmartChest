@@ -126,6 +126,10 @@ public class StorageItem {
     }
 
     public void addAmount(int i) {
+        if(this.isEmpty()) {
+            this.amount = i;
+            return;
+        }
         this.amount += i;
     }
 

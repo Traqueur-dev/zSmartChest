@@ -13,6 +13,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
@@ -69,11 +70,15 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
         PlacedChestContent vault = this.plugin.getManager(StoragePlusManager.class).getContent(chest);
         ClickType clickType = event.getClick();
         ItemStack cursor = event.getCursor();
-        ItemStack current = event.getCurrentItem();
         int slot = event.getRawSlot();
         int inventorySize = inventoryDefault.getSpigotInventory().getSize();
 
         if(slot >= inventorySize && !clickType.isShiftClick() && clickType != ClickType.DOUBLE_CLICK || slot < 0) {
+            return;
+        }
+
+        if(!this.slots.contains(slot) && slot < inventorySize) {
+            event.setCancelled(true);
             return;
         }
 
@@ -88,6 +93,11 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
             case DROP, CONTROL_DROP -> this.holder.handleDrop(event, player, slot, vault, chest,clickType == ClickType.CONTROL_DROP, page, inventorySize);
             case NUMBER_KEY -> this.holder.handleNumberKey(event, player, slot, vault, chest, page, inventorySize);
         }
+    }
+
+    @Override
+    public void onDrag(InventoryDragEvent event, Player player, InventoryDefault inventoryDefault) {
+        event.setCancelled(true);
     }
 
     @Override

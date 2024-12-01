@@ -164,25 +164,33 @@ public class ClickHolder {
         ItemStack hotbarItem = player.getInventory().getItem(event.getHotbarButton());
         StorageItem vaultItem = vault.content().stream().filter(item -> item.slot() == finalSlot).findFirst().orElse(new StorageItem(new ItemStack(Material.AIR), 1, finalSlot));
 
-        if(chest.getChestTemplate().isInfinite()) {
-            if(vaultItem.isEmpty() && hotbarItem != null && !hotbarItem.getType().isAir()) {
-
-            } else if(!vaultItem.isEmpty() && (hotbarItem == null || hotbarItem.getType().isAir())) {
-                int amount = Math.min(vaultItem.amount(), plugin.getManager(StoragePlusManager.class).getMaxStackSize(chest, vaultItem.item()));
-
-            } else if (hotbarItem != null && vaultItem.item().isSimilar(hotbarItem)) {
-
+        if(vaultItem.isEmpty() && hotbarItem != null && !hotbarItem.getType().isAir()) {
+            addFromHotbar(event, player, vault, chest, page, hotbarItem);
+        } else if(!vaultItem.isEmpty() && (hotbarItem == null || hotbarItem.getType().isAir())) {
+            int amount = Math.min(vaultItem.amount(), vaultItem.item().getMaxStackSize());
+            ItemStack clone = plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item());
+            clone.setAmount(amount);
+            player.getInventory().setItem(event.getHotbarButton(), clone);
+            vaultItem.removeAmount(amount);
+            if(vaultItem.isEmpty()) {
+                event.getInventory().setItem(slot, new ItemStack(Material.AIR));
+            } else {
+                event.getInventory().setItem(slot, vaultItem.toItem(player, chest.getChestTemplate().isInfinite()));
             }
-        } else {
-            if(vaultItem.isEmpty() && hotbarItem != null && !hotbarItem.getType().isAir()) {
-
-            } else if(!vaultItem.isEmpty() && (hotbarItem == null || hotbarItem.getType().isAir())) {
-
-            } else if (hotbarItem != null && !this.isDifferent(this.plugin.getManager(StoragePlusManager.class).cloneItemStack(vaultItem.item()), hotbarItem, false)) {
-
-            }
+        } else if (hotbarItem != null && vaultItem.item().isSimilar(hotbarItem)) {
+            addFromHotbar(event, player, vault, chest, page, hotbarItem);
         }
 
+    }
+
+    private void addFromHotbar(InventoryClickEvent event, Player player, PlacedChestContent vault, PlacedChest chest, int page, ItemStack hotbarItem) {
+        int leftToAdd = this.addItemInChest(vault, hotbarItem, hotbarItem.getAmount(), chest, page, event.getInventory(), player);
+        if(leftToAdd == 0) {
+            player.getInventory().setItem(event.getHotbarButton(), new ItemStack(Material.AIR));
+        } else {
+            hotbarItem.setAmount(leftToAdd);
+            player.getInventory().setItem(event.getHotbarButton(), hotbarItem);
+        }
     }
 
     private int findCorrespondingSlot(ItemStack correspond, PlacedChestContent content, PlacedChest chest) {
@@ -194,41 +202,6 @@ public class ClickHolder {
         return content.content().stream().filter(StorageItem::isEmpty).findFirst().map(StorageItem::slot).orElse(-1);
     }
 
-
-    private boolean isDifferent(ItemStack item1, ItemStack item2, boolean checkAmount) {
-        if (item1 == null && item2 == null) {
-            return false;
-        }
-
-        if (item1 == null || item2 == null) {
-            return true;
-        }
-
-        if (item1.getType() != item2.getType()) {
-            return true;
-        }
-
-        if(checkAmount) {
-            if (item1.getAmount() != item2.getAmount()) {
-                return true;
-            }
-        }
-
-        if (!item1.hasItemMeta() && !item2.hasItemMeta()) {
-            return false;
-        }
-
-        if (item1.hasItemMeta() != item2.hasItemMeta()) {
-            return true;
-        }
-
-        if (item1.hasItemMeta() && item2.hasItemMeta()) {
-            if (!item1.getItemMeta().equals(item2.getItemMeta())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Add an item in the chest
@@ -248,9 +221,12 @@ public class ClickHolder {
             }
             StorageItem storageItem = this.getItemIntSlot(content, slotToAdd);
             int maxStackSize = manager.getMaxStackSize(chest, item);
-            int amountToAdd = Math.min(leftAmount, maxStackSize - storageItem.amount());
+            int amountToAdd;
             if(storageItem.isEmpty()) {
                 storageItem.setItem(item.clone());
+                amountToAdd = Math.min(leftAmount, maxStackSize);
+            } else {
+                amountToAdd = Math.min(leftAmount, maxStackSize - storageItem.amount());
             }
             storageItem.addAmount(amountToAdd);
             if(this.getPageFromSlot(slotToAdd, chestInventory.getSize()) == page) {
