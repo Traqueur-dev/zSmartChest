@@ -6,13 +6,10 @@ import fr.groupez.api.zcore.Base64;
 import fr.groupez.api.zcore.MaterialLocalization;
 import fr.maxlego08.menu.MenuItemStack;
 import fr.maxlego08.menu.api.utils.Placeholders;
-import fr.traqueur.storageplus.api.StoragePlusManager;
-import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -95,10 +92,9 @@ public class StorageItem {
             menuItem.setAmount(1);
 
             return menuItem;
-        } else {
-            this.item.setAmount(this.amount);
         }
 
+        this.item.setAmount(this.amount);
         return this.item;
     }
 
@@ -139,5 +135,9 @@ public class StorageItem {
             this.item = new ItemStack(Material.AIR);
             this.amount = 0;
         }
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
     }
 }

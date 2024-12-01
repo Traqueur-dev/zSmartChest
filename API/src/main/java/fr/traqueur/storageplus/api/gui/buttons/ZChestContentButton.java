@@ -72,8 +72,9 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
         ItemStack cursor = event.getCursor();
         int slot = event.getRawSlot();
         int inventorySize = inventoryDefault.getSpigotInventory().getSize();
+        int page = inventoryDefault.getPage();
 
-        if(slot >= inventorySize && !clickType.isShiftClick() && clickType != ClickType.DOUBLE_CLICK || slot < 0) {
+        if(slot >= inventorySize && !clickType.isShiftClick() && clickType != ClickType.NUMBER_KEY || slot < 0) {
             return;
         }
 
@@ -84,14 +85,22 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
 
         event.setCancelled(true);
 
-        int page = inventoryDefault.getPage();
-
-        switch (clickType) {
-            case LEFT -> this.holder.handleLeftClick(event, player, cursor, slot, chest, vault, page, inventorySize);
-            case RIGHT -> this.holder.handleRightClick(event, player, cursor, slot, vault, chest, page, inventorySize);
-            case SHIFT_LEFT, SHIFT_RIGHT -> this.holder.handleShift(event, player, slot, inventorySize, vault, chest, this.slots, page);
-            case DROP, CONTROL_DROP -> this.holder.handleDrop(event, player, slot, vault, chest,clickType == ClickType.CONTROL_DROP, page, inventorySize);
-            case NUMBER_KEY -> this.holder.handleNumberKey(event, player, slot, vault, chest, page, inventorySize);
+        if(chest.getChestTemplate().isInfinite()) {
+            switch (clickType) {
+                case LEFT -> this.holder.handleInfiniteLeftClick(event, player, cursor, slot, chest, vault, page, inventorySize);
+                case RIGHT -> this.holder.handleInfiniteRightClick(event, player, cursor, slot, vault, chest, page, inventorySize);
+                case SHIFT_LEFT, SHIFT_RIGHT -> this.holder.handleInfiniteShift(event, player, slot, inventorySize, vault, chest, this.slots, page);
+                case DROP, CONTROL_DROP -> this.holder.handleInfiniteDrop(event, player, slot, vault, chest,clickType == ClickType.CONTROL_DROP, page, inventorySize);
+                case NUMBER_KEY -> this.holder.handleInfiniteNumberKey(event, player, slot, vault, chest, page, inventorySize);
+            }
+        } else {
+            switch (clickType) {
+                case LEFT -> this.holder.handleLeftClick(event, player, cursor, slot, chest, vault, page, inventorySize);
+                case RIGHT -> this.holder.handleRightClick(event, player, cursor, slot, vault, chest, page, inventorySize);
+                case SHIFT_LEFT, SHIFT_RIGHT -> this.holder.handleShift(event, player, slot, inventorySize, vault, chest, this.slots, page);
+                case DROP, CONTROL_DROP -> this.holder.handleDrop(event, player, slot, vault, chest,clickType == ClickType.CONTROL_DROP, page, inventorySize);
+                case NUMBER_KEY -> this.holder.handleNumberKey(event, player, slot, vault, chest, page, inventorySize);
+            }
         }
     }
 

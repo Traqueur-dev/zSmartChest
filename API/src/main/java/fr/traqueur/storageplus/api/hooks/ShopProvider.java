@@ -1,7 +1,6 @@
 package fr.traqueur.storageplus.api.hooks;
 
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public interface ShopProvider {

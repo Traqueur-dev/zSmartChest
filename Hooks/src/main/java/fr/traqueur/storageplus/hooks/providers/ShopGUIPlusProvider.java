@@ -3,7 +3,6 @@ package fr.traqueur.storageplus.hooks.providers;
 import fr.traqueur.storageplus.api.hooks.ShopProvider;
 import net.brcdev.shopgui.ShopGuiPlusApi;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class ShopGUIPlusProvider implements ShopProvider {
