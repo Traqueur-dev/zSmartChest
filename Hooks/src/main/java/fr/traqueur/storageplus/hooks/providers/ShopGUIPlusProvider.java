@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ShopGUIPlusProvider implements ShopProvider {
     @Override
-    public boolean sellItems(OfflinePlayer player, ItemStack item, int amount) {
+    public boolean sellItems(OfflinePlayer player, ItemStack item, int amount, double multiplier) {
         if(!player.isOnline()) {
             return false;
         }
@@ -16,7 +16,7 @@ public class ShopGUIPlusProvider implements ShopProvider {
             return false;
         }
 
-        double total = price * amount;
+        double total = price * amount * multiplier;
         ShopGuiPlusApi.getItemStackShop(item).getEconomyProvider().deposit(player.getPlayer(), total);
         return true;
     }

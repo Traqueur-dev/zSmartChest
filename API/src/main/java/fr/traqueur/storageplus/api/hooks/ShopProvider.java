@@ -5,6 +5,6 @@ import org.bukkit.inventory.ItemStack;
 
 public interface ShopProvider {
 
-    boolean sellItems(OfflinePlayer player, ItemStack item, int amount);
+    boolean sellItems(OfflinePlayer player, ItemStack item, int amount, double multiplier);
 
 }

@@ -246,7 +246,8 @@ public class ZStoragePlusManager implements StoragePlusManager {
         }
     }
 
-    private void sell(PlacedChest chest) {
+    @Override
+    public void sell(PlacedChest chest) {
         PlacedChestContent content = this.getContent(chest);
         Map<ItemStack, Integer> groupedItems = this.groupItems(content.content());
         Map<ItemStack, Integer> notSellable = new HashMap<>();
@@ -258,7 +259,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
                 if(opt.isEmpty()) {
                     continue;
                 }
-                if(opt.get().sellItems(Bukkit.getOfflinePlayer(chest.getOwner()), item, amount)) {
+                if(opt.get().sellItems(Bukkit.getOfflinePlayer(chest.getOwner()), item, amount, chest.getChestTemplate().getMultiplier())) {
                     hasSell = true;
                     break;
                 }
@@ -616,6 +617,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
             if(config.contains("settings.auto-sell.shops")) {
                 shops = config.getStringList("settings.auto-sell.shops").stream().map(str -> Hooks.valueOf(str.toUpperCase())).collect(Collectors.toList());
             }
+            double multiplier = config.getDouble("settings.auto-sell.multiplier", 1);
             boolean vacuum = config.getBoolean("settings.vacuum.enabled", false);
             List<Material> blacklistVacuum = new ArrayList<>();
             if(config.contains("settings.vacuum.black-list")) {
@@ -625,7 +627,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
             boolean infinite = config.getBoolean("settings.infinite", false);
             int maxStackSize = config.getInt("settings.max-stack-size", -1);
             int maxPages = config.getInt("settings.max-pages", 1);
-            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, vacuum, blacklistVacuum, dropMode, infinite, maxStackSize, maxPages));
+            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, multiplier, vacuum, blacklistVacuum, dropMode, infinite, maxStackSize, maxPages));
             if(this.getPlugin().isDebug()) {
                 ZLogger.info("Registered chest " + name);
             }

@@ -34,4 +34,6 @@ public interface ChestTemplate {
     int getMaxPages();
 
     int getMaxStackSize();
+
+    double getMultiplier();
 }

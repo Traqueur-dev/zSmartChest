@@ -29,12 +29,13 @@ public class ZChestTemplate implements ChestTemplate {
     private final boolean autoSell;
     private final long sellDelay;
     private final List<Hook> shops;
+    private final double multiplier;
 
     /* Fields to manage vaccum system */
     private final boolean vacuum;
     private final List<Material> blacklistVacuum;
 
-    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<Hook> shops, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize, int maxPages) {
+    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<Hook> shops, double multiplier, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize, int maxPages) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
@@ -47,6 +48,7 @@ public class ZChestTemplate implements ChestTemplate {
         this.infinite = infinite;
         this.maxStackSize = maxStackSize;
         this.maxPages = maxPages;
+        this.multiplier = multiplier;
     }
 
     @Override
@@ -114,4 +116,8 @@ public class ZChestTemplate implements ChestTemplate {
         return this.maxStackSize;
     }
 
+    @Override
+    public double getMultiplier() {
+        return multiplier;
+    }
 }

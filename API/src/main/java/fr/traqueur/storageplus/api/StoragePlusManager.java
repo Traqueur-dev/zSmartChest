@@ -42,6 +42,8 @@ public interface StoragePlusManager extends Manager {
 
     void handleAutoSell();
 
+    void sell(PlacedChest chest);
+
     PlacedChest deserializeChest(String s);
     
     void openChest(Player player, PlacedChest chest, int page, boolean first);

@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class ZShopProvider implements ShopProvider {
 
     @Override
-    public boolean sellItems(OfflinePlayer player, ItemStack item, int amount) {
+    public boolean sellItems(OfflinePlayer player, ItemStack item, int amount, double multiplier) {
         if(!player.isOnline()) {
             return false;
         }
@@ -27,7 +27,7 @@ public class ZShopProvider implements ShopProvider {
             }
             if(itemButton.getItemStack().build(player.getPlayer(), false).isSimilar(item)) {
                 double price = itemButton.getSellPrice(player.getPlayer(), amount);
-                itemButton.getEconomy().depositMoney(player, price);
+                itemButton.getEconomy().depositMoney(player, price*multiplier);
                 return true;
             }
         }
