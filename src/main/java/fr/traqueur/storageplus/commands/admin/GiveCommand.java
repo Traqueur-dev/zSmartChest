@@ -1,6 +1,9 @@
 package fr.traqueur.storageplus.commands.admin;
 
+import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.commands.ZCommand;
+import fr.groupez.api.configurations.Configuration;
+import fr.groupez.api.messaging.Formatter;
 import fr.groupez.api.messaging.Messages;
 import fr.traqueur.commands.api.Arguments;
 import fr.traqueur.storageplus.api.StoragePlusManager;
@@ -18,6 +21,7 @@ public class GiveCommand extends ZCommand<StoragePlusPlugin> {
 
         this.storagePlusManager = plugin.getManager(StoragePlusManager.class);
 
+        this.setPermission(Configuration.get(MainConfiguration.class).getCommandPermission());
         this.setUsage("<color:#92bed8>/storageplus give &f<chest>");
         this.setDescription(Messages.DESCRIPTION_GIVE_COMMAND.toString());
 
@@ -31,5 +35,6 @@ public class GiveCommand extends ZCommand<StoragePlusPlugin> {
         Player player = (Player) commandSender;
         ChestTemplate chest = arguments.get("chest");
         storagePlusManager.give(player, chest);
+        Messages.GIVE_CHEST.send(player, Formatter.format("%chest%", chest.getName()));
     }
 }

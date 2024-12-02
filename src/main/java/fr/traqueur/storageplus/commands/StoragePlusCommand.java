@@ -1,6 +1,8 @@
 package fr.traqueur.storageplus.commands;
 
+import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.commands.ZCommand;
+import fr.groupez.api.configurations.Configuration;
 import fr.groupez.api.messaging.Formatter;
 import fr.groupez.api.messaging.Messages;
 import fr.traqueur.commands.api.Arguments;
@@ -17,6 +19,9 @@ public class StoragePlusCommand extends ZCommand<StoragePlusPlugin> {
 
     public StoragePlusCommand(StoragePlusPlugin plugin) {
         super(plugin, "storageplus");
+
+        this.addAlias(Configuration.get(MainConfiguration.class).getCommandAliases().toArray(String[]::new));
+        this.setPermission(Configuration.get(MainConfiguration.class).getCommandPermission());
 
         this.addSubCommand(new ReloadCommand(plugin), new GiveCommand(plugin), new PurgeCommand(plugin));
     }

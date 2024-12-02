@@ -1,5 +1,6 @@
 package fr.traqueur.storageplus.commands.admin;
 
+import fr.groupez.api.MainConfiguration;
 import fr.groupez.api.commands.ZCommand;
 import fr.groupez.api.configurations.Configuration;
 import fr.groupez.api.messaging.Messages;
@@ -14,6 +15,8 @@ public class ReloadCommand extends ZCommand<StoragePlusPlugin> {
     public ReloadCommand(StoragePlusPlugin plugin) {
         super(plugin, "reload");
 
+
+        this.setPermission(Configuration.get(MainConfiguration.class).getCommandPermission());
         this.setUsage("<color:#92bed8>/storageplus reload");
         this.setDescription(Messages.DESCRIPTION_RELOAD.toString());
     }

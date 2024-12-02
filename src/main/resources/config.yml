@@ -1,4 +1,4 @@
-config-version: '6'
+config-version: '8'
 
 debug: true
 
@@ -12,6 +12,14 @@ storage-config:
   database: "zstorageplus"
   username: "local"
   password: "password"
+
+command-aliases:
+  - "zstorage"
+  - "zstorageplus"
+  - "zstorage+"
+  - "storage"
+
+command-permission: "zstorageplus.admin"
 
 default-auto-sell-interval: 5
 

@@ -36,7 +36,8 @@ public enum Messages {
 
     NOT_ENOUGH_MONEY("You do not have enough money to do this."),
     DESCRIPTION_PURGE("Delete all chests save in chunks around you."),
-    PURGE("&aYou have just purged the chests in %amount% chunks"),;
+    PURGE("&aYou have just purged the chests in %amount% chunks"),
+    GIVE_CHEST("&aYou have just received the chest &f%chest%&7."),;
 
     private final ZMessage message;
 

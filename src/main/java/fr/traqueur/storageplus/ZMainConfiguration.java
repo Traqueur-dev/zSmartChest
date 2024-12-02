@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ZMainConfiguration implements MainConfiguration {
@@ -33,6 +34,9 @@ public class ZMainConfiguration implements MainConfiguration {
     private long defaultAutoSellInterval;
 
     private PlaceholdersConfig placeholders;
+
+    private List<String> commandAliases;
+    private String commandPermission;
 
     public ZMainConfiguration() {
         this.storageIcons = new HashMap<>();
@@ -96,6 +100,16 @@ public class ZMainConfiguration implements MainConfiguration {
     @Override
     public MenuItemStack getIcon(String id) {
         return this.storageIcons.getOrDefault(id, null);
+    }
+
+    @Override
+    public List<String> getCommandAliases() {
+        return commandAliases;
+    }
+
+    @Override
+    public String getCommandPermission() {
+        return commandPermission;
     }
 
     @Override

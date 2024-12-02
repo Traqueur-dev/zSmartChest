@@ -203,7 +203,8 @@ public class ZStoragePlusManager implements StoragePlusManager {
 
     @Override
     public void give(Player player, ChestTemplate chest) {
-        player.getInventory().addItem(chest.build(player));
+        var left = player.getInventory().addItem(chest.build(player));
+        left.values().forEach(itemStack -> player.getWorld().dropItemNaturally(player.getLocation(), itemStack));
     }
 
     @Override
