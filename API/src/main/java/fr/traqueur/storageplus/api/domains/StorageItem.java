@@ -68,6 +68,11 @@ public class StorageItem {
 
             Placeholders placeholders = new Placeholders();
             String materialName = MaterialLocalization.getTranslateName(this.item.getType());
+
+            if(meta != null && meta.hasItemName()) {
+                materialName = meta.getItemName();
+            }
+
             if(meta != null && meta.hasDisplayName()) {
                 materialName = meta.getDisplayName();
             }
