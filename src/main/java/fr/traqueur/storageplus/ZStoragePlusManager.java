@@ -342,6 +342,9 @@ public class ZStoragePlusManager implements StoragePlusManager {
         List<PlacedChest> chests = this.getChestsInChunk(chunk);
         int rest = itemStack.getAmount();
         for (PlacedChest chest : chests) {
+            if(!chest.isVacuum()) {
+                continue;
+            }
             PlacedChestContent content = this.contents.get(chest.getUniqueId());
             StorageItem storageItem = content.content()
                     .stream()
