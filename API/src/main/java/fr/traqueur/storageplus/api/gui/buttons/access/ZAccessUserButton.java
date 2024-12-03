@@ -52,6 +52,11 @@ public class ZAccessUserButton extends ZButton implements PaginateButton {
             inventory.addItem(slot, this.getItem(player, value)).setClick(event -> {
                 if(event.getClick() == ClickType.LEFT) {
                     plugin.getManager(AccessManager.class).removeAccess(value);
+                    for (Player player1 : this.plugin.getManager(StoragePlusManager.class).playerWhoOpenChest(chest)) {
+                        if(player1.getUniqueId().equals(value.getPlayerId())) {
+                            player1.closeInventory();
+                        }
+                    }
                     event.getInventory().setItem(slot, new ItemStack(Material.AIR));
                 }
             });

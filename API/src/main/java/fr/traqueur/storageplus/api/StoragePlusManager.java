@@ -28,6 +28,8 @@ public interface StoragePlusManager extends Manager {
 
     void breakChest(BlockBreakEvent event, Location location);
 
+    List<Player> playerWhoOpenChest(PlacedChest chest);
+
     Optional<ChestTemplate> getChestFromItem(ItemStack item);
 
     ChestTemplate getSmartChest(String s);

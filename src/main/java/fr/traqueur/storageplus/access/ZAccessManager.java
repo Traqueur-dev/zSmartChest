@@ -1,5 +1,6 @@
 package fr.traqueur.storageplus.access;
 
+import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.access.AccessManager;
 import fr.traqueur.storageplus.api.config.AccessMode;
 import fr.traqueur.storageplus.api.domains.AccessChest;

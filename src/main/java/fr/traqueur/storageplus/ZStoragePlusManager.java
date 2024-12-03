@@ -55,7 +55,6 @@ public class ZStoragePlusManager implements StoragePlusManager {
 
     private final Map<String, ChestTemplate> smartChests;
     private final Map<UUID, PlacedChest> openedChests;
-    private final Map<Location, Inventory> mapInventoryOpened;
     private final Map<UUID, PlacedChestContent> contents;
 
     private final Service<PlacedChestContent, PlacedChestDTO> service;
@@ -63,7 +62,6 @@ public class ZStoragePlusManager implements StoragePlusManager {
     public ZStoragePlusManager() {
         this.smartChests = new HashMap<>();
         this.openedChests = new HashMap<>();
-        this.mapInventoryOpened = new HashMap<>();
         this.contents = new HashMap<>();
 
         this.service = new Service<>(this.getPlugin(), PlacedChestDTO.class, new PlacedChestRepository(), TABLE_NAME);
@@ -177,6 +175,11 @@ public class ZStoragePlusManager implements StoragePlusManager {
     }
 
     @Override
+    public List<Player> playerWhoOpenChest(PlacedChest chest) {
+        return Bukkit.getOnlinePlayers().stream().filter(e -> this.openedChests.get(e.getUniqueId()) != null && this.openedChests.get(e.getUniqueId()).getUniqueId().equals(chest.getUniqueId())).collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<ChestTemplate> getChestFromItem(ItemStack item) {
         if(item == null || !item.hasItemMeta()) {
             return Optional.empty();
@@ -235,14 +238,10 @@ public class ZStoragePlusManager implements StoragePlusManager {
                     chest.tick();
                     if (chest.getTime() % chest.getSellDelay() == 0) {
                         this.sell(chest);
-                        var inventory = this.mapInventoryOpened.remove(chest.getLocation());
-                        if(inventory != null) {
-                            for (HumanEntity viewer : new ArrayList<>(inventory.getViewers())) {
-                                this.openedChests.remove(viewer.getUniqueId());
-                                viewer.closeInventory();
-                                this.openChest((Player) viewer, chest, 0, true);
-                            }
-                        }
+                        this.playerWhoOpenChest(chest).forEach(viewer -> {
+                            viewer.closeInventory();
+                            this.openChest(viewer, chest, 0, true);
+                        });
                         if(this.getPlugin().isDebug()) {
                             ZLogger.info("Auto selling chest " + chest.getChestTemplate().getName() + " at " + chest.getLocation());
                         }
