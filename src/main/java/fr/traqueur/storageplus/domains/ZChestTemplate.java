@@ -4,8 +4,9 @@ import fr.maxlego08.menu.MenuItemStack;
 import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.config.DropMode;
+import fr.traqueur.storageplus.api.config.ShareMode;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
-import fr.traqueur.storageplus.api.hooks.Hook;
+import fr.traqueur.storageplus.api.hooks.ShopHook;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -28,14 +29,17 @@ public class ZChestTemplate implements ChestTemplate {
     /* Fields to manage auto sell */
     private final boolean autoSell;
     private final long sellDelay;
-    private final List<Hook> shops;
+    private final List<ShopHook> shops;
     private final double multiplier;
 
     /* Fields to manage vaccum system */
     private final boolean vacuum;
     private final List<Material> blacklistVacuum;
 
-    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<Hook> shops, double multiplier, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize, int maxPages) {
+    /* Field for share system */
+    private final ShareMode shareMode;
+
+    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<ShopHook> shops, double multiplier, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize, int maxPages, ShareMode shareMode) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
@@ -49,6 +53,7 @@ public class ZChestTemplate implements ChestTemplate {
         this.maxStackSize = maxStackSize;
         this.maxPages = maxPages;
         this.multiplier = multiplier;
+        this.shareMode = shareMode;
     }
 
     @Override
@@ -62,7 +67,7 @@ public class ZChestTemplate implements ChestTemplate {
     }
 
     @Override
-    public List<Hook> getShops() {
+    public List<ShopHook> getShops() {
         return this.shops;
     }
 
@@ -119,5 +124,10 @@ public class ZChestTemplate implements ChestTemplate {
     @Override
     public double getMultiplier() {
         return multiplier;
+    }
+
+    @Override
+    public ShareMode getShareMode() {
+        return this.shareMode;
     }
 }

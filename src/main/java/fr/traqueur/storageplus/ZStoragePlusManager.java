@@ -11,13 +11,14 @@ import fr.maxlego08.menu.loader.MenuItemStackLoader;
 import fr.maxlego08.menu.zcore.utils.loader.Loader;
 import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.config.DropMode;
+import fr.traqueur.storageplus.api.config.ShareMode;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
 import fr.traqueur.storageplus.api.domains.PlacedChestContent;
 import fr.traqueur.storageplus.api.domains.StorageItem;
 import fr.traqueur.storageplus.api.gui.ChestMenu;
 import fr.traqueur.storageplus.api.gui.buttons.ZChestContentButton;
-import fr.traqueur.storageplus.api.hooks.Hook;
+import fr.traqueur.storageplus.api.hooks.ShopHook;
 import fr.traqueur.storageplus.api.hooks.HooksManager;
 import fr.traqueur.storageplus.api.serializers.ChestLocationDataType;
 import fr.traqueur.storageplus.api.storage.Service;
@@ -254,7 +255,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
         groupedItems.forEach((item, amount) -> {
             boolean hasSell = false;
             var hookManager = this.getPlugin().getManager(HooksManager.class);
-            for (Hook hook : (chest.getChestTemplate().getShops().isEmpty() ? hookManager.getHooks() : chest.getChestTemplate().getShops())) {
+            for (ShopHook hook : (chest.getChestTemplate().getShops().isEmpty() ? hookManager.getHooks() : chest.getChestTemplate().getShops())) {
                 var opt = hookManager.getProvider(hook);
                 if(opt.isEmpty()) {
                     continue;
@@ -282,7 +283,15 @@ public class ZStoragePlusManager implements StoragePlusManager {
         String worldName = parts[0];
         World world = worldName.equals("null") ? null : Bukkit.getWorld(UUID.fromString(worldName));
         Location location = new Location(world, Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
-        return new ZPlacedChest(UUID.fromString(parts[10]), UUID.fromString(parts[6]),location, this.getSmartChest(parts[4]), Long.parseLong(parts[5]), Boolean.parseBoolean(parts[7]), Long.parseLong(parts[8]), Boolean.parseBoolean(parts[9]));
+        return new ZPlacedChest(UUID.fromString(parts[10]),
+                UUID.fromString(parts[6]),
+                location,
+                this.getSmartChest(parts[4]),
+                Long.parseLong(parts[5]),
+                Boolean.parseBoolean(parts[7]),
+                Long.parseLong(parts[8]),
+                Boolean.parseBoolean(parts[9]),
+                ShareMode.valueOf(parts[11]));
     }
 
     @Override
@@ -616,7 +625,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
             menuItemStack = loader.load(config, "settings.item.", file);
             boolean autoSell = config.getBoolean("settings.auto-sell.enabled", false);
             long interval = config.getLong("settings.auto-sell.interval", Configuration.get(MainConfiguration.class).getDefaultAutoSellDelay());
-            List<Hook> shops = new ArrayList<>();
+            List<ShopHook> shops = new ArrayList<>();
             if(config.contains("settings.auto-sell.shops")) {
                 shops = config.getStringList("settings.auto-sell.shops").stream().map(str -> Hooks.valueOf(str.toUpperCase())).collect(Collectors.toList());
             }
@@ -630,7 +639,8 @@ public class ZStoragePlusManager implements StoragePlusManager {
             boolean infinite = config.getBoolean("settings.infinite", false);
             int maxStackSize = config.getInt("settings.max-stack-size", -1);
             int maxPages = config.getInt("settings.max-pages", 1);
-            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, multiplier, vacuum, blacklistVacuum, dropMode, infinite, maxStackSize, maxPages));
+            ShareMode shareMode = ShareMode.valueOf(config.getString("settings.share-mode", "PRIVATE"));
+            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, multiplier, vacuum, blacklistVacuum, dropMode, infinite, maxStackSize, maxPages, shareMode));
             if(this.getPlugin().isDebug()) {
                 ZLogger.info("Registered chest " + name);
             }

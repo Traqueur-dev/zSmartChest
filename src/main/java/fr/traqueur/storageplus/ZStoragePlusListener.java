@@ -1,6 +1,8 @@
 package fr.traqueur.storageplus;
 
+import fr.groupez.api.messaging.Messages;
 import fr.traqueur.storageplus.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.config.ShareMode;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -46,6 +48,10 @@ public class ZStoragePlusListener implements Listener {
 
         this.manager.getChestFromBlock(event.getClickedBlock().getLocation()).ifPresent(chest -> {
             event.setCancelled(true);
+            if(chest.getShareMode() == ShareMode.PRIVATE && !chest.getOwner().equals(event.getPlayer().getUniqueId())) {
+                Messages.CANT_OPEN_CHEST.send(event.getPlayer());
+                return;
+            }
             this.manager.openChest(event.getPlayer(), chest, 1, true);
         });
     }

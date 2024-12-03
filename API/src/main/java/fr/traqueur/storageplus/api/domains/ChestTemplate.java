@@ -2,7 +2,8 @@ package fr.traqueur.storageplus.api.domains;
 
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.config.DropMode;
-import fr.traqueur.storageplus.api.hooks.Hook;
+import fr.traqueur.storageplus.api.config.ShareMode;
+import fr.traqueur.storageplus.api.hooks.ShopHook;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +16,7 @@ public interface ChestTemplate {
 
     boolean isAutoSell();
 
-    List<Hook> getShops();
+    List<ShopHook> getShops();
 
     boolean isVacuum();
 
@@ -36,4 +37,6 @@ public interface ChestTemplate {
     int getMaxStackSize();
 
     double getMultiplier();
+
+    ShareMode getShareMode();
 }

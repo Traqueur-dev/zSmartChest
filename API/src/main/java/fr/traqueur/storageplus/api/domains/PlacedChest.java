@@ -1,5 +1,6 @@
 package fr.traqueur.storageplus.api.domains;
 
+import fr.traqueur.storageplus.api.config.ShareMode;
 import org.bukkit.Location;
 
 import java.util.UUID;
@@ -31,4 +32,8 @@ public interface PlacedChest {
     Location getLocation();
 
     UUID getOwner();
+
+    ShareMode getShareMode();
+
+    void setShareMode(ShareMode shareMode);
 }

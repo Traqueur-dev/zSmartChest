@@ -1,13 +1,13 @@
 package fr.traqueur.storageplus.hooks;
 
-import fr.traqueur.storageplus.api.hooks.Hook;
+import fr.traqueur.storageplus.api.hooks.ShopHook;
 import fr.traqueur.storageplus.api.hooks.ShopProvider;
 import fr.traqueur.storageplus.hooks.providers.EconomyShopGUIProvider;
 import fr.traqueur.storageplus.hooks.providers.ShopGUIPlusProvider;
 import fr.traqueur.storageplus.hooks.providers.ZShopProvider;
 import org.bukkit.Bukkit;
 
-public enum Hooks implements Hook {
+public enum Hooks implements ShopHook {
 
     SHOPGUIPLUS("ShopGUIPlus", ShopGUIPlusProvider.class),
     ZSHOP("ZShop",ZShopProvider.class),

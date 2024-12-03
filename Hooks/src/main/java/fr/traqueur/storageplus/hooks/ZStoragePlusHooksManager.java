@@ -1,7 +1,7 @@
 package fr.traqueur.storageplus.hooks;
 
 import fr.groupez.api.ZLogger;
-import fr.traqueur.storageplus.api.hooks.Hook;
+import fr.traqueur.storageplus.api.hooks.ShopHook;
 import fr.traqueur.storageplus.api.hooks.HooksManager;
 import fr.traqueur.storageplus.api.hooks.ShopProvider;
 
@@ -10,7 +10,7 @@ import java.util.*;
 
 public class ZStoragePlusHooksManager implements HooksManager {
 
-    private final Map<Hook, ShopProvider> providers;
+    private final Map<ShopHook, ShopProvider> providers;
 
     public ZStoragePlusHooksManager() {
         this.providers = new HashMap<>();
@@ -34,12 +34,12 @@ public class ZStoragePlusHooksManager implements HooksManager {
     }
 
     @Override
-    public Optional<ShopProvider> getProvider(Hook hook) {
+    public Optional<ShopProvider> getProvider(ShopHook hook) {
         return Optional.ofNullable(this.providers.get(hook));
     }
 
     @Override
-    public List<Hook> getHooks() {
+    public List<ShopHook> getHooks() {
         return new ArrayList<>(this.providers.keySet());
     }
 

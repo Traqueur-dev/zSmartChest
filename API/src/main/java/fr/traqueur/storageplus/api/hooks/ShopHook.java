@@ -1,6 +1,6 @@
 package fr.traqueur.storageplus.api.hooks;
 
-public interface Hook {
+public interface ShopHook {
 
     boolean isEnable();
 

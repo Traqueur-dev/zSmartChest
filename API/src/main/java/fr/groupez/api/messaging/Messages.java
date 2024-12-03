@@ -38,7 +38,8 @@ public enum Messages {
     DESCRIPTION_PURGE("Delete all chests save in chunks around you."),
     PURGE("&aYou have just purged the chests in %amount% chunks"),
     GIVE_CHEST("&aYou have just received the chest &f%chest%&7."),
-    SELL_ALL("&aYou have just sold all the items in the chest."),;
+    SELL_ALL("&aYou have just sold all the items in the chest."),
+    CANT_OPEN_CHEST("&cYou can't open this chest."),;
 
     private final ZMessage message;
 

@@ -1,5 +1,6 @@
 package fr.traqueur.storageplus.domains;
 
+import fr.traqueur.storageplus.api.config.ShareMode;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
 import org.bukkit.Location;
@@ -16,16 +17,17 @@ public class ZPlacedChest implements PlacedChest {
     private boolean autoSell;
     private long sellDelay;
     private boolean vacuum;
+    private ShareMode shareMode;
 
     public ZPlacedChest(UUID owner, Location location, ChestTemplate chestTemplate) {
         this(UUID.randomUUID(), owner, location, chestTemplate);
     }
 
     public ZPlacedChest(UUID uniqueId, UUID owner, Location location, ChestTemplate chestTemplate) {
-        this(uniqueId, owner, location, chestTemplate, 0, chestTemplate.isAutoSell(), chestTemplate.getSellDelay(), chestTemplate.isVacuum());
+        this(uniqueId, owner, location, chestTemplate, 0, chestTemplate.isAutoSell(), chestTemplate.getSellDelay(), chestTemplate.isVacuum(), chestTemplate.getShareMode());
     }
 
-    public ZPlacedChest(UUID uniqueId, UUID owner, Location location, ChestTemplate chestTemplate, long time, boolean autoSell, long sellDelay, boolean vacuum) {
+    public ZPlacedChest(UUID uniqueId, UUID owner, Location location, ChestTemplate chestTemplate, long time, boolean autoSell, long sellDelay, boolean vacuum, ShareMode shareMode) {
         this.uniqueId = uniqueId;
         this.owner = owner;
         this.location = location;
@@ -34,6 +36,7 @@ public class ZPlacedChest implements PlacedChest {
         this.autoSell = autoSell;
         this.sellDelay = sellDelay;
         this.vacuum = vacuum;
+        this.shareMode = shareMode;
     }
 
     @Override
@@ -48,7 +51,8 @@ public class ZPlacedChest implements PlacedChest {
                 + this.autoSell + ";"
                 + this.sellDelay +";"
                 + this.vacuum + ";"
-                + this.uniqueId.toString();
+                + this.uniqueId.toString() + ";"
+                + this.shareMode.name();
     }
 
     @Override
@@ -112,5 +116,15 @@ public class ZPlacedChest implements PlacedChest {
     @Override
     public UUID getOwner() {
         return owner;
+    }
+
+    @Override
+    public ShareMode getShareMode() {
+        return this.shareMode;
+    }
+
+    @Override
+    public void setShareMode(ShareMode shareMode) {
+        this.shareMode = shareMode;
     }
 }

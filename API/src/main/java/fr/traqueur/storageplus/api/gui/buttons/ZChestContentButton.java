@@ -102,6 +102,7 @@ public class ZChestContentButton extends ZButton implements PaginateButton {
                 case NUMBER_KEY -> this.holder.handleNumberKey(event, player, slot, vault, chest, page, inventorySize);
             }
         }
+        this.plugin.getManager(StoragePlusManager.class).setContent(chest, vault.content());
     }
 
     @Override
