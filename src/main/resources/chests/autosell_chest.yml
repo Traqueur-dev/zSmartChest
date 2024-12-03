@@ -120,6 +120,16 @@ items:
       lore:
         - "#92bed8ᴄᴜʀʀᴇɴᴛʟʏ &7%access_mode%"
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴄʜᴀɴɢᴇ ᴀᴄᴄᴇss ᴍᴏᴅᴇ"
+  access_manager:
+    type: ZSTORAGEPLUS_ACCESS_MANAGER
+    isPermanent: true
+    slot: 52
+    item:
+      material: BOOK
+      name: "#92bed8ᴀᴄᴄᴇss ᴍᴀɴᴀɢᴇʀ"
+      lore:
+        - "#92bed8ʟᴇғᴛ ᴄʟɪᴄᴋ &7ᴛᴏ ᴀᴅᴅ ᴘʟᴀʏᴇʀ ɪɴ ᴛʜᴇ ᴄʜᴇsᴛ"
+        - "#92bed8ʀɪɢʜᴛ ᴄʟɪᴄᴋ &7ᴛᴏ ʀᴇᴍᴏᴠᴇ ᴘʟᴀʏᴇʀ ғʀᴏᴍ ᴛʜᴇ ᴄʜᴇsᴛ"
   next:
     type: ZSTORAGEPLUS_NEXT
     isPermanent: true

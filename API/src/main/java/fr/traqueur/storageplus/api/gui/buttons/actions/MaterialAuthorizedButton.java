@@ -1,4 +1,4 @@
-package fr.traqueur.storageplus.api.gui.buttons;
+package fr.traqueur.storageplus.api.gui.buttons.actions;
 
 import fr.groupez.api.messaging.Messages;
 import fr.maxlego08.menu.button.ZButton;
@@ -8,6 +8,7 @@ import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
 import fr.traqueur.storageplus.api.functions.ItemTransformationFunction;
+import fr.traqueur.storageplus.api.gui.buttons.ZChestContentButton;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 

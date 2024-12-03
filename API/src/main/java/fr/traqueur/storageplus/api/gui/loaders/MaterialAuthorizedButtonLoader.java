@@ -5,7 +5,7 @@ import fr.maxlego08.menu.api.button.DefaultButtonValue;
 import fr.maxlego08.menu.api.loader.ButtonLoader;
 import fr.traqueur.currencies.Currencies;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
-import fr.traqueur.storageplus.api.gui.buttons.MaterialAuthorizedButton;
+import fr.traqueur.storageplus.api.gui.buttons.actions.MaterialAuthorizedButton;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;

@@ -1,4 +1,4 @@
-config-version: '9'
+config-version: '10'
 
 debug: true
 
@@ -20,6 +20,12 @@ command-aliases:
   - "storage"
 
 command-permission: "zstorageplus.admin"
+
+access-managing-mode: TCHAT
+access-managing-cancel-words:
+  - "cancel"
+  - "exit"
+  - "stop"
 
 default-auto-sell-interval: 5
 

@@ -12,6 +12,13 @@ import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.access.AccessManager;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.gui.buttons.*;
+import fr.traqueur.storageplus.api.gui.buttons.access.ZAccessManagerButton;
+import fr.traqueur.storageplus.api.gui.buttons.access.ZAccessModeSwitchButton;
+import fr.traqueur.storageplus.api.gui.buttons.actions.ZCompressorButton;
+import fr.traqueur.storageplus.api.gui.buttons.actions.ZSellAllButton;
+import fr.traqueur.storageplus.api.gui.buttons.actions.ZSmelterButton;
+import fr.traqueur.storageplus.api.gui.buttons.pagination.ZNextButton;
+import fr.traqueur.storageplus.api.gui.buttons.pagination.ZPreviousButton;
 import fr.traqueur.storageplus.api.gui.loaders.MaterialAuthorizedButtonLoader;
 import fr.traqueur.storageplus.api.hooks.HooksManager;
 import fr.traqueur.storageplus.api.storage.Storage;
@@ -67,6 +74,7 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         buttonManager.register(new NoneLoader(this, ZPreviousButton.class, "ZSTORAGEPLUS_PREVIOUS"));
         buttonManager.register(new NoneLoader(this, ZAccessModeSwitchButton.class, "ZSTORAGEPLUS_ACCESS_MODE_SWITCH"));
         buttonManager.register(new NoneLoader(this, ZSellAllButton.class, "ZSTORAGEPLUS_SELL_ALL"));
+        buttonManager.register(new NoneLoader(this, ZAccessManagerButton.class, "ZSTORAGEPLUS_ACCESS_MANAGER"));
 
         MigrationManager.setMigrationTableName(this.getName().toLowerCase() + "_migrations");
         MigrationManager.registerMigration(new ChestContentCreateMigration(StoragePlusManager.TABLE_NAME));

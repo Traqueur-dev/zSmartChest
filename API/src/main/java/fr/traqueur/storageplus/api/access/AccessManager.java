@@ -24,5 +24,13 @@ public interface AccessManager extends Manager {
 
     Optional<AccessChest> getAccess(UUID chestId, UUID playerId);
 
+    boolean isPending(UUID playerId);
+
+    void addPending(UUID playerId, UUID chestId);
+
+    UUID getPending(UUID playerId);
+
+    void removePending(UUID playerId);
+
     void saveAll();
 }

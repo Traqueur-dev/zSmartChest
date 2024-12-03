@@ -9,6 +9,7 @@ import fr.maxlego08.menu.zcore.utils.loader.Loader;
 import fr.maxlego08.sarah.DatabaseConfiguration;
 import fr.maxlego08.sarah.database.DatabaseType;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.config.AccessManagingMode;
 import fr.traqueur.storageplus.api.config.PlaceholdersConfig;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,7 +25,7 @@ public class ZMainConfiguration implements MainConfiguration {
     private boolean load;
 
     @NonLoadable
-    private Map<String, MenuItemStack> storageIcons;
+    private final Map<String, MenuItemStack> storageIcons;
 
     @NonLoadable
     private DatabaseConfiguration configuration;
@@ -37,6 +38,8 @@ public class ZMainConfiguration implements MainConfiguration {
 
     private List<String> commandAliases;
     private String commandPermission;
+    private AccessManagingMode accessManagingMode;
+    private List<String> accessManagingCancelWords;
 
     public ZMainConfiguration() {
         this.storageIcons = new HashMap<>();
@@ -110,6 +113,16 @@ public class ZMainConfiguration implements MainConfiguration {
     @Override
     public String getCommandPermission() {
         return commandPermission;
+    }
+
+    @Override
+    public AccessManagingMode getAccessManagingMode() {
+        return accessManagingMode;
+    }
+
+    @Override
+    public List<String> getAccessManagingCancelWords() {
+        return accessManagingCancelWords;
     }
 
     @Override

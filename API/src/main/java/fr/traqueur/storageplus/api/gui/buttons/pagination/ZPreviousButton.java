@@ -1,4 +1,4 @@
-package fr.traqueur.storageplus.api.gui.buttons;
+package fr.traqueur.storageplus.api.gui.buttons.pagination;
 
 import fr.maxlego08.menu.api.button.buttons.NextButton;
 import fr.maxlego08.menu.api.utils.Placeholders;
@@ -11,14 +11,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class ZNextButton extends ZButton implements NextButton {
+public class ZPreviousButton extends ZButton implements NextButton {
 
     @Override
     public void onClick(Player player, InventoryClickEvent event, InventoryDefault inventory, int slot, Placeholders placeholders) {
-        if (inventory.getPage() != inventory.getMaxPage()) {
+        if (inventory.getPage() != 1) {
             var manager = JavaPlugin.getPlugin(StoragePlusPlugin.class).getManager(StoragePlusManager.class);
             PlacedChest chest = manager.getOpenedChest(player);
-            manager.openChest(player, chest, event.isLeftClick() ? inventory.getPage() + 1 : inventory.getMaxPage(), false);
+            manager.openChest(player, chest, event.isLeftClick() ? inventory.getPage() - 1 : 1, false);
         }
     }
 
@@ -29,7 +29,7 @@ public class ZNextButton extends ZButton implements NextButton {
 
     @Override
     public boolean checkPermission(Player player, InventoryDefault inventory, Placeholders placeholders) {
-        return inventory.getPage() < inventory.getMaxPage();
+        return inventory.getPage() != 1;
     }
 
 }

@@ -12,16 +12,19 @@ import java.util.*;
 
 public class ZAccessManager implements AccessManager {
 
+    private final Map<UUID, UUID> pendingPlayers;
     private final Map<UUID, List<AccessChest>> accesses;
     private final Service<AccessChest, AccessChestDTO> service;
 
     public ZAccessManager() {
         this.accesses = new HashMap<>();
+        this.pendingPlayers = new HashMap<>();
         this.service = new Service<>(this.getPlugin(), AccessChestDTO.class, new AccessChestRepository(), TABLE_NAME);
 
         for (AccessChest accessChest : this.service.findAll()) {
             this.accesses.computeIfAbsent(accessChest.getChestId(), k -> new ArrayList<>()).add(accessChest);
         }
+        Bukkit.getPluginManager().registerEvents(new ZAccessListener(this), this.getPlugin());
     }
 
     @Override
@@ -60,6 +63,26 @@ public class ZAccessManager implements AccessManager {
     @Override
     public Optional<AccessChest> getAccess(UUID chestId, UUID playerId) {
         return this.accesses.getOrDefault(chestId, new ArrayList<>()).stream().filter(accessChest -> accessChest.getPlayerId().equals(playerId)).findFirst();
+    }
+
+    @Override
+    public boolean isPending(UUID playerId) {
+        return this.pendingPlayers.containsKey(playerId);
+    }
+
+    @Override
+    public void addPending(UUID playerId, UUID chestId) {
+        this.pendingPlayers.put(playerId, chestId);
+    }
+
+    @Override
+    public UUID getPending(UUID playerId) {
+        return this.pendingPlayers.get(playerId);
+    }
+
+    @Override
+    public void removePending(UUID playerId) {
+        this.pendingPlayers.remove(playerId);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package fr.traqueur.storageplus.api.gui.buttons;
+package fr.traqueur.storageplus.api.gui.buttons.actions;
 
 import fr.maxlego08.menu.api.utils.Placeholders;
 import fr.maxlego08.menu.inventory.inventories.InventoryDefault;

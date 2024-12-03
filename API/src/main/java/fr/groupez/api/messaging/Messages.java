@@ -39,7 +39,12 @@ public enum Messages {
     PURGE("&aYou have just purged the chests in %amount% chunks"),
     GIVE_CHEST("&aYou have just received the chest &f%chest%&7."),
     SELL_ALL("&aYou have just sold all the items in the chest."),
-    CANT_OPEN_CHEST("&cYou can't open this chest."),;
+    CANT_OPEN_CHEST("&cYou can't open this chest."),
+    PLAYER_NOT_FOUND("&cThe player you are looking for is not connected."),
+    ACCESS_GRANTED("&aYou have just granted access to the player %target%."),
+    ACCESS_CANCELLED("&cYou have just canceled the access request."),
+    START_ACCESS_REQUEST("&aYou have just started an access request. Enter player name in tchat.",
+            "Write %cancel_word% to stop request"),;
 
     private final ZMessage message;
 
