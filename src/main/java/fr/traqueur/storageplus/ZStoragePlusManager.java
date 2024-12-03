@@ -134,6 +134,11 @@ public class ZStoragePlusManager implements StoragePlusManager {
     @Override
     public void breakChest(BlockBreakEvent event, Location location) {
         this.getChestFromBlock(location).ifPresent(chest -> {
+            if (!this.getPlugin().getManager(AccessManager.class).hasAccess(chest, event.getPlayer().getUniqueId())) {
+                event.setCancelled(true);
+                return;
+            }
+
             event.setDropItems(false);
 
             List<PlacedChest> chests = this.getChestsInChunk(location.getChunk());

@@ -51,11 +51,7 @@ public class ZStoragePlusListener implements Listener {
 
         this.manager.getChestFromBlock(event.getClickedBlock().getLocation()).ifPresent(chest -> {
             event.setCancelled(true);
-            if(chest.getShareMode() == AccessMode.PRIVATE && !chest.getOwner().equals(event.getPlayer().getUniqueId())) {
-                Messages.CANT_OPEN_CHEST.send(event.getPlayer());
-                return;
-            }
-            if(chest.getShareMode() == AccessMode.PROTECTED && !this.accessManager.hasAccess(chest, event.getPlayer().getUniqueId())) {
+            if(!this.accessManager.hasAccess(chest, event.getPlayer().getUniqueId())) {
                 Messages.CANT_OPEN_CHEST.send(event.getPlayer());
                 return;
             }
