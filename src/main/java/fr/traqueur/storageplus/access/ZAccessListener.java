@@ -38,11 +38,11 @@ public class ZAccessListener implements Listener {
         }
 
         Player target = Bukkit.getPlayer(message);
-        if(target == null) {
+        if(target == null || target.getUniqueId().equals(player.getUniqueId())) {
             Messages.PLAYER_NOT_FOUND.send(player);
             return;
         }
-        this.accessManager.addAccess(new ZAccessChest(UUID.randomUUID(), this.accessManager.getPending(player.getUniqueId()), target.getUniqueId()));
+        this.accessManager.addAccess(new ZAccessChest(UUID.randomUUID(), this.accessManager.getPending(player.getUniqueId()).getUniqueId(), target.getUniqueId()));
         this.accessManager.removePending(player.getUniqueId());
         Messages.ACCESS_GRANTED.send(player, Formatter.format("%target%",target.getName()));
     }

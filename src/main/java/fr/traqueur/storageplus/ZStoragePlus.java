@@ -1,10 +1,12 @@
 package fr.traqueur.storageplus;
 
 import fr.groupez.api.MainConfiguration;
+import fr.groupez.api.ZLogger;
 import fr.groupez.api.configurations.Configuration;
 import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
 import fr.maxlego08.menu.button.loader.NoneLoader;
+import fr.maxlego08.menu.exceptions.InventoryException;
 import fr.maxlego08.sarah.MigrationManager;
 import fr.traqueur.storageplus.access.ZAccessManager;
 import fr.traqueur.storageplus.api.StoragePlusManager;
@@ -14,6 +16,7 @@ import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.gui.buttons.*;
 import fr.traqueur.storageplus.api.gui.buttons.access.ZAccessManagerButton;
 import fr.traqueur.storageplus.api.gui.buttons.access.ZAccessModeSwitchButton;
+import fr.traqueur.storageplus.api.gui.buttons.access.ZAccessUserButton;
 import fr.traqueur.storageplus.api.gui.buttons.actions.ZCompressorButton;
 import fr.traqueur.storageplus.api.gui.buttons.actions.ZSellAllButton;
 import fr.traqueur.storageplus.api.gui.buttons.actions.ZSmelterButton;
@@ -35,10 +38,11 @@ public final class ZStoragePlus extends StoragePlusPlugin {
 
     private Storage storage;
     private InventoryManager inventoryManager;
+    private ButtonManager buttonManager;
 
     @Override
     public void enable() {
-        ButtonManager buttonManager = this.getProvider(ButtonManager.class);
+        this.buttonManager = this.getProvider(ButtonManager.class);
         this.inventoryManager = this.getProvider(InventoryManager.class);
 
         if(buttonManager == null || this.inventoryManager == null) {
@@ -64,23 +68,17 @@ public final class ZStoragePlus extends StoragePlusPlugin {
 
         this.storage = new SQLStorage(this, configuration.getDatabaseConfiguration());
 
-        buttonManager.unregisters(this);
-        buttonManager.register(new NoneLoader(this, ZChestContentButton.class, "ZSTORAGEPLUS_CONTENT"));
-        buttonManager.register(new NoneLoader(this, ZToggleAutoSellButton.class, "ZSTORAGEPLUS_TOGGLE_AUTOSELL"));
-        buttonManager.register(new NoneLoader(this, ZToggleVacuumButton.class, "ZSTORAGEPLUS_TOGGLE_VACUUM"));
-        buttonManager.register(new MaterialAuthorizedButtonLoader(this, ZCompressorButton.class, "ZSTORAGEPLUS_COMPRESSOR"));
-        buttonManager.register(new MaterialAuthorizedButtonLoader(this, ZSmelterButton.class, "ZSTORAGEPLUS_SMELTER"));
-        buttonManager.register(new NoneLoader(this, ZNextButton.class, "ZSTORAGEPLUS_NEXT"));
-        buttonManager.register(new NoneLoader(this, ZPreviousButton.class, "ZSTORAGEPLUS_PREVIOUS"));
-        buttonManager.register(new NoneLoader(this, ZAccessModeSwitchButton.class, "ZSTORAGEPLUS_ACCESS_MODE_SWITCH"));
-        buttonManager.register(new NoneLoader(this, ZSellAllButton.class, "ZSTORAGEPLUS_SELL_ALL"));
-        buttonManager.register(new NoneLoader(this, ZAccessManagerButton.class, "ZSTORAGEPLUS_ACCESS_MANAGER"));
-
         MigrationManager.setMigrationTableName(this.getName().toLowerCase() + "_migrations");
         MigrationManager.registerMigration(new ChestContentCreateMigration(StoragePlusManager.TABLE_NAME));
         MigrationManager.registerMigration(new AccessChestMigration(AccessManager.TABLE_NAME));
 
         this.storage.onEnable();
+
+        try {
+            this.loadMenuComponents();
+        } catch (InventoryException e) {
+            ZLogger.severe("An error occurred while loading the menu components.", e);
+        }
 
         this.registerManager(AccessManager.class, new ZAccessManager());
         var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
@@ -105,6 +103,25 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         var command = new StoragePlusCommand(this);
         this.commandManager.unregisterCommand(command);
         this.commandManager.registerCommand(command);
+    }
+
+    @Override
+    public void loadMenuComponents() throws InventoryException {
+        buttonManager.unregisters(this);
+        buttonManager.register(new NoneLoader(this, ZChestContentButton.class, "ZSTORAGEPLUS_CONTENT"));
+        buttonManager.register(new NoneLoader(this, ZToggleAutoSellButton.class, "ZSTORAGEPLUS_TOGGLE_AUTOSELL"));
+        buttonManager.register(new NoneLoader(this, ZToggleVacuumButton.class, "ZSTORAGEPLUS_TOGGLE_VACUUM"));
+        buttonManager.register(new MaterialAuthorizedButtonLoader(this, ZCompressorButton.class, "ZSTORAGEPLUS_COMPRESSOR"));
+        buttonManager.register(new MaterialAuthorizedButtonLoader(this, ZSmelterButton.class, "ZSTORAGEPLUS_SMELTER"));
+        buttonManager.register(new NoneLoader(this, ZNextButton.class, "ZSTORAGEPLUS_NEXT"));
+        buttonManager.register(new NoneLoader(this, ZPreviousButton.class, "ZSTORAGEPLUS_PREVIOUS"));
+        buttonManager.register(new NoneLoader(this, ZAccessModeSwitchButton.class, "ZSTORAGEPLUS_ACCESS_MODE_SWITCH"));
+        buttonManager.register(new NoneLoader(this, ZSellAllButton.class, "ZSTORAGEPLUS_SELL_ALL"));
+        buttonManager.register(new NoneLoader(this, ZAccessManagerButton.class, "ZSTORAGEPLUS_ACCESS_MANAGER"));
+        buttonManager.register(new NoneLoader(this, ZAccessUserButton.class, "ZSTORAGEPLUS_USERS_ACCESS"));
+
+        inventoryManager.deleteInventories(this);
+        inventoryManager.loadInventoryOrSaveResource(this, "inventories/chest_access_manager.yml");
     }
 
     @Override

@@ -13,7 +13,7 @@ import java.util.*;
 
 public class ZAccessManager implements AccessManager {
 
-    private final Map<UUID, UUID> pendingPlayers;
+    private final Map<UUID, PlacedChest> pendingPlayers;
     private final Map<UUID, List<AccessChest>> accesses;
     private final Service<AccessChest, AccessChestDTO> service;
 
@@ -76,12 +76,12 @@ public class ZAccessManager implements AccessManager {
     }
 
     @Override
-    public void addPending(UUID playerId, UUID chestId) {
+    public void addPending(UUID playerId, PlacedChest chestId) {
         this.pendingPlayers.put(playerId, chestId);
     }
 
     @Override
-    public UUID getPending(UUID playerId) {
+    public PlacedChest getPending(UUID playerId) {
         return this.pendingPlayers.get(playerId);
     }
 
