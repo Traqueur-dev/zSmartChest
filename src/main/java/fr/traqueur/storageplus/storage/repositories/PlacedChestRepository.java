@@ -1,4 +1,4 @@
-package fr.traqueur.storageplus.storage;
+package fr.traqueur.storageplus.storage.repositories;
 
 import fr.traqueur.storageplus.api.domains.PlacedChestContent;
 import fr.traqueur.storageplus.api.domains.StorageItem;

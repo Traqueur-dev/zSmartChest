@@ -10,8 +10,9 @@ import fr.maxlego08.menu.exceptions.InventoryException;
 import fr.maxlego08.menu.loader.MenuItemStackLoader;
 import fr.maxlego08.menu.zcore.utils.loader.Loader;
 import fr.traqueur.storageplus.api.StoragePlusManager;
+import fr.traqueur.storageplus.api.access.AccessManager;
 import fr.traqueur.storageplus.api.config.DropMode;
-import fr.traqueur.storageplus.api.config.ShareMode;
+import fr.traqueur.storageplus.api.config.AccessMode;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
 import fr.traqueur.storageplus.api.domains.PlacedChestContent;
@@ -27,7 +28,7 @@ import fr.traqueur.storageplus.domains.ZChestTemplate;
 import fr.traqueur.storageplus.domains.ZPlacedChest;
 import fr.traqueur.storageplus.domains.ZPlacedChestContent;
 import fr.traqueur.storageplus.hooks.Hooks;
-import fr.traqueur.storageplus.storage.PlacedChestRepository;
+import fr.traqueur.storageplus.storage.repositories.PlacedChestRepository;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.HumanEntity;
@@ -73,9 +74,9 @@ public class ZStoragePlusManager implements StoragePlusManager {
             this.contents.put(e.uuid(), e);
         });
 
-        this.getPlugin().getServer().getPluginManager().registerEvents(new ZStoragePlusListener(this), this.getPlugin());
+        this.getPlugin().getServer().getPluginManager().registerEvents(new ZStoragePlusListener(this, this.getPlugin().getManager(AccessManager.class)), this.getPlugin());
         this.getPlugin().getScheduler().runTimer(new ZStoragePlusAutoSellTask(this), 0, 20);
-        this.getPlugin().getScheduler().runTimer(this::saveAll, 0, 20*60*60);
+        this.getPlugin().getScheduler().runTimer(this::saveAll, 20*60*60, 20*60*60);
     }
 
     @Override
@@ -291,7 +292,7 @@ public class ZStoragePlusManager implements StoragePlusManager {
                 Boolean.parseBoolean(parts[7]),
                 Long.parseLong(parts[8]),
                 Boolean.parseBoolean(parts[9]),
-                ShareMode.valueOf(parts[11]));
+                AccessMode.valueOf(parts[11]));
     }
 
     @Override
@@ -639,8 +640,8 @@ public class ZStoragePlusManager implements StoragePlusManager {
             boolean infinite = config.getBoolean("settings.infinite", false);
             int maxStackSize = config.getInt("settings.max-stack-size", -1);
             int maxPages = config.getInt("settings.max-pages", 1);
-            ShareMode shareMode = ShareMode.valueOf(config.getString("settings.share-mode", "PRIVATE"));
-            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, multiplier, vacuum, blacklistVacuum, dropMode, infinite, maxStackSize, maxPages, shareMode));
+            AccessMode accessMode = AccessMode.valueOf(config.getString("settings.share-mode", "PRIVATE"));
+            this.smartChests.put(name, new ZChestTemplate(getPlugin(), name, menuItemStack, autoSell, interval, shops, multiplier, vacuum, blacklistVacuum, dropMode, infinite, maxStackSize, maxPages, accessMode));
             if(this.getPlugin().isDebug()) {
                 ZLogger.info("Registered chest " + name);
             }

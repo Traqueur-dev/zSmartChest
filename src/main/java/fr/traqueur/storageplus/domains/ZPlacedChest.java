@@ -1,6 +1,6 @@
 package fr.traqueur.storageplus.domains;
 
-import fr.traqueur.storageplus.api.config.ShareMode;
+import fr.traqueur.storageplus.api.config.AccessMode;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.domains.PlacedChest;
 import org.bukkit.Location;
@@ -17,7 +17,7 @@ public class ZPlacedChest implements PlacedChest {
     private boolean autoSell;
     private long sellDelay;
     private boolean vacuum;
-    private ShareMode shareMode;
+    private AccessMode accessMode;
 
     public ZPlacedChest(UUID owner, Location location, ChestTemplate chestTemplate) {
         this(UUID.randomUUID(), owner, location, chestTemplate);
@@ -27,7 +27,7 @@ public class ZPlacedChest implements PlacedChest {
         this(uniqueId, owner, location, chestTemplate, 0, chestTemplate.isAutoSell(), chestTemplate.getSellDelay(), chestTemplate.isVacuum(), chestTemplate.getShareMode());
     }
 
-    public ZPlacedChest(UUID uniqueId, UUID owner, Location location, ChestTemplate chestTemplate, long time, boolean autoSell, long sellDelay, boolean vacuum, ShareMode shareMode) {
+    public ZPlacedChest(UUID uniqueId, UUID owner, Location location, ChestTemplate chestTemplate, long time, boolean autoSell, long sellDelay, boolean vacuum, AccessMode accessMode) {
         this.uniqueId = uniqueId;
         this.owner = owner;
         this.location = location;
@@ -36,7 +36,7 @@ public class ZPlacedChest implements PlacedChest {
         this.autoSell = autoSell;
         this.sellDelay = sellDelay;
         this.vacuum = vacuum;
-        this.shareMode = shareMode;
+        this.accessMode = accessMode;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class ZPlacedChest implements PlacedChest {
                 + this.sellDelay +";"
                 + this.vacuum + ";"
                 + this.uniqueId.toString() + ";"
-                + this.shareMode.name();
+                + this.accessMode.name();
     }
 
     @Override
@@ -119,12 +119,12 @@ public class ZPlacedChest implements PlacedChest {
     }
 
     @Override
-    public ShareMode getShareMode() {
-        return this.shareMode;
+    public AccessMode getShareMode() {
+        return this.accessMode;
     }
 
     @Override
-    public void setShareMode(ShareMode shareMode) {
-        this.shareMode = shareMode;
+    public void setShareMode(AccessMode accessMode) {
+        this.accessMode = accessMode;
     }
 }

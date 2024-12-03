@@ -2,7 +2,8 @@ package fr.traqueur.storageplus;
 
 import fr.groupez.api.messaging.Messages;
 import fr.traqueur.storageplus.api.StoragePlusManager;
-import fr.traqueur.storageplus.api.config.ShareMode;
+import fr.traqueur.storageplus.api.access.AccessManager;
+import fr.traqueur.storageplus.api.config.AccessMode;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,9 +19,11 @@ import org.bukkit.inventory.ItemStack;
 public class ZStoragePlusListener implements Listener {
 
     private final StoragePlusManager manager;
+    private final AccessManager accessManager;
 
-    public ZStoragePlusListener(StoragePlusManager manager) {
+    public ZStoragePlusListener(StoragePlusManager manager, AccessManager accessManager) {
         this.manager = manager;
+        this.accessManager = accessManager;
     }
 
     @EventHandler
@@ -48,7 +51,11 @@ public class ZStoragePlusListener implements Listener {
 
         this.manager.getChestFromBlock(event.getClickedBlock().getLocation()).ifPresent(chest -> {
             event.setCancelled(true);
-            if(chest.getShareMode() == ShareMode.PRIVATE && !chest.getOwner().equals(event.getPlayer().getUniqueId())) {
+            if(chest.getShareMode() == AccessMode.PRIVATE && !chest.getOwner().equals(event.getPlayer().getUniqueId())) {
+                Messages.CANT_OPEN_CHEST.send(event.getPlayer());
+                return;
+            }
+            if(chest.getShareMode() == AccessMode.PROTECTED && !this.accessManager.hasAccess(chest.getUniqueId(), event.getPlayer().getUniqueId())) {
                 Messages.CANT_OPEN_CHEST.send(event.getPlayer());
                 return;
             }

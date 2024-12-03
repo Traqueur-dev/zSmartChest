@@ -6,8 +6,10 @@ import fr.maxlego08.menu.api.ButtonManager;
 import fr.maxlego08.menu.api.InventoryManager;
 import fr.maxlego08.menu.button.loader.NoneLoader;
 import fr.maxlego08.sarah.MigrationManager;
+import fr.traqueur.storageplus.access.ZAccessManager;
 import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
+import fr.traqueur.storageplus.api.access.AccessManager;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.gui.buttons.*;
 import fr.traqueur.storageplus.api.gui.loaders.MaterialAuthorizedButtonLoader;
@@ -16,7 +18,8 @@ import fr.traqueur.storageplus.api.storage.Storage;
 import fr.traqueur.storageplus.commands.StoragePlusCommand;
 import fr.traqueur.storageplus.commands.converters.SmartChestConverter;
 import fr.traqueur.storageplus.hooks.ZStoragePlusHooksManager;
-import fr.traqueur.storageplus.storage.ChestContentCreateMigration;
+import fr.traqueur.storageplus.storage.migrations.AccessChestMigration;
+import fr.traqueur.storageplus.storage.migrations.ChestContentCreateMigration;
 import fr.traqueur.storageplus.storage.SQLStorage;
 
 import java.io.File;
@@ -62,10 +65,14 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         buttonManager.register(new MaterialAuthorizedButtonLoader(this, ZSmelterButton.class, "ZSTORAGEPLUS_SMELTER"));
         buttonManager.register(new NoneLoader(this, ZNextButton.class, "ZSTORAGEPLUS_NEXT"));
         buttonManager.register(new NoneLoader(this, ZPreviousButton.class, "ZSTORAGEPLUS_PREVIOUS"));
+
+        MigrationManager.setMigrationTableName(this.getName().toLowerCase() + "_migrations");
         MigrationManager.registerMigration(new ChestContentCreateMigration(StoragePlusManager.TABLE_NAME));
+        MigrationManager.registerMigration(new AccessChestMigration(AccessManager.TABLE_NAME));
 
         this.storage.onEnable();
 
+        this.registerManager(AccessManager.class, new ZAccessManager());
         var manager = this.registerManager(StoragePlusManager.class, new ZStoragePlusManager());
         var hookManager = this.registerManager(HooksManager.class, new ZStoragePlusHooksManager());
         this.getScheduler().runAsync((t) -> hookManager.registerHooks());
@@ -78,6 +85,7 @@ public final class ZStoragePlus extends StoragePlusPlugin {
     @Override
     public void disable() {
         if(this.storage != null) {
+            this.getManager(AccessManager.class).saveAll();
             this.getManager(StoragePlusManager.class).saveAll();
             this.storage.onDisable();
         }

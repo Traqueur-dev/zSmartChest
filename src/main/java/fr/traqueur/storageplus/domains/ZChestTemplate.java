@@ -4,7 +4,7 @@ import fr.maxlego08.menu.MenuItemStack;
 import fr.traqueur.storageplus.api.StoragePlusManager;
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.config.DropMode;
-import fr.traqueur.storageplus.api.config.ShareMode;
+import fr.traqueur.storageplus.api.config.AccessMode;
 import fr.traqueur.storageplus.api.domains.ChestTemplate;
 import fr.traqueur.storageplus.api.hooks.ShopHook;
 import org.bukkit.Material;
@@ -37,9 +37,9 @@ public class ZChestTemplate implements ChestTemplate {
     private final List<Material> blacklistVacuum;
 
     /* Field for share system */
-    private final ShareMode shareMode;
+    private final AccessMode accessMode;
 
-    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<ShopHook> shops, double multiplier, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize, int maxPages, ShareMode shareMode) {
+    public ZChestTemplate(StoragePlusPlugin plugin, String name, MenuItemStack item, boolean autoSell, long sellDelay, List<ShopHook> shops, double multiplier, boolean vacuum, List<Material> blacklistVacuum, DropMode dropMode, boolean infinite, int maxStackSize, int maxPages, AccessMode accessMode) {
         this.name = name;
         this.item = item;
         this.autoSell = autoSell;
@@ -53,7 +53,7 @@ public class ZChestTemplate implements ChestTemplate {
         this.maxStackSize = maxStackSize;
         this.maxPages = maxPages;
         this.multiplier = multiplier;
-        this.shareMode = shareMode;
+        this.accessMode = accessMode;
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ZChestTemplate implements ChestTemplate {
     }
 
     @Override
-    public ShareMode getShareMode() {
-        return this.shareMode;
+    public AccessMode getShareMode() {
+        return this.accessMode;
     }
 }

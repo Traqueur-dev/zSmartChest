@@ -2,7 +2,7 @@ package fr.traqueur.storageplus.api.domains;
 
 import fr.traqueur.storageplus.api.StoragePlusPlugin;
 import fr.traqueur.storageplus.api.config.DropMode;
-import fr.traqueur.storageplus.api.config.ShareMode;
+import fr.traqueur.storageplus.api.config.AccessMode;
 import fr.traqueur.storageplus.api.hooks.ShopHook;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -38,5 +38,5 @@ public interface ChestTemplate {
 
     double getMultiplier();
 
-    ShareMode getShareMode();
+    AccessMode getShareMode();
 }

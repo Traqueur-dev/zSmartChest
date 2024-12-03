@@ -1,6 +1,6 @@
 package fr.traqueur.storageplus.api.config;
 
-public enum ShareMode {
+public enum AccessMode {
 
     PRIVATE,
     PROTECTED,
