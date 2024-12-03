@@ -1,4 +1,4 @@
-config-version: '8'
+config-version: '9'
 
 debug: true
 
@@ -26,6 +26,8 @@ default-auto-sell-interval: 5
 placeholders:
   state-on: "&aᴏɴ"
   state-off: "&cᴏғғ"
+  private-access-mode: "&aᴘʀɪᴠᴀᴛᴇ"
+  protected-access-mode: "&eᴘʀᴏᴛᴇᴄᴛᴇᴅ"
 
 # These lines represent all pagination items used in the menus
 # They work like zMenu, you can read the zMenu documentation for more information

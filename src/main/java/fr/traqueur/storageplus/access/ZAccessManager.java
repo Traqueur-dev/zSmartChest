@@ -2,6 +2,7 @@ package fr.traqueur.storageplus.access;
 
 import fr.traqueur.storageplus.api.access.AccessManager;
 import fr.traqueur.storageplus.api.domains.AccessChest;
+import fr.traqueur.storageplus.api.domains.PlacedChest;
 import fr.traqueur.storageplus.api.storage.Service;
 import fr.traqueur.storageplus.api.storage.dto.AccessChestDTO;
 import fr.traqueur.storageplus.storage.repositories.AccessChestRepository;
@@ -44,8 +45,8 @@ public class ZAccessManager implements AccessManager {
     }
 
     @Override
-    public boolean hasAccess(UUID chestId, UUID playerId) {
-        return this.getAccess(chestId, playerId).isPresent();
+    public boolean hasAccess(PlacedChest chestId, UUID playerId) {
+        return chestId.getOwner().equals(playerId) || this.getAccess(chestId.getUniqueId(), playerId).isPresent();
     }
 
     @Override

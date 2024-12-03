@@ -100,6 +100,26 @@ items:
       name: "#92bed8sᴍᴇʟᴛ"
       lore:
         - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ sᴍᴇʟᴛ ᴀʟʟ ɪᴛᴇᴍs"
+  sellall:
+    type: ZSTORAGEPLUS_SELL_ALL
+    isPermanent: true
+    slot: 50
+    item:
+      material: DIAMOND
+      name: "#92bed8sᴇʟʟ ᴀʟʟ"
+      lore:
+        - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ sᴇʟʟ ᴀʟʟ ɪᴛᴇᴍs"
+  access_mode:
+    type: ZSTORAGEPLUS_ACCESS_MODE_SWITCH
+    isPermanent: true
+    refreshOnClick: true
+    slot: 51
+    item:
+      material: BARREL
+      name: "#92bed8ᴀᴄᴄᴇss ᴍᴏᴅᴇ"
+      lore:
+        - "#92bed8ᴄᴜʀʀᴇɴᴛʟʏ &7%access_mode%"
+        - "#92bed8ᴄʟɪᴄᴋ &7ᴛᴏ ᴄʜᴀɴɢᴇ ᴀᴄᴄᴇss ᴍᴏᴅᴇ"
   next:
     type: ZSTORAGEPLUS_NEXT
     isPermanent: true

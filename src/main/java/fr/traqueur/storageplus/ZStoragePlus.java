@@ -65,6 +65,8 @@ public final class ZStoragePlus extends StoragePlusPlugin {
         buttonManager.register(new MaterialAuthorizedButtonLoader(this, ZSmelterButton.class, "ZSTORAGEPLUS_SMELTER"));
         buttonManager.register(new NoneLoader(this, ZNextButton.class, "ZSTORAGEPLUS_NEXT"));
         buttonManager.register(new NoneLoader(this, ZPreviousButton.class, "ZSTORAGEPLUS_PREVIOUS"));
+        buttonManager.register(new NoneLoader(this, ZAccessModeSwitchButton.class, "ZSTORAGEPLUS_ACCESS_MODE_SWITCH"));
+        buttonManager.register(new NoneLoader(this, ZSellAllButton.class, "ZSTORAGEPLUS_SELL_ALL"));
 
         MigrationManager.setMigrationTableName(this.getName().toLowerCase() + "_migrations");
         MigrationManager.registerMigration(new ChestContentCreateMigration(StoragePlusManager.TABLE_NAME));

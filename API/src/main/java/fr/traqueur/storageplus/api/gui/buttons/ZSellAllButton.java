@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 
 public class ZSellAllButton extends ZButton {
 
-    private StoragePlusPlugin plugin;
+    private final StoragePlusPlugin plugin;
 
      public ZSellAllButton(Plugin plugin) {
          this.plugin = (StoragePlusPlugin) plugin;
@@ -23,6 +23,10 @@ public class ZSellAllButton extends ZButton {
         super.onClick(player, event, inventory, slot, placeholders);
         var manager = this.plugin.getManager(StoragePlusManager.class);
         manager.sell(manager.getOpenedChest(player));
+        inventory.getButtons().stream().filter(button -> button instanceof ZChestContentButton).forEach(button -> {
+            button.onRender(player, inventory);
+        });
         Messages.SELL_ALL.send(player);
     }
+
 }

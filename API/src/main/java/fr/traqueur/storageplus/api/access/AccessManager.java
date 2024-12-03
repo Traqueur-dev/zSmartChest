@@ -2,6 +2,7 @@ package fr.traqueur.storageplus.api.access;
 
 import fr.traqueur.storageplus.api.Manager;
 import fr.traqueur.storageplus.api.domains.AccessChest;
+import fr.traqueur.storageplus.api.domains.PlacedChest;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,7 @@ public interface AccessManager extends Manager {
 
     List<AccessChest> getAccesses(UUID chestId);
 
-    boolean hasAccess(UUID chestId, UUID playerId);
+    boolean hasAccess(PlacedChest chestId, UUID playerId);
 
     void clearAccesses(UUID chestId);
 
